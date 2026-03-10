@@ -11,6 +11,8 @@ This repository is for developing analyses of Barcelona's UCL games, focusing on
 
 ## Analyses
 
+1. Pass counter
+
 ## Layout for the data directory
 
 For reproducibility, here's the layout of my `data/` directory (output of `tree data/`):
