@@ -14,6 +14,12 @@ This repository is for developing analyses of Barcelona's UCL games, focusing on
 
 1. Pass counter
 
+## Potential analysis ideas
+
+- How much does set piece success vary on home vs. away games?
+- Some model for maximizing SP utility
+- Value of risky defensive plays
+
 ## Layout for the data directory
 
 For reproducibility, here's the layout of my `data/` directory (output of `tree data/`):
