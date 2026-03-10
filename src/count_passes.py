@@ -75,13 +75,17 @@ def print_match_stats(match_label: str, team_stats: dict[str, dict]) -> None:
     for team, stats in sorted(team_stats.items()):
         pct = (stats["completed"] / stats["total"] * 100) if stats["total"] else 0
         print(f"\n  {team}: {stats['total']} passes ({pct:.1f}% completion)")
-        print(f"    Completed: {stats['completed']}  |  Incomplete: {stats['total'] - stats['completed']}")
+        print(
+            f"    Completed: {stats['completed']}  |  Incomplete: {stats['total'] - stats['completed']}"
+        )
 
         print(f"\n    {'Player':<30} {'Total':>6} {'Comp':>6} {'Comp%':>6}")
         print(f"    {'-' * 30} {'-' * 6} {'-' * 6} {'-' * 6}")
         for name, ps in sorted(stats["players"].items(), key=lambda x: -x[1]["total"]):
             p_pct = (ps["completed"] / ps["total"] * 100) if ps["total"] else 0
-            print(f"    {name:<30} {ps['total']:>6} {ps['completed']:>6} {p_pct:>5.1f}%")
+            print(
+                f"    {name:<30} {ps['total']:>6} {ps['completed']:>6} {p_pct:>5.1f}%"
+            )
 
 
 def print_aggregate(all_barca_stats: dict[str, dict]) -> None:
@@ -106,21 +110,19 @@ def print_aggregate(all_barca_stats: dict[str, dict]) -> None:
     completed = sum(s["completed"] for s in players.values())
     pct = (completed / total * 100) if total else 0
 
-    print(f"\nTotal passes: {total}  |  Completed: {completed}  |  Completion: {pct:.1f}%")
+    print(
+        f"\nTotal passes: {total}  |  Completed: {completed}  |  Completion: {pct:.1f}%"
+    )
 
-    print(f"\n{'Player':<30} {'Total':>6} {'Comp':>6} {'Comp%':>6}")
-    print(f"{'-' * 30} {'-' * 6} {'-' * 6} {'-' * 6}")
+    print(f"\n{'Player':<40} {'Total':>6} {'Comp':>6} {'Comp%':>6}")
+    print(f"{'-' * 40} {'-' * 6} {'-' * 6} {'-' * 6}")
 
     for name, ps in sorted(players.items(), key=lambda x: -x[1]["total"]):
         p_pct = (ps["completed"] / ps["total"] * 100) if ps["total"] else 0
-        print(f"{name:<30} {ps['total']:>6} {ps['completed']:>6} {p_pct:>5.1f}%")
+        print(f"{name:<40} {ps['total']:>6} {ps['completed']:>6} {p_pct:>5.1f}%")
 
 
 def main():
-    if len(sys.argv) > 2:
-        print(__doc__)
-        sys.exit(1)
-
     single_game = sys.argv[1] if len(sys.argv) == 2 else None
 
     if single_game:
@@ -145,7 +147,8 @@ def main():
                 continue
 
             team_stats = count_passes_in_events(events)
-            print_match_stats(label, team_stats)
+            if single_game:
+                print_match_stats(label, team_stats)
 
             # Collect Barcelona's player-level stats for aggregate
             for team, stats in team_stats.items():
