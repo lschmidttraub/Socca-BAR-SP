@@ -17,7 +17,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 STATSBOMB_ZIP = DATA_DIR / "statsbomb" / "league_phase.zip"
 MATCHES_CSV = DATA_DIR / "matches.csv"
 TEAM_NAME = "Barcelona"
