@@ -12,6 +12,6 @@ This repository is for developing analyses of Barcelona's UCL games, focusing on
 
 ## Organization
 
-Offense: Niklas & Philipp
-Defence: Merlin & Kirill
-Stats: Leo
+- Offense: Niklas & Philipp
+- Defense: Merlin & Kirill
+- Stats: Leo
