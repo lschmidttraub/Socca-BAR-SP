@@ -3,7 +3,6 @@
 Each function takes a single event dict and returns a bool (or a value).
 """
 
-from __future__ import annotations
 
 # ── Type predicates ──────────────────────────────────────────────────
 

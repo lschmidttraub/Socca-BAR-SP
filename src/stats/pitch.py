@@ -4,8 +4,6 @@ StatsBomb uses a 120 x 80 yard pitch. The acting team always attacks
 toward x = 120.  Goal centre is at (120, 40).
 """
 
-from __future__ import annotations
-
 YARDS_TO_METERS = 0.9144
 PITCH_LENGTH = 120  # yards
 PITCH_WIDTH = 80  # yards

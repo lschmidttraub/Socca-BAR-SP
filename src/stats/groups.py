@@ -4,8 +4,6 @@ Each group knows how to resolve itself to a set of team names given a
 data directory.
 """
 
-from __future__ import annotations
-
 from collections import defaultdict
 from pathlib import Path
 from typing import Callable

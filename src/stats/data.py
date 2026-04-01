@@ -5,8 +5,6 @@ played.  Event data is loaded from ``.zip`` archives (or extracted JSON
 directories) in the StatsBomb data folder.
 """
 
-from __future__ import annotations
-
 import csv
 import json
 import zipfile

@@ -1,15 +1,11 @@
 """Comparison engine — run an analysis across teams and produce JSON output."""
 
-from __future__ import annotations
-
 from collections import defaultdict
-from datetime import datetime, timezone
 from pathlib import Path
-from types import ModuleType
 
 from . import data as _data
 from .groups import Group, TOP_16
-from .models import AnalysisResult
+from .models import Analysis, AnalysisResult
 
 
 # ── Dict arithmetic ──────────────────────────────────────────────────
@@ -59,8 +55,8 @@ def _divide_dict(d: dict, n: int) -> dict:
 # ── Core compare function ────────────────────────────────────────────
 
 def compare(
-    analysis_module: ModuleType,
-    data_dir: Path,
+    analysis: Analysis,
+    data_dir: Path = Path("data/statsbomb"),
     focus_team: str = "Barcelona",
     group: Group = TOP_16,
     per_team: bool = False,
@@ -69,10 +65,9 @@ def compare(
 
     Parameters
     ----------
-    analysis_module:
-        A module from ``stats.analyses`` that exposes ``name``,
-        ``analyze_match(events, team) -> dict``, and
-        ``summarize(totals, n_matches) -> dict``.
+    analysis:
+        An ``Analysis`` subclass instance with ``name``,
+        ``analyze_match``, and ``summarize`` methods.
     data_dir:
         Path to the StatsBomb data (directory or .zip).
     focus_team:
@@ -98,7 +93,7 @@ def compare(
         except ValueError:
             continue
         for t in (t1, t2):
-            raw = analysis_module.analyze_match(events, t)
+            raw = analysis.analyze_match(events, t)
             team_raws[t].append(raw)
 
     # Aggregate per team
@@ -106,9 +101,9 @@ def compare(
     for t, raws in team_raws.items():
         totals = sum_dicts(raws)
         n_matches = len(raws)
-        summarized = analysis_module.summarize(totals, n_matches)
+        summarized = analysis.summarize(totals, n_matches)
         team_results[t] = AnalysisResult(
-            analysis=analysis_module.name,
+            analysis=analysis.name,
             team=t,
             matches=n_matches,
             metrics=summarized.get("metrics", {}),
@@ -130,8 +125,7 @@ def compare(
         avg_matches = 0
 
     result: dict = {
-        "analysis": analysis_module.name,
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "analysis": analysis.name,
         "data_source": str(data_dir),
         "focus_team": focus_team,
         "focus": team_results.get(focus_team, {}),

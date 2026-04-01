@@ -1,8 +1,7 @@
-"""Result types and enums for set piece analysis."""
-
-from __future__ import annotations
+"""Result types, enums, and base class for set piece analysis."""
 
 import enum
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 
@@ -31,3 +30,28 @@ class AnalysisResult:
             "metrics": self.metrics,
             "breakdowns": self.breakdowns,
         }
+
+
+class Analysis(ABC):
+    """Base class for a set piece analysis.
+
+    Subclasses must set ``name`` and implement ``analyze_match`` and
+    ``summarize``.
+    """
+
+    name: str
+
+    @abstractmethod
+    def analyze_match(self, events: list[dict], team: str) -> dict:
+        """Return raw additive counts for one team in one match.
+
+        All leaf values must be numbers (int or float) that can be
+        summed across matches.
+        """
+
+    @abstractmethod
+    def summarize(self, totals: dict, n_matches: int) -> dict:
+        """Compute derived metrics from aggregated totals.
+
+        Must return ``{"metrics": {...}, "breakdowns": {...}}``.
+        """
