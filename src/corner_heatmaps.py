@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from src.check_pids import get_pid_to_team_id
 
-# Set up the base directory cleanly
+
 DATA_DIR = Path(__file__).parent.parent / "data_new"
 TEAM = "Barcelona"
 TEAM_SHORT_NAME = "FC Barcelona"
@@ -22,7 +22,7 @@ import json
 import numpy as np
 from mplsoccer import Pitch
 from matplotlib import pyplot as plt
-# Set up the base directory cleanly
+
 DATA_DIR = Path(__file__).parent.parent / "data_new"
 TEAM = "Barcelona"
 
@@ -94,9 +94,9 @@ def get_corners(game_ids, team_shname):
     for id in game_ids:
         zip_path = DATA_DIR / "skillcorner" / f"{id}.zip"
         try:
-            # Open the zip archive in read mode
+
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                # Open the CSV file located inside the zip archive
+
                 with zip_ref.open(f"{id}_dynamic_events.csv") as csv_file:
                     df = pd.read_csv(csv_file)
                     #print(df.head(5))
@@ -118,7 +118,7 @@ def get_pitch_length(game_id):
             json_filename = f"{game_id}.json"
             with zip_ref.open(json_filename) as json_file:
 
-                # Read the file line by line
+
                 data = json.load(json_file)
                 pitch_length = data.get('pitch_length')
                 pitch_widht = data.get('pitch_width')
@@ -126,7 +126,7 @@ def get_pitch_length(game_id):
     except FileNotFoundError:
         print("fuck")
 def get_tracking_for_frames(game_id, target_frame):
-    # 1. Convert the list of frames into a set for lightning-fast lookups
+
     extracted_data = []
 
     zip_path = DATA_DIR / "skillcorner" / f"{game_id}.zip"
@@ -137,16 +137,16 @@ def get_tracking_for_frames(game_id, target_frame):
 
             with zip_ref.open(jsonl_filename) as jsonl_file:
 
-                # Read the file line by line
+
                 for line in jsonl_file:
                     frame_data = json.loads(line.decode('utf-8'))
                     current_frame = frame_data.get('frame')
 
-                    # If the current line is one of our target frames...
+
                     if current_frame == target_frame:
                         extracted_data = frame_data
                         break
-                        # 2. Early Stopping: Stop reading when we have all frames
+
 
 
     except FileNotFoundError:
