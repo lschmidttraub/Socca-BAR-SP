@@ -1,12 +1,11 @@
-import pandas as pd
-from check_pids import check_pos_players
+# How to use:
+# Enter TEAM-Name (as in matches.csv), TEAM_SHORT_NAME and TEAM_UD(as in the game_id.json)
+# get_all_player_positions_for_corners() returns dict, df of players positions (of all teams) for corners where TEAM is attacking
+# df layout is game_id frame_id x y tid pid side direction where tid = team_id, pid = player_id direction in {ltr, rtl}
+# and side in {right/left}
+# dict layout dict[game_id][frame_id] = [{'x':1, 'y':2, 'tid':264, 'pid':32411, 'side' = 'left', 'direction'='ltr'}, {...}, ...]
+#
 from pathlib import Path
-import zipfile
-import json
-import numpy as np
-from mplsoccer import Pitch
-from matplotlib import pyplot as plt
-
 from src.check_pids import get_pid_to_team_id
 
 
@@ -23,8 +22,6 @@ import numpy as np
 from mplsoccer import Pitch
 from matplotlib import pyplot as plt
 
-DATA_DIR = Path(__file__).parent.parent / "data_new"
-TEAM = "Barcelona"
 
 
 def check_pids(game_id, pids):
@@ -165,8 +162,21 @@ def get_position_from_corners(corner_frames):
             extracted_data = get_tracking_for_frames(id, frame)
             ball_data = extracted_data.get('ball_data') or {}
             ball_y_raw = ball_data.get('y', 0)
-            corner_side = 'left' if ball_y_raw >= 0 else 'right'
+            ball_x_raw = ball_data.get('x', 0)
+            # Skip frames where ball is not near the corner flag (y ≈ ±pitch_width/2)
+            if abs(ball_y_raw) < pitch_widht * 0.25:
+                continue
+            direction = "ltr" if ball_x_raw > 0 else "rtl"
             player_list = extracted_data['player_data']
+            max = -np.inf
+            min = np.inf
+            for p in player_list:
+                max = np.maximum(max, p['y'])
+                min = np.minimum(min, p['y'])
+            if np.abs(max) > np.abs(min):
+                corner_side = 'left' if direction == 'ltr' else 'right'
+            else:
+                corner_side = 'right' if direction == 'ltr' else 'left'
             for p in player_list:
                 x = p['x']
                 y = p['y']
@@ -178,6 +188,7 @@ def get_position_from_corners(corner_frames):
                     'tid' :tid,
                     'pid' : p['player_id'],
                     'side': corner_side,
+                    'direction': direction,
                 }
                 pos[id][frame].append(pos_entry)
     return pos
@@ -185,8 +196,8 @@ def get_position_from_corners(corner_frames):
 
 def create_map(positions, title, filename):
     df = pd.DataFrame(positions)
-    df['y'] = np.where(df['x'] > 60, 80 - df['y'], df['y'])
-    df['x'] = np.where(df['x'] > 60, 120 - df['x'], df['x'])
+    df['y'] = np.where(df['direction']=='ltr', 80 - df['y'], df['y'])
+    df['x'] = np.where(df['direction'] == 'ltr',  120 - df['x'], df['x'])
     df = df[df['tid'] == TEAM_ID]
     pitch = Pitch(
         pitch_type='statsbomb',
@@ -200,16 +211,33 @@ def create_map(positions, title, filename):
     fig_dir = Path(__file__).parent.parent / "assets" / filename
     plt.savefig(fig_dir)
     plt.show()
-ids, team_ids = extract_match_ids(TEAM)
-print(ids)
-cs = get_corners(ids, TEAM_SHORT_NAME)
-pos = get_position_from_corners(cs)
+
+def get_all_player_positions_for_corners():
+    ids, team_ids = extract_match_ids(TEAM)
+    cs = get_corners(ids, TEAM_SHORT_NAME)
+    pos = get_position_from_corners(cs)
+    data = [
+        {'game_id': game_id, 'frame_id': frame_id, **player_data}
+        for game_id, frames in pos.items()
+        for frame_id, player_list in frames.items()
+        for player_data in player_list
+    ]
+
+    # 3. Create the DataFrame
+    df = pd.DataFrame(data)
+    return pos, df
+
+pos, df = get_all_player_positions_for_corners()
+print(df.head())
 intermed = [value for frame_dict in pos.values() for value in frame_dict.values()]
 positions = [item for sublist in intermed for item in sublist]
-#player_ids = [pos['pid'] for pos in positions]
 
+#player_ids = [pos['pid'] for pos in positions]
+#positions = inner_val[:10]
+print(positions)
 #check_pos_players(pos)
 positions_left  = [e for e in positions if e['side'] == 'left']
 positions_right = [e for e in positions if e['side'] == 'right']
 create_map(positions_left,  "Player Positions – Left Corners",  "corner_heatmap_left")
 create_map(positions_right, "Player Positions – Right Corners", "corner_heatmap_right")
+
