@@ -1,0 +1,10 @@
+[project]
+name = "socca-bar-sp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "mplsoccer>=1.6.1",
+    "seaborn>=0.13.2",
+]
