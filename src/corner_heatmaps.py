@@ -1,0 +1,215 @@
+import pandas as pd
+from check_pids import check_pos_players
+from pathlib import Path
+import zipfile
+import json
+import numpy as np
+from mplsoccer import Pitch
+from matplotlib import pyplot as plt
+
+from src.check_pids import get_pid_to_team_id
+
+# Set up the base directory cleanly
+DATA_DIR = Path(__file__).parent.parent / "data_new"
+TEAM = "Barcelona"
+TEAM_SHORT_NAME = "FC Barcelona"
+TEAM_ID = 264
+
+import pandas as pd
+from pathlib import Path
+import zipfile
+import json
+import numpy as np
+from mplsoccer import Pitch
+from matplotlib import pyplot as plt
+# Set up the base directory cleanly
+DATA_DIR = Path(__file__).parent.parent / "data_new"
+TEAM = "Barcelona"
+
+
+def check_pids(game_id, pids):
+    zip_path = DATA_DIR / "skillcorner" / f"{game_id}.zip"
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            json_filename = f"{game_id}.json"
+            with zip_ref.open(json_filename) as json_file:
+                # Read the file line by line
+                data = json.load(json_file)
+            id_to_name = {
+                player['id']: player['short_name']
+                for player in data.get('players', [])
+            }
+
+
+            return id_to_name
+
+    except FileNotFoundError:
+        print("fuck")
+
+
+def get_pid_to_team_id(game_id):
+    zip_path = DATA_DIR / "skillcorner" / f"{game_id}.zip"
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            with zip_ref.open(f"{game_id}.json") as json_file:
+                data = json.load(json_file)
+        return {
+            player['id']: player['team_id']
+            for player in data.get('players', [])
+            if 'team_id' in player
+        }
+    except FileNotFoundError:
+        print("fuck")
+
+
+def check_pos_players(pos):
+    for game_id, frame_dict in pos.items():
+        pids = {entry['pid'] for frame_data in frame_dict.values() for entry in frame_data}
+        id_to_name = check_pids(game_id, pids)
+        if id_to_name is None:
+            continue
+        print(f"\nGame {game_id}:")
+        for pid in pids:
+            name = id_to_name.get(pid, f"<unknown id {pid}>")
+            print(f"  {pid}: {name}")
+
+
+def extract_match_ids(team_name):
+    file_path = DATA_DIR / "matches.csv"
+    df = pd.read_csv(file_path)
+    df_team = df[(df['home'] == team_name) | (df['away'] == team_name)]
+    team_ids = [1 if x == team_name else 2 for x in df_team['home']]
+    ids = df_team['skillcorner'].tolist()
+
+
+    return ids, team_ids
+
+def convert_coordinates(x,y, pitch_length, pitch_width):
+    statsbomb_x = (x + (pitch_length / 2)) * (120.0 / pitch_length)
+    statsbomb_y = ((pitch_width / 2) - y) * (80.0 / pitch_width)
+    return statsbomb_x, statsbomb_y
+
+def get_corners(game_ids, team_shname):
+    corner_frames = { id:[] for id in game_ids }
+    for id in game_ids:
+        zip_path = DATA_DIR / "skillcorner" / f"{id}.zip"
+        try:
+            # Open the zip archive in read mode
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                # Open the CSV file located inside the zip archive
+                with zip_ref.open(f"{id}_dynamic_events.csv") as csv_file:
+                    df = pd.read_csv(csv_file)
+                    #print(df.head(5))
+                    frames = df[(df['game_interruption_before'] == 'corner_for') & (df['team_shortname'] == team_shname)]['frame_start']
+                    frames = frames.tolist()
+                    corner_frames[id] = frames
+
+        except FileNotFoundError:
+            print(f"Warning: Zip file not found at {zip_path}")
+        except KeyError:
+            print(f"Warning: {id}_dynamic_events.csv not found inside {id}.zip.")
+
+    return corner_frames
+
+def get_pitch_length(game_id):
+    zip_path = DATA_DIR / "skillcorner" / f"{game_id}.zip"
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            json_filename = f"{game_id}.json"
+            with zip_ref.open(json_filename) as json_file:
+
+                # Read the file line by line
+                data = json.load(json_file)
+                pitch_length = data.get('pitch_length')
+                pitch_widht = data.get('pitch_width')
+                return pitch_length, pitch_widht
+    except FileNotFoundError:
+        print("fuck")
+def get_tracking_for_frames(game_id, target_frame):
+    # 1. Convert the list of frames into a set for lightning-fast lookups
+    extracted_data = []
+
+    zip_path = DATA_DIR / "skillcorner" / f"{game_id}.zip"
+
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            jsonl_filename = f"{game_id}_tracking_extrapolated.jsonl"
+
+            with zip_ref.open(jsonl_filename) as jsonl_file:
+
+                # Read the file line by line
+                for line in jsonl_file:
+                    frame_data = json.loads(line.decode('utf-8'))
+                    current_frame = frame_data.get('frame')
+
+                    # If the current line is one of our target frames...
+                    if current_frame == target_frame:
+                        extracted_data = frame_data
+                        break
+                        # 2. Early Stopping: Stop reading when we have all frames
+
+
+    except FileNotFoundError:
+        print(f"Warning: Zip file not found at {zip_path}")
+    except KeyError:
+        print(f"Warning: {jsonl_filename} not found inside {game_id}.zip")
+
+    return extracted_data
+
+def get_position_from_corners(corner_frames):
+    pos = { id:{c:[] for c in corner_frames[id]} for id in corner_frames }
+    for id in corner_frames.keys():
+        pitch_length, pitch_widht = get_pitch_length(id)
+        player_to_team = get_pid_to_team_id(id)
+        for frame in corner_frames[id]:
+            extracted_data = get_tracking_for_frames(id, frame)
+            ball_data = extracted_data.get('ball_data') or {}
+            ball_y_raw = ball_data.get('y', 0)
+            corner_side = 'left' if ball_y_raw >= 0 else 'right'
+            player_list = extracted_data['player_data']
+            for p in player_list:
+                x = p['x']
+                y = p['y']
+                x,y = convert_coordinates(x,y, pitch_length, pitch_widht)
+                tid = player_to_team[p['player_id']]
+                pos_entry = {
+                    'x' :x,
+                    'y' :y,
+                    'tid' :tid,
+                    'pid' : p['player_id'],
+                    'side': corner_side,
+                }
+                pos[id][frame].append(pos_entry)
+    return pos
+
+
+def create_map(positions, title, filename):
+    df = pd.DataFrame(positions)
+    df['y'] = np.where(df['x'] > 60, 80 - df['y'], df['y'])
+    df['x'] = np.where(df['x'] > 60, 120 - df['x'], df['x'])
+    df = df[df['tid'] == TEAM_ID]
+    pitch = Pitch(
+        pitch_type='statsbomb',
+        pitch_color='#22312b',
+        line_color='#c7d5cc'
+    )
+    fig, ax = pitch.draw(figsize=(10, 7))
+    pitch.scatter(df['x'], df['y'], ax=ax, c='white', s=50, edgecolors='black', zorder=2)
+    plt.title(title, color='white', fontsize=16)
+    fig.set_facecolor('#22312b')
+    fig_dir = Path(__file__).parent.parent / "assets" / filename
+    plt.savefig(fig_dir)
+    plt.show()
+ids, team_ids = extract_match_ids(TEAM)
+print(ids)
+cs = get_corners(ids, TEAM_SHORT_NAME)
+pos = get_position_from_corners(cs)
+intermed = [value for frame_dict in pos.values() for value in frame_dict.values()]
+positions = [item for sublist in intermed for item in sublist]
+#player_ids = [pos['pid'] for pos in positions]
+
+#check_pos_players(pos)
+positions_left  = [e for e in positions if e['side'] == 'left']
+positions_right = [e for e in positions if e['side'] == 'right']
+create_map(positions_left,  "Player Positions – Left Corners",  "corner_heatmap_left")
+create_map(positions_right, "Player Positions – Right Corners", "corner_heatmap_right")
