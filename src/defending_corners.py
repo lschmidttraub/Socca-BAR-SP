@@ -1,10 +1,12 @@
 import json
+import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
+DEF_CORNER_ASSETS_DIR = ASSETS_DIR / "def_corner_analysis"
 MATCHES_CSV = Path(__file__).parent.parent / "data" / "matches.csv"
 DATA_DIR = Path(__file__).parent.parent / "data" / "statsbomb" / "league_phase"
 BARCELONA = "Barcelona"
@@ -233,6 +235,61 @@ def corner_side(corner_ev: dict) -> str:
     return "Left" if y < 40 else "Right"
 
 
+# ── Normalisation helper ──────────────────────────────────────────────────────
+
+def normalize_to_right(loc: list, corner_loc: list) -> list:
+    """Return loc with x flipped if the corner kick is in the left half (x < 60),
+    so all defending corners are shown as if Barcelona's goal is at x = 120.
+    This aligns with mplsoccer's half=True view (x: 60–120)."""
+    x, y = loc
+    if corner_loc[0] < 60:
+        x = 120 - x
+    return [x, y]
+
+
+# ── Aerial classifier ────────────────────────────────────────────────────────
+
+def action_body_part(event: dict) -> str | None:
+    """Return the body part name used in an event (e.g. 'Head', 'Left Foot').
+    Checks all common sub-dicts that carry a body_part field."""
+    for key in ("clearance", "pass", "shot", "goalkeeper", "interception", "duel", "miscontrol"):
+        bp = event.get(key, {}).get("body_part", {}).get("name")
+        if bp:
+            return bp
+    return None
+
+
+def is_aerial(event: dict) -> bool:
+    """Return True if the action was performed with the head."""
+    return action_body_part(event) == "Head"
+
+
+# ── Distance helpers ──────────────────────────────────────────────────────────
+
+def distance(loc1: list, loc2: list) -> float:
+    """Euclidean distance between two [x, y] locations."""
+    return math.hypot(loc1[0] - loc2[0], loc1[1] - loc2[1])
+
+
+def first_sequence_action(corner_ev: dict, events: list) -> dict | None:
+    """Return the first event in the corner sequence after the corner kick itself."""
+    seq = corner_sequence(corner_ev, events)
+    return seq[0] if seq else None
+
+
+def corner_to_first_action_distance(corner_ev: dict, events: list) -> float | None:
+    """Distance from the corner kick location to the first action in the sequence.
+    Returns None if the sequence is empty or either location is missing."""
+    first = first_sequence_action(corner_ev, events)
+    if first is None:
+        return None
+    corner_loc = corner_ev.get("location")
+    action_loc = first.get("location")
+    if corner_loc is None or action_loc is None:
+        return None
+    return distance(corner_loc, action_loc)
+
+
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
 def plot_corner_classes(
@@ -280,8 +337,8 @@ def plot_corner_classes(
     plt.tight_layout()
 
     if save:
-        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        out_path = ASSETS_DIR / "defending_corners.png"
+        DEF_CORNER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out_path = DEF_CORNER_ASSETS_DIR / "defending_corners.png"
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Plot saved to {out_path}")
 
@@ -334,8 +391,8 @@ def plot_corner_classes_by_side(pairs: list[tuple], save: bool = True) -> None:
     plt.tight_layout()
 
     if save:
-        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        out_path = ASSETS_DIR / "defending_corners_by_side.png"
+        DEF_CORNER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out_path = DEF_CORNER_ASSETS_DIR / "defending_corners_by_side.png"
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Plot saved to {out_path}")
 
@@ -356,5 +413,8 @@ if __name__ == "__main__":
     avg_n = sum(len(p) for p in team_pairs) / len(team_pairs)
     print(f"League average defending corners per team: {avg_n:.1f}")
 
-    plot_corner_classes(barca_pcts, avg_pcts, barca_n, avg_n)
-    plot_corner_classes_by_side(barca_pairs)
+    # Plots corners by Barcelona vs AVG grouped by outcome
+    #plot_corner_classes(barca_pcts, avg_pcts, barca_n, avg_n)
+    # Plots corners grouped by side, outcome
+    #plot_corner_classes_by_side(barca_pairs)
+    

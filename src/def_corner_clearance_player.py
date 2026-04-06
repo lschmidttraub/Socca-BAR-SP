@@ -14,7 +14,7 @@ import numpy as np
 
 from defending_corners import (
     BARCELONA,
-    ASSETS_DIR,
+    DEF_CORNER_ASSETS_DIR,
     TYPE_CLEARANCE,
     build_pairs,
     corner_sequence,
@@ -91,8 +91,8 @@ def plot_clearances_by_player_and_side(counts_by_side: dict[str, dict[str, int]]
     plt.tight_layout()
 
     if save:
-        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        out_path = ASSETS_DIR / "def_corner_clearance_player.png"
+        DEF_CORNER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out_path = DEF_CORNER_ASSETS_DIR / "def_corner_clearance_player.png"
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Plot saved to {out_path}")
 
