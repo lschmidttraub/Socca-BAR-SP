@@ -211,3 +211,5 @@ data/*
 
 !data/.gitkeep
 !.claude/settings.local.json
+
+videos/
