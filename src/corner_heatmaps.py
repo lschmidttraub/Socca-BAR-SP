@@ -41,7 +41,7 @@ def check_pids(game_id, pids):
             return id_to_name
 
     except FileNotFoundError:
-        print("fuck")
+        print("FileNotFoundError")
 
 
 def get_pid_to_team_id(game_id):
@@ -56,7 +56,7 @@ def get_pid_to_team_id(game_id):
             if 'team_id' in player
         }
     except FileNotFoundError:
-        print("fuck")
+        print("FileNotFoundError")
 
 
 def check_pos_players(pos):

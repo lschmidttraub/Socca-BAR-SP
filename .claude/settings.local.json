@@ -1,6 +1,8 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(python -m src.stats.analyses.physicality)"
+    ],
     "deny": [
       "Read(./data/**)"
     ],

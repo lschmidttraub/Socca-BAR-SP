@@ -4,7 +4,10 @@ This report outlines the planned structure of the final report. At the same time
 As second assignment it provides an introduction to the project and summarizes secondary research on existing analyses of FC Barcelona’s set-pieces. From this review, key observations and research questions are derived, which can later be compared with our own analyses.
 At this stage, the analysis focuses on relevant descriptive and general statistics, as well as FC Barcelona’s behaviour in offensive and defensive corners, in order to identify their underlying strategies.
 
-**TODO:** AI disclaimer and reference to GitHub Repo, correct anchoring of snippets
+**TODO:** 
+ - AI disclaimer and reference to GitHub Repo, correct anchoring of snippets
+ - integration of plots for the statistics part. probably best on own page
+ - add explaination that due to data quality/joining issues only selected attack/defending paths are shown and explained
 
 ## Introduction, Review of Existing Analyses and Plan of Analysis
 
