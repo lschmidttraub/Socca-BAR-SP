@@ -49,7 +49,7 @@ If you have any more questions, don’t hesitate to contact me or stop by at the
 
 The purpose of this section is to provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
 It should be noted, however, that the sample size is small, and the conclusions we draw only apply to this tournament and do not support broader general conclusions.
-We generate statistics for offensive and defensive set-pieces with the snippet $[2765], using data from the league phase and round of 16.
+We generate statistics for offensive and defensive set-pieces with the snippet $2765, using data from the league phase and round of 16.
 
 ### Offensive Set-Pieces
 
@@ -144,8 +144,8 @@ This supports the earlier interpretation that Barcelona’s stronger attacking s
 
 The physicality plots show that Barcelona are among the less physically dominant teams in the competition in terms of height.
 The mean height of their six tallest outfield players is 187.0 cm, clearly below the competition average of 190.1 cm, and this lower profile is also evident in several individual matches, particularly against taller opponents such as Newcastle (193.3 cm) and Slavia Praha (190.2 cm).
-![[BAR-SP/assets/all_teams_top6_height.png]]
-We generate the plot using snippet $[2769]
+![Top-6 height plot](BAR-SP/assets/all_teams_top6_height.png)
+We generate the plot using snippet $2769
 
 This is relevant in light of the set-piece findings so far.
 Barcelona’s relatively modest corner output and their greater attacking effectiveness in free-kick sequences than in corners, are consistent with a team that does not rely on clear aerial superiority.
