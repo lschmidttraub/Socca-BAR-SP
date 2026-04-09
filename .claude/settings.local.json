@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -m src.stats.analyses.physicality)"
+      "Bash(python -m src.stats.analyses.physicality)",
+      "Bash(uv run:*)"
     ],
     "deny": [
       "Read(./data/**)"
