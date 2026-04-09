@@ -2,7 +2,7 @@
 
 **TODO:**
 
- - Create a new page and add the plots that represent the data here (already produced) and include the most important directly.
+ - Create a table to allow for quick comparison of BAR value, mean and rank; when final data is available.
 
 This section examines generally relevant set-piece statistics on corners and free-kicks sequences starting in the opponents' half of the pitch. 
 Its purpose is to provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
@@ -15,11 +15,11 @@ As a result, the analysis applies only to this competition and does not support 
 
 Barcelona’s attacking free-kick profile is one of the clearest positive signals in the dataset.
 
-They scored **3 goals from free-kick sequences**, clearly **above the competition average of 1.7** and placing them in the upper group of teams. 
+They scored **3 goals from free-kick sequences**, clearly **above the competition average of 1.7** and placing them in the upper group of teams [(stat-of1)](statistics_plot.md#statistics_of1). 
 Their process numbers also support this. 
-They **generate a shot from 47.7% of attacking free kicks**, compared with a **league average of 42.1%**. 
-Their total **xG from free-kick sequences is 1.8**, higher than the **league average of 1.5** (league phase only).
-Most strikingly, their **goal conversion per free kick is 6.8%**, well above the **competition average of 4.3%**.
+They **generate a shot from 47.7% of attacking free kicks**, compared with a **league average of 42.1%** [(stat-of2)](statistics_plot.md#statistics_of2). 
+Their total **xG from free-kick sequences is 1.8**, higher than the **league average of 1.5** (league phase only) [(stat-of3)](statistics_plot.md#statistics_of3).
+Most strikingly, their **goal conversion per free kick is 6.8%**, well above the **competition average of 4.3%** [(stat-of4)](statistics_plot.md#statistics_of4).
 
 This combination is important. 
 Barcelona are not only converting unusually well as they also produce above-average shot volume and xG from these situations. 
@@ -28,7 +28,7 @@ The overview therefore suggests that Barcelona's attacking free-kick routines ar
 
 #### Offensive Corner Sequences
 
-The picture changes considerably for attacking corners -- Barcelona scored 2 goals from corner sequences, exactly matching the competition average [(stat-oc1)](statistics_plot.md#statistics_oc1).
+The picture changes considerably for attacking corners - Barcelona scored 2 goals from corner sequences, exactly matching the competition average [(stat-oc1)](statistics_plot.md#statistics_oc1).
 
 Their **attempt rate per corner is 44.7%**, below the league average of 48.8% [(stat-oc2)](statistics_plot.md#statistics_oc2).
 Their average xG from corners per game is 0.189, below the average of 0.219, and their **total corner xG is 1.9** compared with a **competition average of 2.1** [(stat-oc3)](statistics_plot.md#statistics_oc3). 
@@ -54,21 +54,21 @@ For corners, the more relevant question is whether the underlying tactical struc
 
 #### Defensive Free-kick Sequences
 
-FC Barcelona **0 goals from free-kick sequences**, while the competition average is 1.7. 
-This is also reflected in their average xG conceded from free-kick sequences per game which is only 0.087, far below the mean of 0.169. 
-They allow shots from just 33.3% of free kicks faced in their own half of the pitch, compared with a league average of 43.6%.
+FC Barcelona conceded **0 goals from free-kick sequences**, while the competition average is 1.7 [(stat-df1)](statistics_plot.md#statistics_df1). 
+This is also reflected in their average xG conceded from free-kick sequences per game which is only 0.087, far below the mean of 0.169 [(stat-df2)](statistics_plot.md#statistics_df2). 
+They allow shots from just 33.3% of free kicks faced in their own half of the pitch, compared with a league average of 43.6% [(stat-df3)](statistics_plot.md#statistics_df3).
 
-This is **especially notable because Barcelona concede 4.2 free kicks in their own half per game**, which is slightly **above the competition average of 4.06**. 
+This is **especially notable because Barcelona concede 4.2 free kicks in their own half per game**, which is slightly **above the competition average of 4.06** [(stat-df4)](statistics_plot.md#statistics_df4). 
 In other words, they are not simply avoiding these situations entirely, they appear to be managing them very effectively once they occur.
 That makes defending free kicks one of the clearest strengths of Barça in the quantitative overview.
 
 #### Defensive Corner Sequences
 
 Barcelona also defend corners similarly well in the UCL sample. 
-They **concede only 1 goal from corner sequences**, compared with a **competition average of 2.1**. 
-Their average xG conceded from corners per game is 0.189, lower than the league average of 0.234. 
-They **allow a shot from only 31.4% of corners faced**, dramatically **lower than the average of 47.2%**, and they concede goals on just 2.6% of corners faced, compared with a competition mean of 5.0%.
-Barça also faces relatively few corners in the first place: 3.8 corners conceded per game versus a competition average of 4.84.
+They **conceded only 1 goal from corner sequences**, compared with a **competition average of 2** [(stat-dc1)](statistics_plot.md#statistics_dc1). 
+Their average xG conceded from corners per game is 0.192, lower than the league average of 0.231 [(stat-dc2)](statistics_plot.md#statistics_dc2). 
+They **allow a shot from only 31.6% of corners faced**, dramatically **lower than the average of 46.9%** [(stat-dc3)](statistics_plot.md#statistics_dc3), and they concede goals on just 2.63% of corners faced, compared with a competition mean of 4.9%. [(stat-dc4)](statistics_plot.md#statistics_dc41)
+Barça also faces relatively few corners in the first place: 3.8 corners conceded per game versus a competition average of 4.81 [(stat-dc5)](statistics_plot.md#statistics_dc5).
 
 It is particularly interesting given the tactical literature that often frames Barcelona as potentially vulnerable to physical or aerial stress. 
 In this UCL sample, the aggregate numbers do not show an obviously fragile corner-defending side. 
@@ -86,22 +86,31 @@ Such improvements of defensive weakness should later be tested through sequence-
 
 ### Set-Piece Performance in FC Barcelona Matches
 
-Across Barcelona’s individual UEFA Champions League matches, the set-piece data indicate a team whose dead-ball output was highly dependent on match context rather than consistently strong across games. 
+Across Barcelona’s individual UEFA Champions League matches, the set-piece data indicate them as a team whose dead-ball output was highly dependent on match context rather than consistently strong across games. 
 This aligns with the broader overview that Barcelona was not a clear corner outlier overall, but still able to generate substantial value from set pieces in specific match situations.
 
-Their corner volume and corner xG vary considerably. 
+Their corner volume and corner xG vary considerably (refer to the plots below). 
 For example, against Copenhagen, Barcelona created strong attacking pressure from corners (10 corners, 8 corner-sequence attempts and 0.71 xG), yet failed to score. 
 In contrast, matches against Club Brugge and Chelsea produced almost no attacking corner output. 
 This suggests that Barcelona’s corner threat depends strongly on game state, territorial dominance, and especially opponent behaviour, rather than on a stable level of corner efficiency.
+
+![Corner H2H Numbers in Barcalona Games](../assets/upload/statistics/matches01_corners.png)
+![Corner H2H xG in Barcalona Games](../assets/upload/statistics/matches02_corners_xg.png)
 
 Free-kick sequences, by comparison, appear to provide more consistent value. 
 Particularly productive performances were observed against Frankfurt (0.38 xG, 0 goals), Copenhagen (0.58 xG, 2 goals), and one match against Newcastle (0.40 xG, 1 goal). 
 This supports the earlier interpretation that Barcelona’s stronger attacking set-piece profile in this campaign was driven more by free kicks than by corners.
 
+![Free-kick H2H Numbers in Barcalona Games](../assets/upload/statistics/matches03_free_kicks.png)
+![Free-kick xG in Barcalona Games](../assets/upload/statistics/matches04_free_kicks_xg.png)
+
 ### Player Physicality
 
 The physicality plots show that Barcelona are among the less physically dominant teams in the competition in terms of height. 
 The mean height of their six tallest outfield players is 187.0 cm, clearly below the competition average of 190.1 cm, and this lower profile is also evident in several individual matches, particularly against taller opponents such as Newcastle (193.3 cm) and Slavia Praha (190.2 cm).
+
+![Plot of Mean Height of top-6 Outfielders](../assets/upload/statistics/phy01_all_teams_top6_height.png)
+![H2H of Top-6 Outfielders In Barcelona Games](../assets/upload/statistics/phy02_barca_match_height.png)
 
 This is relevant in light of the set-piece findings so far. 
 Barcelona’s relatively modest corner output and their greater attacking effectiveness in free-kick sequences than in corners, are consistent with a team that does not rely on clear aerial superiority. 
