@@ -11,10 +11,10 @@ Each subsection of the wiki maps to one runnable script in this folder:
 
 | Wiki subsection                               | Script                         |
 |-----------------------------------------------|--------------------------------|
-| Offensive Set-Pieces → Free-kick Sequences    | `offensive_free_kicks.py`      |
-| Offensive Set-Pieces → Corner Sequences       | `offensive_corners.py`         |
-| Defensive Set-Pieces → Free-kick Sequences    | `defensive_free_kicks.py`      |
-| Defensive Set-Pieces → Corner Sequences       | `defensive_corners.py`         |
+| Offensive Free-kick Sequences                 | `offensive_free_kicks.py`      |
+| Offensive Corner Sequences                    | `offensive_corners.py`         |
+| Defensive Free-kick Sequences                 | `defensive_free_kicks.py`      |
+| Defensive Corner Sequences                    | `defensive_corners.py`         |
 | Set-Piece Performance in FC Barcelona Matches | `per_match_performance.py`     |
 
 The *Player Physicality* subsection is covered by a separate snippet.
