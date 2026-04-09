@@ -1,9 +1,3 @@
-# Task 2: Draft Structure of Report and Sample Analyses
-
-This report outlines the planned structure of the final report. At the same time, the example analyses included already reflect, to a large extent, the level of depth targeted in the final version.
-As second assignment it provides an introduction to the project and summarizes secondary research on existing analyses of FC Barcelona’s set-pieces. From this review, key observations and research questions are derived, which can later be compared with our own analyses.
-At this stage, the analysis focuses on relevant descriptive and general statistics, as well as FC Barcelona’s behaviour in offensive and defensive corners, in order to identify their underlying strategies.
-
 **TODO:** 
  - AI disclaimer and reference to GitHub Repo, correct anchoring of snippets
  - add explanation that due to data quality/joining issues only selected attack/defending paths are shown and explained

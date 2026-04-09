@@ -1,13 +1,13 @@
+**TODO:**
+
+ - Adapt the content to the final numbers, when all data is available
+ - Conduct analyses as described below
+
 ## Offensive Analysis
 
 This section examines the offensive set pieces of FC Barcelona. 
 The first step focuses on evaluating metrics related to the success of these actions, as well as the static characteristics of the delivery. 
 The subsequent analysis considers and visualises the movement patterns of the attacking players using selected pieces, placing them in the context of the previous findings and using them to derive an interpretation of FC Barcelona’s offensive set-piece strategy.
-
-**TODO:**
-
- - Adapt the content to the final numbers, when all data is available
- - Conduct analyses as described below
 
 ### Offensive Corners
 
@@ -28,7 +28,7 @@ In this sense, short-corner routines may act as tactical approach to help offset
 
 |                             Attempt Rate                             |                          xG per Corner                          |
 |:--------------------------------------------------------------------:|:---------------------------------------------------------------:|
-| ![](../assets/upload/offensive/corners/attempts_per_corner_bars.png) | ![](../assets/upload/offensive/corners/xg_per_corner_bars.png) |
+| ![](assets/upload/offensive/corners/attempts_per_corner_bars.png) | ![](assets/upload/offensive/corners/xg_per_corner_bars.png) |
 
 Raphinha clearly dominates as the corner taker, indicating a high level of delivery execution consistency.
 By contrast, receivers and first shooters are more widely distributed across several players, mainly Center Backs and Strikers.
@@ -37,7 +37,7 @@ Delivery is standardised, but reception and finishing remain flexible.
 
 |            Top Takers of Barcelona's Corners             |                  Top Receivers of Barcelona's Corners                  |
 |:--------------------------------------------------------:|:----------------------------------------------------------------------:|
-| ![](../assets/upload/offensive/corners/corner_takers_single.png) | ![](../assets/upload/offensive/corners/delivery_receivers_single.png) |
+| ![](assets/upload/offensive/corners/corner_takers_single.png) | ![](assets/upload/offensive/corners/delivery_receivers_single.png) |
 
 The spatial maps deepen this reading, illustrating clear but not exclusive tendencies for areas of delivery. 
 Many deliveries are directed into the central six-yard area and near-post corridor, with a smaller overall share toward the far post, the edge of the box, and wider recycle zones. 
@@ -45,10 +45,10 @@ Barcelona therefore do not attack only one target area.
 Interestingly, the far-post option seems to be a real option for right-side corners.
 Instead, they appear to combine dangerous first-contact zones close to goal with the possibility of recycled possession or a second delivery.
 
-![](../assets/upload/offensive/corners/spatial_profile.png)
+![](assets/upload/offensive/corners/spatial_profile.png)
 <figcaption  style="margin: 0 0 20px 5px">Spatial Profile (normalized to left-side) - Two main target zones visible</figcaption>
 
-![](../assets/upload/offensive/corners/delivery_endpoints_by_side.png)
+![](assets/upload/offensive/corners/delivery_endpoints_by_side.png)
 <figcaption  style="margin: 0 0 20px 5px">Delivery endpoints by side - Long corners predominantly used from the right</figcaption>
 
 This is also reinforced by the map of first touches after offensive corners. 
@@ -59,7 +59,7 @@ The goal-sequence maps illustrate this clearly.
 The presented goal result from multi-action sequences rather than direct finishes from the original delivery. 
 This supports the broader interpretation that Barcelona’s corner strategy is based less on raw aerial superiority and more on controlled second-phase construction.
 
-![](../assets/upload/offensive/corners/corner_first_touch_map.png)
+![](assets/upload/offensive/corners/corner_first_touch_map.png)
 <figcaption  style="margin: 0 0 20px 5px">First Touch Map - Sequences often continue with pass-on or carry</figcaption>
 
 The far-post-share plot adds a potentially interesting contextual detail regarding physicality and corner strategy. 
@@ -67,7 +67,7 @@ Barcelona’s use of the far-post zone appears to increase particularly against 
 Although the sample is limited, this supports the idea that Barça may use the far post to avoid central aerial duels when in clear height disadvantage combined with a path strategy and to exploit their advantage against shorter teams.
 This observation is particularly significant, as in all other games, corner were never delivered to the far-post.
 
-![](../assets/upload/offensive/corners/matchup_far_post_share_single.png)
+![](assets/upload/offensive/corners/matchup_far_post_share_single.png)
 <figcaption  style="margin: 0 0 20px 5px">Share of far-post Corners - Selected strategy against Copenhagen (Kobe) and Newcastle (NU)</figcaption>
 
 #### Movement of Attacking Players
@@ -77,7 +77,7 @@ The major part of all corner visualisations made suggests that Barcelona’s off
 
 The visualised corner against Sparta Praha can be seen as one typical example:
 
-![](../assets/upload/offensive/corners/corner_2050711_01_right_2848_shot.png)
+![](assets/upload/offensive/corners/corner_2050711_01_right_2848_shot.png)
 <figcaption  style="margin: 0 0 20px 5px">Corner Routes vs. Sparta Praha - Minimalistic Movements; created second-row attempt</figcaption>
 
 Compared with the more patterned three examples against, the attackers show only limited displacement from their starting positions, and the routine appears to depend more on maintaining box occupation than on actively reshaping it. 
@@ -87,10 +87,10 @@ Their corners are therefore not always built around dramatic decoy runs or sweep
 In the Copenhagen and the Newcastle examples below, the clearest pattern is a dense initial occupation of the six-yard box and near-post corridor, followed by short, curved, mainly vertical or diagonal runs into the goal area. 
 The movement is compact rather than expansive and is designed to create separation in a very limited space, but definitely a distinct strategy to free a player at the far-post and put the defense into movement towards the goal.
 
-![](../assets/upload/offensive/corners/corner_2051683_04_right_1452_shot.png)
+![](assets/upload/offensive/corners/corner_2051683_04_right_1452_shot.png)
 <figcaption  style="margin: 0 0 20px 5px">Corner Routes vs. Copenhagen - Movement to the near post; no attempt</figcaption>
 
-![](../assets/upload/offensive/corners/corner_2059201_05_right_3957_no_shot.png)
+![](assets/upload/offensive/corners/corner_2059201_05_right_3957_no_shot.png)
 <figcaption  style="margin: 0 0 20px 5px">Corner Routes vs. Newcastle - Movement towards the goal; near-post header</figcaption>
 
 The goal against Frankfurt provides the clearest example of how Barcelona can add a stronger manipulation layer to this compact structure using their short-played alternative. 
@@ -98,7 +98,7 @@ Here, the initial box occupation is again dense, but the subsequent movements sh
 Rather than aiming for a clean direct finish from the initial delivery, the routine creates a favourable central situation through congestion, redirection, and continuation of the sequence. 
 This is consistent with the earlier goal-sequence maps, which already indicated that Barcelona’s goals from corners often emerge through more than one action rather than from a straightforward first-contact header.
 
-![](../assets/upload/offensive/corners/corner_2047362_03_left_5217_goal.png)
+![](assets/upload/offensive/corners/corner_2047362_03_left_5217_goal.png)
 <figcaption  style="margin: 0 0 20px 5px">Corner Routes vs. Frankfurt - Short corner and spreading routed; goal</figcaption>
 
 Taken together, these movement maps suggest that Barcelona’s offensive corner strategy is best described as compact, controlled, and sequence-oriented. 
