@@ -213,3 +213,4 @@ data/*
 !.claude/settings.local.json
 
 videos/
+notes/
