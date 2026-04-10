@@ -1,13 +1,15 @@
 """Defensive corner statistics for FC Barcelona vs. the UCL field.
 
 Re-computes every number quoted in the *Defensive Set-Pieces → Corner
-Sequences* subsection of the BAR-SP wiki page:
+Sequences* subsection of the BAR-SP wiki page and saves the six
+plots embedded there:
 
-* corners conceded per game
-* goals conceded from corner sequences
-* average xG conceded from corner sequences per game
-* share of corners faced that generated a shot
-* share of corners faced that led to a goal
+* ``dc01_total_goals_conceded_corner.png``       — total goals conceded from corners
+* ``dc02_xg_conceded_corner_avg.png``            — avg xG conceded per game
+* ``dc03_attempt_rate_conceded_corner.png``      — attempts conceded per corner
+* ``dc041_goal_rate_conceded_corner.png``        — goals conceded per corner
+* ``dc042_goals_xg_conceded_combined_corners.png`` — combined goals + xG (grouped bars)
+* ``dc05_corners_conceded_avg.png``              — corners faced per game
 
 Run with::
 
@@ -33,8 +35,10 @@ from _loader import (  # noqa: E402
     resolve_team_name,
     shot_xg,
 )
+from _plotting import combined_per_team_chart, ranked_bar_chart  # noqa: E402
 
 FOCUS_TEAM = "Barcelona"
+DEFAULT_OUTPUT_DIR = Path("set_piece_plots")
 
 
 def _empty_record() -> dict:
@@ -142,6 +146,81 @@ def print_report(focus_team: str = FOCUS_TEAM) -> None:
     print(f"  Corners faced per game               : {avg['mean_corners_per_game']:.2f}")
 
 
+def save_plots(focus_team: str, output_dir: Path) -> None:
+    """Render and save the six wiki plots for defensive corners."""
+    records = collect_per_team()
+    if focus_team not in records:
+        raise SystemExit(f"No data for team {focus_team!r}")
+
+    teams_with_data = {t: r for t, r in records.items() if r["matches"] > 0}
+
+    goals_conceded = {t: float(r["goals_conceded"]) for t, r in teams_with_data.items()}
+    xg_per_game = {t: derive_rates(r)["xg_per_game"] for t, r in teams_with_data.items()}
+    shot_rate = {t: derive_rates(r)["shot_rate_against"] for t, r in teams_with_data.items()}
+    goal_rate = {t: derive_rates(r)["goal_rate_against"] for t, r in teams_with_data.items()}
+    corners_per_game = {t: derive_rates(r)["corners_per_game"] for t, r in teams_with_data.items()}
+    combined = {
+        t: (float(r["goals_conceded"]), float(r["xg_conceded"]))
+        for t, r in teams_with_data.items()
+    }
+
+    print()
+    print(f"Saving plots to {output_dir}/ ...")
+    ranked_bar_chart(
+        goals_conceded,
+        title="Total Goals Conceded from Corner Sequences",
+        ylabel="Goals conceded (all games)",
+        focus_team=focus_team,
+        output_path=output_dir / "dc01_total_goals_conceded_corner.png",
+        fmt=".0f",
+    )
+    ranked_bar_chart(
+        xg_per_game,
+        title="Average xG Conceded from Corner Sequences per Game",
+        ylabel="xG conceded / game",
+        focus_team=focus_team,
+        output_path=output_dir / "dc02_xg_conceded_corner_avg.png",
+        fmt=".3f",
+    )
+    ranked_bar_chart(
+        shot_rate,
+        title="Attempts Conceded per Corner Faced",
+        ylabel="Attempts conceded / corner",
+        focus_team=focus_team,
+        output_path=output_dir / "dc03_attempt_rate_conceded_corner.png",
+        fmt=".3f",
+    )
+    ranked_bar_chart(
+        goal_rate,
+        title="Goals Conceded per Corner Faced",
+        ylabel="Goals conceded / corner",
+        focus_team=focus_team,
+        output_path=output_dir / "dc041_goal_rate_conceded_corner.png",
+        fmt=".4f",
+    )
+    combined_per_team_chart(
+        combined,
+        title="Goals Conceded and xG Conceded from Corner Sequences — ordered by Goals",
+        ylabel="Goals / xG conceded",
+        bar1_label="Goals Conceded",
+        bar2_label="xG Conceded",
+        focus_team=focus_team,
+        output_path=output_dir / "dc042_goals_xg_conceded_combined_corners.png",
+        bar1_fmt=".0f",
+        bar2_fmt=".1f",
+    )
+    ranked_bar_chart(
+        corners_per_game,
+        title="Average Corners Faced per Game",
+        ylabel="Corners conceded / game",
+        focus_team=focus_team,
+        output_path=output_dir / "dc05_corners_conceded_avg.png",
+        fmt=".2f",
+    )
+
+
 if __name__ == "__main__":
     team = sys.argv[1] if len(sys.argv) > 1 else FOCUS_TEAM
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
     print_report(team)
+    save_plots(team, out)

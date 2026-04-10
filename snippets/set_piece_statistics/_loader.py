@@ -7,6 +7,9 @@ streams match JSONs out of the three StatsBomb ZIP archives in
 Every helper here is self-contained — no dependency on the project's
 ``src/stats`` library — so the whole ``set_piece_statistics`` snippet folder
 can be dropped into another repo that follows the same data layout.
+
+All paths are CWD-relative: scripts in this snippet assume they're run
+from the project root (the directory that contains ``data/``).
 """
 
 from __future__ import annotations
@@ -18,8 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = REPO_ROOT / "data"
+DATA_DIR = Path("data")
 STATSBOMB_DIR = DATA_DIR / "statsbomb"
 MATCHES_CSV = DATA_DIR / "matches.csv"
 

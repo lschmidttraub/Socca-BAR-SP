@@ -1,12 +1,13 @@
 """Defensive free-kick statistics for FC Barcelona vs. the UCL field.
 
 Re-computes every number quoted in the *Defensive Set-Pieces → Free-kick
-Sequences* subsection of the BAR-SP wiki page:
+Sequences* subsection of the BAR-SP wiki page and saves the four
+ranked-bar plots embedded there:
 
-* goals conceded from free-kick sequences
-* average xG conceded from free-kick sequences per game
-* share of free kicks faced in own half that led to a shot
-* free kicks conceded in own half per game
+* ``df01_total_goals_conceded_fk.png``  — total goals conceded from FK
+* ``df02_xg_conceded_fk_avg.png``       — avg xG conceded from FK / game
+* ``df03_attempt_rate_conceded_fk.png`` — attempt rate conceded per FK
+* ``df04_free_kicks_conceded_avg.png``  — average FKs faced per game
 
 A *defensive* free kick is an opponent free-kick restart (pass or direct
 shot) that happens in the defending team's own half. In StatsBomb
@@ -40,8 +41,10 @@ from _loader import (  # noqa: E402
     resolve_team_name,
     shot_xg,
 )
+from _plotting import ranked_bar_chart  # noqa: E402
 
 FOCUS_TEAM = "Barcelona"
+DEFAULT_OUTPUT_DIR = Path("set_piece_plots")
 
 
 def _empty_record() -> dict:
@@ -151,6 +154,57 @@ def print_report(focus_team: str = FOCUS_TEAM) -> None:
     print(f"  Free kicks faced per game        : {avg['mean_fks_per_game']:.2f}")
 
 
+def save_plots(focus_team: str, output_dir: Path) -> None:
+    """Render and save the four wiki plots for defensive free kicks."""
+    records = collect_per_team()
+    if focus_team not in records:
+        raise SystemExit(f"No data for team {focus_team!r}")
+
+    teams_with_data = {t: r for t, r in records.items() if r["matches"] > 0}
+
+    goals_conceded = {t: float(r["goals_conceded"]) for t, r in teams_with_data.items()}
+    xg_per_game = {t: derive_rates(r)["xg_per_game"] for t, r in teams_with_data.items()}
+    shot_rate = {t: derive_rates(r)["shot_rate_against"] for t, r in teams_with_data.items()}
+    fks_per_game = {t: derive_rates(r)["fks_per_game"] for t, r in teams_with_data.items()}
+
+    print()
+    print(f"Saving plots to {output_dir}/ ...")
+    ranked_bar_chart(
+        goals_conceded,
+        title="Total Goals Conceded from Free Kick Sequences",
+        ylabel="Goals conceded (all games)",
+        focus_team=focus_team,
+        output_path=output_dir / "df01_total_goals_conceded_fk.png",
+        fmt=".0f",
+    )
+    ranked_bar_chart(
+        xg_per_game,
+        title="Average xG Conceded from Free Kick Sequences per Game",
+        ylabel="xG conceded / game",
+        focus_team=focus_team,
+        output_path=output_dir / "df02_xg_conceded_fk_avg.png",
+        fmt=".3f",
+    )
+    ranked_bar_chart(
+        shot_rate,
+        title="Attempts Conceded per Free Kick Faced",
+        ylabel="Attempts conceded / FK",
+        focus_team=focus_team,
+        output_path=output_dir / "df03_attempt_rate_conceded_fk.png",
+        fmt=".3f",
+    )
+    ranked_bar_chart(
+        fks_per_game,
+        title="Average Free Kicks Faced in Own Half per Game",
+        ylabel="Free kicks conceded / game",
+        focus_team=focus_team,
+        output_path=output_dir / "df04_free_kicks_conceded_avg.png",
+        fmt=".2f",
+    )
+
+
 if __name__ == "__main__":
     team = sys.argv[1] if len(sys.argv) > 1 else FOCUS_TEAM
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
     print_report(team)
+    save_plots(team, out)

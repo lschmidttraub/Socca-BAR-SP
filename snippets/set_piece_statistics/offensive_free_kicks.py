@@ -1,12 +1,13 @@
 """Offensive free-kick statistics for FC Barcelona vs. the UCL field.
 
 Re-computes every number quoted in the *Offensive Set-Pieces → Free-kick
-Sequences* subsection of the BAR-SP wiki page:
+Sequences* subsection of the BAR-SP wiki page and saves the four
+ranked-bar plots embedded there:
 
-* total goals from free-kick sequences
-* attempt rate per free kick (share of FKs that generated a shot)
-* total xG from free-kick sequences
-* goal conversion per free kick
+* ``of01_total_goals_fk.png``     — total goals from FK sequences
+* ``of02_attempt_rate_fk.png``    — attempt rate per FK
+* ``of03_total_xg_fk.png``        — total xG from FK sequences
+* ``of04_goal_rate_fk.png``       — goal conversion per FK
 
 A free kick is counted when a Free-Kick pass or a direct Free-Kick shot
 occurs in the opponent half (x ≥ 60 on the 120×80 StatsBomb pitch).
@@ -18,16 +19,19 @@ Run with::
     uv run python snippets/set_piece_statistics/offensive_free_kicks.py
 
 Default focus team is Barcelona; pass a different name as the first CLI
-argument to retarget.
+argument to retarget. Plots are written to ``./set_piece_plots/`` by
+default — pass an output directory as the second positional argument
+to override.
 """
 
 from __future__ import annotations
 
 import sys
 from collections import defaultdict
+from pathlib import Path
 
 # Allow running as ``python snippets/set_piece_statistics/offensive_free_kicks.py``
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _loader import (  # noqa: E402
     event_team,
@@ -42,8 +46,10 @@ from _loader import (  # noqa: E402
     resolve_team_name,
     shot_xg,
 )
+from _plotting import ranked_bar_chart  # noqa: E402
 
 FOCUS_TEAM = "Barcelona"
+DEFAULT_OUTPUT_DIR = Path("set_piece_plots")
 
 
 def _empty_record() -> dict:
@@ -148,6 +154,57 @@ def print_report(focus_team: str = FOCUS_TEAM) -> None:
     print(f"  Goal conversion per free kick: {avg['mean_goal_rate'] * 100:5.1f}%")
 
 
+def save_plots(focus_team: str, output_dir: Path) -> None:
+    """Render and save the four wiki plots for offensive free kicks."""
+    records = collect_per_team()
+    if focus_team not in records:
+        raise SystemExit(f"No data for team {focus_team!r}")
+
+    teams_with_data = {t: r for t, r in records.items() if r["matches"] > 0}
+
+    goals = {t: float(r["goals"]) for t, r in teams_with_data.items()}
+    total_xg = {t: float(r["xg"]) for t, r in teams_with_data.items()}
+    attempt_rate = {t: derive_rates(r)["attempt_rate"] for t, r in teams_with_data.items()}
+    goal_rate = {t: derive_rates(r)["goal_rate"] for t, r in teams_with_data.items()}
+
+    print()
+    print(f"Saving plots to {output_dir}/ ...")
+    ranked_bar_chart(
+        goals,
+        title="Total Goals from Free Kick Sequences",
+        ylabel="Goals (all games)",
+        focus_team=focus_team,
+        output_path=output_dir / "of01_total_goals_fk.png",
+        fmt=".0f",
+    )
+    ranked_bar_chart(
+        attempt_rate,
+        title="Attempts per Free Kick (ratio of FKs that generated a shot)",
+        ylabel="Attempts / FK",
+        focus_team=focus_team,
+        output_path=output_dir / "of02_attempt_rate_fk.png",
+        fmt=".3f",
+    )
+    ranked_bar_chart(
+        total_xg,
+        title="Total xG from Free Kick Sequences",
+        ylabel="xG (all games)",
+        focus_team=focus_team,
+        output_path=output_dir / "of03_total_xg_fk.png",
+        fmt=".2f",
+    )
+    ranked_bar_chart(
+        goal_rate,
+        title="Goals per Free Kick (ratio of FKs that generated a goal)",
+        ylabel="Goals / FK",
+        focus_team=focus_team,
+        output_path=output_dir / "of04_goal_rate_fk.png",
+        fmt=".4f",
+    )
+
+
 if __name__ == "__main__":
     team = sys.argv[1] if len(sys.argv) > 1 else FOCUS_TEAM
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_OUTPUT_DIR
     print_report(team)
+    save_plots(team, out)

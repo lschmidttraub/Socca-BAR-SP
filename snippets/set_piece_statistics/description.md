@@ -2,38 +2,50 @@
 
 ## What it does
 
-Re-computes every set-piece statistic cited in the **Stats** section of
-the [BAR-SP wiki page](): Barcelona's offensive and defensive output
-from free-kick and corner sequences, and their per-match set-piece
-performance across the UCL 2025-26 campaign.
+Re-computes every set-piece statistic and re-renders every plot embedded
+in the **Stats** section of the [BAR-SP wiki page](): Barcelona's
+offensive and defensive output from free-kick and corner sequences, and
+their per-match set-piece performance across the UCL 2025-26 campaign.
 
 Each subsection of the wiki maps to one runnable script in this folder:
 
-| Wiki subsection                               | Script                         |
-|-----------------------------------------------|--------------------------------|
-| Offensive Free-kick Sequences                 | `offensive_free_kicks.py`      |
-| Offensive Corner Sequences                    | `offensive_corners.py`         |
-| Defensive Free-kick Sequences                 | `defensive_free_kicks.py`      |
-| Defensive Corner Sequences                    | `defensive_corners.py`         |
-| Set-Piece Performance in FC Barcelona Matches | `per_match_performance.py`     |
+| Wiki subsection                               | Script                         | Plots produced     |
+|-----------------------------------------------|--------------------------------|--------------------|
+| Offensive Free-kick Sequences                 | `offensive_free_kicks.py`      | `of01`–`of04` (4)  |
+| Offensive Corner Sequences                    | `offensive_corners.py`         | `oc01`–`oc04` (4)  |
+| Defensive Free-kick Sequences                 | `defensive_free_kicks.py`      | `df01`–`df04` (4)  |
+| Defensive Corner Sequences                    | `defensive_corners.py`         | `dc01`–`dc05` (6)  |
+| Set-Piece Performance in FC Barcelona Matches | `per_match_performance.py`     | `matches01`–`04` (4) |
 
-The *Player Physicality* subsection is covered by a separate snippet.
-All five scripts here share one lightweight helper module,
-`_loader.py`, which parses `data/matches.csv` and streams StatsBomb
-JSONs out of the three ZIP archives in `data/statsbomb/` without
-unpacking them.
+All five scripts share two lightweight helper modules:
+
+- `_loader.py` parses `data/matches.csv` and streams StatsBomb JSONs
+  out of the three ZIP archives in `data/statsbomb/` without unpacking
+  them.
+- `_plotting.py` provides the ranked-bar, combined-bar and per-match
+  bar chart helpers used by every script. Styling matches the rest of
+  the project but the helper has no dependency on the project's
+  `src/stats` library — copy the whole folder and the snippet runs
+  anywhere with `matplotlib` and `numpy` installed.
 
 ## Inputs
 
-- **Team name** (optional CLI argument, default: `"Barcelona"`)
-- **Data sources**: StatsBomb event data (`data/statsbomb/league_phase.zip`,
-  `last16.zip`, `playoffs.zip`) and `data/matches.csv` as the match lookup.
+- **Team name** (first positional CLI arg, default: `"Barcelona"`)
+- **Output directory** (second positional CLI arg, default:
+  `./set_piece_plots/`)
+- **Data sources**: StatsBomb event data
+  (`data/statsbomb/league_phase.zip`, `last16.zip`, `playoffs.zip`)
+  and `data/matches.csv` as the match lookup.
 
-## Outputs
+## Output
 
-Plain-text reports printed to stdout. Each script prints the focus
-team's metrics, the corresponding league average across all teams in
-the dataset, and enough context to verify the wiki numbers at a glance.
+Each script does two things:
+
+1. **Stdout** — a plain-text report with the focus team's metrics
+   alongside the league average across all teams in the dataset.
+2. **PNG plots** — saved into the output directory, one file per wiki
+   anchor. Filenames match the wiki naming convention (e.g.
+   `of01_total_goals_fk.png`).
 
 `per_match_performance.py` additionally prints a per-match table with
 corner and free-kick volume, attempts, xG and goals for every Barcelona
@@ -62,6 +74,12 @@ League average  (n = 27 teams)
   Total xG from FK sequences   : 1.47
   Attempt rate per free kick   :  41.2%
   Goal conversion per free kick:   3.6%
+
+Saving plots to set_piece_plots/ ...
+  saved set_piece_plots/of01_total_goals_fk.png
+  saved set_piece_plots/of02_attempt_rate_fk.png
+  saved set_piece_plots/of03_total_xg_fk.png
+  saved set_piece_plots/of04_goal_rate_fk.png
 ```
 
 ### `offensive_corners.py`
@@ -85,6 +103,12 @@ League average  (n = 27 teams)
   Goal rate per corner      :   6.2%
   Total xG from corners     : 2.13
   Avg xG from corners / game: 0.218
+
+Saving plots to set_piece_plots/ ...
+  saved set_piece_plots/oc01_total_goals_corner.png
+  saved set_piece_plots/oc02_attempt_rate_corner.png
+  saved set_piece_plots/oc03_xg_corner_avg.png
+  saved set_piece_plots/oc04_goal_rate_corner.png
 ```
 
 ### `defensive_free_kicks.py`
@@ -107,6 +131,12 @@ League average  (n = 27 teams)
   Avg xG conceded from FK / game   : 0.168
   Shot rate against per FK faced   :  42.5%
   Free kicks faced per game        : 4.22
+
+Saving plots to set_piece_plots/ ...
+  saved set_piece_plots/df01_total_goals_conceded_fk.png
+  saved set_piece_plots/df02_xg_conceded_fk_avg.png
+  saved set_piece_plots/df03_attempt_rate_conceded_fk.png
+  saved set_piece_plots/df04_free_kicks_conceded_avg.png
 ```
 
 ### `defensive_corners.py`
@@ -131,6 +161,14 @@ League average  (n = 27 teams)
   Shot rate against per corner faced   :  46.0%
   Goal rate against per corner faced   :   4.4%
   Corners faced per game               : 4.74
+
+Saving plots to set_piece_plots/ ...
+  saved set_piece_plots/dc01_total_goals_conceded_corner.png
+  saved set_piece_plots/dc02_xg_conceded_corner_avg.png
+  saved set_piece_plots/dc03_attempt_rate_conceded_corner.png
+  saved set_piece_plots/dc041_goal_rate_conceded_corner.png
+  saved set_piece_plots/dc042_goals_xg_conceded_combined_corners.png
+  saved set_piece_plots/dc05_corners_conceded_avg.png
 ```
 
 ### `per_match_performance.py`
@@ -152,6 +190,12 @@ Date       Opponent               | Corn ShotsC xGcorner GcC |  FKs ShotsF     x
 2026-03-18 Newcastle United       |    6      3     0.44   1 |    4      2     0.40   1
 -----------------------------------------------------------------------------------------------
 TOTAL                             |   47     21     1.89   2 |   44     21     1.82   3
+
+Saving plots to set_piece_plots/ ...
+  saved set_piece_plots/matches01_corners.png
+  saved set_piece_plots/matches02_corners_xg.png
+  saved set_piece_plots/matches03_free_kicks.png
+  saved set_piece_plots/matches04_free_kicks_xg.png
 ```
 
 ## Definitions
@@ -168,3 +212,13 @@ TOTAL                             |   47     21     1.89   2 |   44     21     1
 - **Sequence outcome**: the corresponding `play_pattern` value
   (`"From Corner"` or `"From Free Kick"`). Penalties are filtered out.
 - **xG**: StatsBomb's `shot.statsbomb_xg`.
+- **Ranked-bar plot**: every team's value as a vertical bar, ordered
+  descending; the focus team is highlighted in red and the league mean
+  drawn as an extra orange bar inserted at its sorted position.
+- **Per-match plot**: grouped bars of one metric per Barcelona fixture,
+  focus team in red, opponent in blue. The xG plots additionally
+  annotate the actual goal count inside each bar so the reader can
+  separate "good xG that scored" from "good xG that didn't".
+- **Spelling drift**: a handful of teams (PSG, Bayern, Monaco,
+  Leverkusen, Dortmund) have different CSV vs. event-side names and
+  are dropped from the league denominator. Barcelona is unaffected.
