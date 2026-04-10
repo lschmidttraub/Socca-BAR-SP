@@ -68,12 +68,12 @@ Offensive free-kick sequences — Barcelona
   Attempt rate per free kick   :  47.7%
   Goal conversion per free kick:   6.8%
 
-League average  (n = 27 teams)
+League average  (n = 36 teams)
 ------------------------------------------------------------
-  Goals from FK sequences      : 1.48
-  Total xG from FK sequences   : 1.47
-  Attempt rate per free kick   :  41.2%
-  Goal conversion per free kick:   3.6%
+  Goals from FK sequences      : 1.86
+  Total xG from FK sequences   : 1.67
+  Attempt rate per free kick   :  44.9%
+  Goal conversion per free kick:   4.8%
 
 Saving plots to set_piece_plots/ ...
   saved set_piece_plots/of01_total_goals_fk.png
@@ -96,13 +96,13 @@ Offensive corner sequences — Barcelona
   Total xG from corners     : 1.89
   Avg xG from corners / game: 0.189
 
-League average  (n = 27 teams)
+League average  (n = 36 teams)
 ------------------------------------------------------------
-  Goals from corner seq.    : 2.22
-  Attempt rate per corner   :  49.8%
-  Goal rate per corner      :   6.2%
-  Total xG from corners     : 2.13
-  Avg xG from corners / game: 0.218
+  Goals from corner seq.    : 2.17
+  Attempt rate per corner   :  47.8%
+  Goal rate per corner      :   4.8%
+  Total xG from corners     : 2.20
+  Avg xG from corners / game: 0.223
 
 Saving plots to set_piece_plots/ ...
   saved set_piece_plots/oc01_total_goals_corner.png
@@ -125,12 +125,12 @@ Defensive free-kick sequences — Barcelona
   Avg xG conceded from FK / game   : 0.087
   Shot rate against per FK faced   :  33.3%
 
-League average  (n = 27 teams)
+League average  (n = 36 teams)
 ------------------------------------------------------------
-  Goals conceded from FK sequences : 1.81
-  Avg xG conceded from FK / game   : 0.168
-  Shot rate against per FK faced   :  42.5%
-  Free kicks faced per game        : 4.22
+  Goals conceded from FK sequences : 1.86
+  Avg xG conceded from FK / game   : 0.180
+  Shot rate against per FK faced   :  44.2%
+  Free kicks faced per game        : 4.16
 
 Saving plots to set_piece_plots/ ...
   saved set_piece_plots/df01_total_goals_conceded_fk.png
@@ -154,13 +154,13 @@ Defensive corner sequences — Barcelona
   Shot rate against per corner faced   :  31.6%
   Goal rate against per corner faced   :   2.6%
 
-League average  (n = 27 teams)
+League average  (n = 36 teams)
 ------------------------------------------------------------
-  Goals conceded from corner seq.      : 1.81
-  Avg xG conceded from corners / game  : 0.224
-  Shot rate against per corner faced   :  46.0%
-  Goal rate against per corner faced   :   4.4%
-  Corners faced per game               : 4.74
+  Goals conceded from corner seq.      : 2.19
+  Avg xG conceded from corners / game  : 0.226
+  Shot rate against per corner faced   :  47.6%
+  Goal rate against per corner faced   :   4.9%
+  Corners faced per game               : 4.75
 
 Saving plots to set_piece_plots/ ...
   saved set_piece_plots/dc01_total_goals_conceded_corner.png
@@ -179,13 +179,13 @@ Per-match offensive set pieces — Barcelona   (10 matches)
 Date       Opponent               | Corn ShotsC xGcorner GcC |  FKs ShotsF     xGfk GfK
 -----------------------------------------------------------------------------------------------
 2025-09-18 Newcastle United       |    4      1     0.04   0 |    7      2     0.15   0
-2025-10-01 PSG                    |    4      1     0.05   0 |    6      2     0.10   0
-2025-10-21 Olympiacos Piraeus     |    7      2     0.31   0 |    4      1     0.01   0
+2025-10-01 Paris Saint-Germain    |    4      1     0.05   0 |    6      2     0.10   0
+2025-10-21 Olympiacos             |    7      2     0.31   0 |    4      1     0.01   0
 2025-11-05 Club Brugge            |    3      0     0.00   0 |    5      4     0.07   0
 2025-11-25 Chelsea                |    0      0     0.00   0 |    6      1     0.03   0
-2025-12-09 Frankfurt              |    5      2     0.12   1 |    6      2     0.38   0
+2025-12-09 Eintracht Frankfurt    |    5      2     0.12   1 |    6      2     0.38   0
 2026-01-21 Slavia Praha           |    4      3     0.11   0 |    2      1     0.04   0
-2026-01-28 København              |   10      8     0.71   0 |    2      5     0.58   2
+2026-01-28 FC København           |   10      8     0.71   0 |    2      5     0.58   2
 2026-03-10 Newcastle United       |    4      1     0.11   0 |    2      1     0.05   0
 2026-03-18 Newcastle United       |    6      3     0.44   1 |    4      2     0.40   1
 -----------------------------------------------------------------------------------------------
@@ -219,6 +219,7 @@ Saving plots to set_piece_plots/ ...
   focus team in red, opponent in blue. The xG plots additionally
   annotate the actual goal count inside each bar so the reader can
   separate "good xG that scored" from "good xG that didn't".
-- **Spelling drift**: a handful of teams (PSG, Bayern, Monaco,
-  Leverkusen, Dortmund) have different CSV vs. event-side names and
-  are dropped from the league denominator. Barcelona is unaffected.
+- **Name normalisation**: `_loader.py` maps CSV team names to their
+  StatsBomb event spelling at load time (e.g. PSG → Paris
+  Saint-Germain, Frankfurt → Eintracht Frankfurt). All 36 teams are
+  included in league averages.

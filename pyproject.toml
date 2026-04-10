@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = ["matplotlib>=3.10.8", "mplsoccer>=1.6.1", "seaborn>=0.13.2"]
+dependencies = [
+    "matplotlib>=3.10.8",
+    "mplsoccer>=1.6.1",
+    "ruff>=0.15.8",
+    "seaborn>=0.13.2",
+    "vulture>=2.16",
+]

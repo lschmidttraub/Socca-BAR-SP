@@ -1,14 +1,11 @@
+<!--
 **TODO:**
 
  - Adapt the content to the final numbers, when all data is available
  - Conduct analyses as described below
+ -->
 
 ## Offensive Analysis
-
-This section examines the offensive set pieces of FC Barcelona. 
-The first step focuses on evaluating metrics related to the success of these actions, as well as the static characteristics of the delivery. 
-The subsequent analysis considers and visualises the movement patterns of the attacking players using selected pieces, placing them in the context of the previous findings and using them to derive an interpretation of FC Barcelona’s offensive set-piece strategy.
-
 ### Offensive Corners
 
 The first key finding is that Barcelona’s corner strategy appears structurally distinctive, even if the overall output is not elite. 

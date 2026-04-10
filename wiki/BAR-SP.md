@@ -43,39 +43,44 @@ If you have any more questions, don’t hesitate to contact me or stop by at the
 
 </details>
 
-## Notes on Current Status
+**Disclaimer:** Generative AI was used to generate the plots in this report.
 
-This report outlines the planned structure of the final report. At the same time, the example analyses included already reflect, to a large extent, the level of depth targeted in the final version.
-As second assignment it provides an introduction to the project and summarizes secondary research on existing analyses of FC Barcelona’s set-pieces. From this review, key observations and research questions are derived, which can later be compared with our own analyses.
-At this stage, the analysis focuses on relevant descriptive and general statistics, as well as FC Barcelona’s behaviour in offensive and defensive corners, in order to identify their underlying strategies.
+**Current status:** This report is not final, and will be updated as we progress. It does however outline the planned structure of the final report, and the example analyses included already reflect, to a large extent, the level of depth targeted in the final version.
 
 ## Introduction
 
-This part introduces the analytical framework of our project and reviews existing tactical analyses of FC Barcelona's set pieces under Hansi Flick. 
-It synthesises current literature on Barcelona's offensive and defensive corner behaviour, highlighting recurring attacking mechanisms, as well as defensive weaknesses related to hybrid marking structures. 
-Based on these findings and qualitative match observations, the page then outlines the data-analysis plan for the project, with a particular focus on assessing Barcelona’s evolving set-piece strategy.
+FC Barcelona have traditionally been associated with a highly technical style of play, based on positional structure and collective ball control. 
+For many years, analyses of Barcelona focused primarily on their behaviour in open play rather than on set-pieces (apart from Alexander-Arnold's infamous corner in Liverpool's 2019 4-0 comeback).
+However, this framing has become less adequate since Hansi Flick’s appointment as manager in July 2024. 
+Analyses show that Barcelona’s game has become more direct, more vertical and more aggressive in attacking dangerous spaces across all phases of play, including set-piece situations. (See [[Coaches' Voice 2025]](https://learning.coachesvoice.com/cv/hansi-flick-tactics-barcelona/))
 
-[Introduction, Review of Existing Analyses and Plan of Analysis](BAR-SP/introduction.md)
+Reports from the Flick era already suggest that dead-ball situations, and corners in partiular, have represented both a competitive strength and a vulnerability for Barcelona.
+Existing analyses repeatedly identify corners as the phase in which Barcelona’s tactical ideas are most clearly visible &mdash; both offensively, through coordinated and vertical routines, and defensively, through recurring issues in marking and far-post protection.
+Analysing corners of the CL 25/26 thus provides a strong entry point for understanding how Barcelona currently use set pieces and how their usage has evolved since last season.
+We further review the prominent findings of previous analyses [here](BAR-SP/previous-analyses).
 
-## Analysis of Overview Statistics
+## Plan of the Report
 
-The purpose of this section is to provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
-It should be noted, however, that the sample size is small, and the conclusions we draw only apply to this tournament and do not support broader general conclusions.
-We generate statistics for offensive and defensive set-pieces with the snippet $2765, using data from the league phase and round of 16.
+To address the scarcity of the data available to us, we balance statistical analyses with qualitative reviews of indivual matches and plays: we start our report with a statistical overview of Barcelona's set piece performance, comparing it to other clubs, followed by more in-depth analyses specific to Barcelona's strategy.
+Our subsequent analyses can be broadly divided into offensive and defensive categories. As mentioned in the introduction, we place particular emphasis on corners, as our qualitative review of Barcelona's game suggests that they are especially crucial to Barcelona’s offensive and defensive set-piece strategy.
 
-[Overview on Set Piece Statistics of FC Barcelona](BAR-SP/statistics.md)
+The data used throughout these analyses is drawn from the league phase and round of 16 of the current UEFA Champions League season.
+We stress that due to the small sample size, the conclusions we draw only apply to this tournament and do not necessarily support more general conclusions.
 
-## Offensive Set-Pieces
+
+### [Overview of Set Piece Statistics](BAR-SP/statistics)
+
+In this section, we provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
+We generate the charts and tables in this section with the snippet $2765, using data from the league phase and round of 16.
+The analysis is divided into [offensive](BAR-SP/statistics#offensive-set-pieces) and [defensive](BAR-SP/statistics#defensive-set-pieces) set-pieces.
+
+
+### [Offensive Set-Pieces](BAR-SP/offense)
 
 This section presents the offensive set-piece analysis of FC Barcelona, with a particular focus on corners and free-kicks. 
 It combines descriptive metrics, delivery characteristics, spatial patterns, and selected movement visualisations to identify the main principles of Barcelona’s attacking set-piece strategy.
 
-#### Offensive Corners
+#### [Offensive Corners](BAR-SP/offense#offensive-corners)
+We start by investigating  [Offensive Corner Delivery Patterns](BAR-SP/offense#offensive-corners), followed by a discussion of [Player Movement in Offensive Corners](BAR-SP/offense#movement-of-attacking-players).
 
-[Offensive Corner Delivery Patterns](BAR-SP/offense.md#offensive-corners)
-
-[Player Movement in Offensive Corners](BAR-SP/offense.md#movement-of-attacking-players)
-
-## Defensive Set-Pieces
-
-[Defensive XYZ](BAR-SP/defense.md)
+### [Defensive Set-Pieces](BAR-SP/defense)

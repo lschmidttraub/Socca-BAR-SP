@@ -12,3 +12,4 @@ Reference snippets from the wiki via `$<id>` (e.g. `$2765`).
 | [`corner_player_roles/`](corner_player_roles/)                     | —          | Top corner takers and first-delivery receivers for Barcelona *(not yet uploaded)*    |
 | [`corner_spatial_maps/`](corner_spatial_maps/)                     | —          | Three pitch maps: spatial profile, endpoints by side, first touch *(not yet uploaded)* |
 | [`corner_matchup_height/`](corner_matchup_height/)                 | —          | Far-post share vs opponent height gap (per-match scatter) *(not yet uploaded)*       |
+| [`corner_run_maps/`](corner_run_maps/)                             | —          | Per-corner 3-panel attacker movement maps from SkillCorner tracking *(not yet uploaded)* |

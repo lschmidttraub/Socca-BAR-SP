@@ -40,7 +40,7 @@ import numpy as np
 # the script is invoked from the repo root or from this folder.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _loader import abbr, collect_match_rows  # noqa: E402
+from _loader import abbr, collect_match_rows
 
 DEFAULT_TEAM = "Barcelona"
 DEFAULT_OUTPUT = Path("matchup_far_post_share.png")

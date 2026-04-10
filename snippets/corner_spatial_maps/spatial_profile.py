@@ -33,7 +33,7 @@ from mplsoccer import Pitch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _loader import (  # noqa: E402
+from _loader import (
     FOCUS_COLOR,
     ROUTINE_COLORS,
     ROUTINE_ORDER,

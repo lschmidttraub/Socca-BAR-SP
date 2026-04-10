@@ -20,9 +20,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.pyplot as plt
 
-from _loader import collect_corner_data  # noqa: E402
+from _loader import collect_corner_data
 
 FOCUS_TEAM = "Barcelona"
 DEFAULT_OUTPUT_DIR = Path("corner_player_plots")

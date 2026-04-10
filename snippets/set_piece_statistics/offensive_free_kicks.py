@@ -33,7 +33,7 @@ from pathlib import Path
 # Allow running as ``python snippets/set_piece_statistics/offensive_free_kicks.py``
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _loader import (  # noqa: E402
+from _loader import (
     event_team,
     in_opponent_half,
     is_free_kick_pass,
@@ -46,7 +46,7 @@ from _loader import (  # noqa: E402
     resolve_team_name,
     shot_xg,
 )
-from _plotting import ranked_bar_chart  # noqa: E402
+from _plotting import ranked_bar_chart
 
 FOCUS_TEAM = "Barcelona"
 DEFAULT_OUTPUT_DIR = Path("set_piece_plots")
@@ -114,7 +114,7 @@ def league_average(records: dict[str, dict]) -> dict:
     n = len(teams)
     if n == 0:
         return {}
-    mean = lambda field: sum(r[field] for r in teams) / n  # noqa: E731
+    mean = lambda field: sum(r[field] for r in teams) / n
     shot_rates = [derive_rates(r)["attempt_rate"] for r in teams]
     goal_rates = [derive_rates(r)["goal_rate"] for r in teams]
     return {

@@ -1,13 +1,10 @@
+<!--
 **TODO:**
 
  - Create tables to allow for quick comparison of BAR value, mean and rank; when final data is available.
+--> 
 
 ## Overview on Set Piece Statistics of FC Barcelona
-
-This section examines generally relevant set-piece statistics on corners and free-kicks sequences starting in the opponents' half of the pitch. 
-Its purpose is to provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
-It should be noted, however, that the sample consists of a relatively small number of matches. 
-As a result, the analysis applies only to this competition and does not support broader general conclusions.
 
 ### Offensive Set-Pieces
 

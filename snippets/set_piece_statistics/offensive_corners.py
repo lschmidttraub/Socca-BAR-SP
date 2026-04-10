@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _loader import (  # noqa: E402
+from _loader import (
     event_team,
     is_corner_pass,
     is_goal,
@@ -37,7 +37,7 @@ from _loader import (  # noqa: E402
     resolve_team_name,
     shot_xg,
 )
-from _plotting import ranked_bar_chart  # noqa: E402
+from _plotting import ranked_bar_chart
 
 FOCUS_TEAM = "Barcelona"
 DEFAULT_OUTPUT_DIR = Path("set_piece_plots")

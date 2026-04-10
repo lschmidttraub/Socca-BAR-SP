@@ -115,7 +115,6 @@ def collect_team_heights() -> dict[str, float]:
     appears in multiple matches contributes their height exactly once.
     Goalkeepers and unused subs are excluded.
     """
-    # {csv_team: {player_id: height_cm}}
     team_players: dict[str, dict[int, float]] = defaultdict(dict)
 
     for row in _read_matches_csv():

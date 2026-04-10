@@ -28,6 +28,23 @@ MATCHES_CSV = DATA_DIR / "matches.csv"
 LEAGUE_PHASE_ZIP = "league_phase.zip"
 ZIP_NAMES = (LEAGUE_PHASE_ZIP, "last16.zip", "playoffs.zip")
 
+# CSV team names that differ from their StatsBomb event spelling.
+# Applied when reading matches.csv so every downstream lookup is
+# an exact match against the events.
+CSV_TO_STATSBOMB: dict[str, str] = {
+    "Internazionale": "Inter Milan",
+    "PSG": "Paris Saint-Germain",
+    "Monaco": "AS Monaco",
+    "Leverkusen": "Bayer Leverkusen",
+    "Dortmund": "Borussia Dortmund",
+    "Frankfurt": "Eintracht Frankfurt",
+    "Qarabag": "Qarabağ FK",
+    "Bayern München": "Bayern Munich",
+    "Olympiacos Piraeus": "Olympiacos",
+    "PSV": "PSV Eindhoven",
+    "København": "FC København",
+}
+
 
 @dataclass
 class Match:
@@ -43,13 +60,21 @@ class Match:
     def opponent_of(self, team: str) -> str:
         return self.away if team in self.home else self.home
 
-    def is_home(self, team: str) -> bool:
-        return team in self.home
+
+def _normalise_team(name: str) -> str:
+    """Apply CSV→StatsBomb spelling fixes."""
+    for old, new in CSV_TO_STATSBOMB.items():
+        name = name.replace(old, new)
+    return name
 
 
 def _read_matches_csv(csv_path: Path = MATCHES_CSV) -> list[dict]:
     with open(csv_path, newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        row["home"] = _normalise_team(row.get("home", ""))
+        row["away"] = _normalise_team(row.get("away", ""))
+    return rows
 
 
 def _index_phases(statsbomb_dir: Path = STATSBOMB_DIR) -> dict[str, str]:
@@ -116,21 +141,18 @@ def iter_matches(
 
 # ── Team-name resolution ──────────────────────────────────────────────
 #
-# We only aggregate events for teams whose CSV name matches the event
-# name exactly. A handful of teams (PSG vs "Paris Saint-Germain", Bayern
-# München vs "Bayern Munich", Monaco vs "AS Monaco", Leverkusen vs
-# "Bayer Leverkusen", Dortmund vs "Borussia Dortmund") are spelled
-# differently in the two sources and therefore get skipped — which
-# slightly lowers the league-average denominators but leaves all of
-# Barcelona's own numbers intact.
+# CSV team names are normalised to StatsBomb spelling via
+# CSV_TO_STATSBOMB when matches.csv is loaded.  resolve_team_name()
+# still does a final exact-match check as a safety net for any team
+# whose mapping is incomplete or absent.
 
 
 def resolve_team_name(csv_team: str, match: Match) -> str | None:
     """Return *csv_team* if it appears verbatim in *match*'s events.
 
-    Exact-match lookup only. A miss means the team's CSV spelling
-    differs from its event spelling, in which case callers skip the
-    (team, match) pair.
+    With the CSV→StatsBomb mapping applied at load time this should
+    succeed for every team.  Returns ``None`` only for unmapped
+    spelling mismatches, in which case callers skip the pair.
     """
     for e in match.events:
         if e.get("team", {}).get("name") == csv_team:
@@ -197,11 +219,3 @@ def in_opponent_half(e: dict) -> bool:
     """True if the event's x-coordinate is past the half-way line (x ≥ 60)."""
     loc = e.get("location")
     return bool(loc and loc[0] >= OPPONENT_HALF_X)
-
-
-# ── Convenience: format a mean / ratio side-by-side ───────────────────
-
-
-def fmt_vs_avg(team_val: float, avg_val: float, fmt: str = ".3f") -> str:
-    """Return ``"<team>   (league avg <avg>)"`` — handy for pretty prints."""
-    return f"{team_val:{fmt}}   (league avg {avg_val:{fmt}})"
