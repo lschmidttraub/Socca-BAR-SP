@@ -131,10 +131,21 @@ def corners_against(skillcorner_id: int, defending_tid: int) -> list[dict]:
     ]].dropna(subset=["frame_start"]).to_dict(orient="records")
 
 
-def per_corner_avg_distances(skillcorner_id: int, defending_tid: int, player_index: dict) -> list[float]:
+def per_corner_avg_distances(
+    skillcorner_id: int,
+    defending_tid: int,
+    player_index: dict,
+    n_smallest: int | None = None,
+) -> list[float]:
     """
     Return one float per corner: the average nearest-opponent distance across
-    all outfield Barcelona players at that corner frame.
+    outfield players at that corner frame.
+
+    Parameters
+    ----------
+    n_smallest : if given, average only over the N players whose nearest-opponent
+                 distance is smallest (i.e. most tightly marked); otherwise
+                 average over all outfield players.
     """
     corners = corners_against(skillcorner_id, defending_tid)
     if not corners:
@@ -147,7 +158,10 @@ def per_corner_avg_distances(skillcorner_id: int, defending_tid: int, player_ind
         fid = tracking_frame.get("frame")
         if fid in remaining:
             dists = nearest_opponent_distance(tracking_frame, player_index, defending_tid)
-            target_frames[fid] = sum(dists) / len(dists) if dists else None
+            if dists:
+                if n_smallest is not None:
+                    dists = sorted(dists)[:n_smallest]
+                target_frames[fid] = sum(dists) / len(dists)
             remaining.discard(fid)
             if not remaining:
                 break
@@ -273,7 +287,8 @@ from collections import defaultdict
 # ---------------------------------------------------------------------------
 
 matches_df = _read_matches_df(MATCHES_CSV)
-team_distances: defaultdict[str, list[float]] = defaultdict(list)
+team_distances:    defaultdict[str, list[float]] = defaultdict(list)
+team_distances_5:  defaultdict[str, list[float]] = defaultdict(list)
 # team_name -> list of per-corner avg distances (one float per corner, across all their games)
 
 for _, match_row in matches_df.iterrows():
@@ -295,6 +310,12 @@ for _, match_row in matches_df.iterrows():
         corner_dists = per_corner_avg_distances(skillcorner_id, team["id"], player_index)
         if corner_dists:
             team_distances[team["name"]].extend(corner_dists)
+
+        corner_dists_5 = per_corner_avg_distances(skillcorner_id, team["id"], player_index, n_smallest=5)
+        if corner_dists_5:
+            team_distances_5[team["name"]].extend(corner_dists_5)
+
+        if corner_dists:
             print(f"  [{skillcorner_id}] {team['name']:30s}  +{len(corner_dists)} corners")
 
 # ---------------------------------------------------------------------------
@@ -331,4 +352,39 @@ plt.tight_layout()
 out_path = OUT_DIR / "avg_distances_all_teams.png"
 fig.savefig(out_path, dpi=150, bbox_inches="tight")
 print(f"\nPlot saved to {out_path}")
+plt.show()
+
+# ---------------------------------------------------------------------------
+# Plot: avg defending-corner distance — 5 most tightly marked players per team
+# ---------------------------------------------------------------------------
+
+team_df_5 = pd.DataFrame([
+    {
+        "team":      name,
+        "avg_dist":  sum(dists) / len(dists),
+        "n_corners": len(dists),
+    }
+    for name, dists in team_distances_5.items()
+]).sort_values("avg_dist")
+
+fig2, ax2 = plt.subplots(figsize=(10, max(4, len(team_df_5) * 0.38)))
+bars2 = ax2.barh(team_df_5["team"], team_df_5["avg_dist"], color="steelblue", edgecolor="white")
+
+barca_idx_5 = team_df_5["team"].str.contains(BARCELONA, case=False)
+for bar, is_barca in zip(bars2, barca_idx_5):
+    if is_barca:
+        bar.set_color("#e63946")
+
+for bar, val, n in zip(bars2, team_df_5["avg_dist"], team_df_5["n_corners"]):
+    ax2.text(val + 0.05, bar.get_y() + bar.get_height() / 2,
+             f"{val:.2f} m  ({n}c)", va="center", fontsize=7.5)
+
+ax2.set_xlabel("Avg nearest-opponent distance during defending corners (m) — 5 most marked players")
+ax2.set_title("Defending corner compactness — 5 most tightly marked players per team\n(red = Barcelona)")
+ax2.grid(axis="x", alpha=0.25)
+plt.tight_layout()
+
+out_path_5 = OUT_DIR / "avg_distances_all_teams_top5marked.png"
+fig2.savefig(out_path_5, dpi=150, bbox_inches="tight")
+print(f"Plot saved to {out_path_5}")
 plt.show()
