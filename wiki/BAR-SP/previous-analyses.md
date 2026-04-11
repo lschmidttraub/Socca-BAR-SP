@@ -5,7 +5,7 @@ Rather than treating corners as a pause in possession, they use them to disorgan
 In the season 24/25 Raphinha was repeatedly highlighted as a key delivery player, while multiple targets attack different zones, including Lewandowski as CF and mainly central defenders covering alternative zones.
 This multi-target design makes Barcelona harder to defend against, compared to past seasons where the danger depended on fewer aerial focal points.
 The broader season analysis shows recurring patterns in which Barcelona **overload the near-post and edge-of-box zones** in order to **clear the far-post corridor**, or else **target the far post directly** and look to **redirect the ball back** into the six-yard area.
-<br>[[BTL 2024]](https://breakingthelines.com/tactical-analysis/a-deep-dive-into-barcelonas-set-piece-success-this-season/)
+<br>[BTL 2024](https://breakingthelines.com/tactical-analysis/a-deep-dive-into-barcelonas-set-piece-success-this-season/)
 
 The attached Copa del Rey analysis sharpens this interpretation by showing that Barcelona’s corner routines are not merely based on delivery quality or numerical presence in the box, but on **active manipulation of the opponent’s defensive structure** before the ball is delivered.
 Against Atlético Madrid, Barcelona used four players around the short-corner and rebound zone, which drew the attention of four defenders and reduced Atlético to five man-markers plus only one zonal defender near the near post. 
@@ -14,14 +14,14 @@ This shows that Barcelona uses the threat of the short corner not only as a dire
 <br>
 The same match analysis also demonstrates how Barcelona generate free far-post access through **underloads, decoy runs, and screens**.
 These details suggest that Barcelona's attacking corners should be understood not simply as far-post deliveries, but as carefully choreographed routines designed to create temporary disorientation in man-markers and isolate the decisive attacker.
-<br> [[TFA 2025a]](https://totalfootballanalysis.com/set-piece-analysis/barcelona-atletico-madrid-set-piece-analysis-tactics)
+<br> [TFA 2025a](https://totalfootballanalysis.com/set-piece-analysis/barcelona-atletico-madrid-set-piece-analysis-tactics)
 
 As noted above, Barcelona’s offensive corners are not only about the first far-post header. 
 Their routines are designed to generate **second-phase advantages such as knockdowns, loose-ball shots from the edge of the box, or cutbacks after short-corner manipulation**.
 This is reinforced by the broader analysis, which identifies repeated patterns in which the far-post target heads the ball back into the danger zone, while teammates attack the second ball, and other patterns in which short-corner movement opens shooting or passing lanes at the edge of the box.
 That is an observation our group also made when conducting qualitative research of the current Champions League games of Barcelona.
 It will be of interest if the data can confirm this.
-<br>[[BTL 2024]](https://breakingthelines.com/tactical-analysis/a-deep-dive-into-barcelonas-set-piece-success-this-season/)
+<br>[BTL 2024](https://breakingthelines.com/tactical-analysis/a-deep-dive-into-barcelonas-set-piece-success-this-season/)
 
 Subsequently, the key findings from the review of offensive set-pieces are presented.
 It should be noted that the observations described also apply to comparable indirect free kicks from wide or deeper half-space areas:
@@ -39,7 +39,7 @@ However, later tactical and match-based reporting indicates that this defensive 
 The main weakness identified in the literature concerns Barcelona’s defensive-corner structure. The Inter-oriented set-piece analysis describes a hybrid scheme composed of man-marking references, two zonal defenders near the near-post corridor, a short-option defender and one or two rebound players depending on the opponent’s box occupation.
 This structure can function adequately against ordinary deliveries, but it leaves the area behind the zonal defenders under heavy goalkeeper responsibility and places significant stress on the man-markers’ ability to maintain orientation and contact with runners.
 The problem, therefore, is not only one of height, physicality of defenders or aerial quality, but of structural exposure once attackers begin to move dynamically across zones.
-<br>[[TFA 2025b]](https://totalfootballanalysis.com/set-piece-analysis/barcelona-corner-weaknesses-2024-2025-set-piece-analysis-tactics)
+<br>[TFA 2025b](https://totalfootballanalysis.com/set-piece-analysis/barcelona-corner-weaknesses-2024-2025-set-piece-analysis-tactics)
 
 Defensive analyses show and even Flick himself noted that orientation loss and marker separation are central mechanisms through which Barcelona are attacked. 
 Opponents can force defenders into a classic visual problem, whether to track the ball in flight or the attacker moving across or behind them. 
@@ -50,8 +50,8 @@ The near post through flick-ons, fake flick-ons and manipulations of the zonal d
 A further important insight is that Barcelona’s weaker aerial matchups matter most when combined with these structural stresses. 
 Analysis explicitly notes that some Barcelona markers are vulnerable in aerial duels and that this becomes especially dangerous when those players are already recovering from poor body orientation or late tracking.
 In other words, the issue is not simply physical inferiority, but it is the interaction between physical mismatch and tactical disruption.
-<br>[[TFA 2025b]](https://totalfootballanalysis.com/set-piece-analysis/barcelona-corner-weaknesses-2024-2025-set-piece-analysis-tactics)
-[[FTBEsp 2025]](https://www.football-espana.net/2025/05/02/flick-barcelona-inter-set-pieces)
+<br>[TFA 2025b](https://totalfootballanalysis.com/set-piece-analysis/barcelona-corner-weaknesses-2024-2025-set-piece-analysis-tactics)
+[FTBEsp 2025](https://www.football-espana.net/2025/05/02/flick-barcelona-inter-set-pieces)
 
 Subsequently, the key findings from the review of defensive set-pieces are presented.
 It should be noted that the observations described also apply to comparable indirect free kicks from wide or deeper half-space areas:
