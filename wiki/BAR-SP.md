@@ -52,7 +52,7 @@ If you have any more questions, don’t hesitate to contact me or stop by at the
 FC Barcelona have traditionally been associated with a highly technical style of play, based on positional structure and collective ball control. 
 For many years, analyses of Barcelona focused primarily on their behaviour in open play rather than on set-pieces (apart from Alexander-Arnold's infamous corner in Liverpool's 2019 4-0 comeback).
 However, this framing has become less adequate since Hansi Flick’s appointment as manager in July 2024. 
-Analyses show that Barcelona’s game has become more direct, more vertical and more aggressive in attacking dangerous spaces across all phases of play, including set-piece situations. (See [[Coaches' Voice 2025]](https://learning.coachesvoice.com/cv/hansi-flick-tactics-barcelona/))
+Analyses show that Barcelona’s game has become more direct, more vertical and more aggressive in attacking dangerous spaces across all phases of play, including set-piece situations. (See [Coaches' Voice 2025](https://learning.coachesvoice.com/cv/hansi-flick-tactics-barcelona/))
 
 Reports from the Flick era already suggest that dead-ball situations, and corners in partiular, have represented both a competitive strength and a vulnerability for Barcelona.
 Existing analyses repeatedly identify corners as the phase in which Barcelona’s tactical ideas are most clearly visible &mdash; both offensively, through coordinated and vertical routines, and defensively, through recurring issues in marking and far-post protection.
