@@ -45,7 +45,7 @@ If you have any more questions, don’t hesitate to contact me or stop by at the
 
 **Disclaimer:** Generative AI was used to generate the plots in this report.
 
-**Current status:** This report is not final, and will be updated as we progress. It does however outline the planned structure of the final report, and the example analyses included already reflect, to a large extent, the level of depth targeted in the final version.
+**Current status:** This report is not final, and will be updated as we progress. It does however outline the planned structure of the final report, and the example analyses included already reflect, to a large extent, the level of depth targeted in the final version. To keep a clean commit history, we do most of our work in a public repository, which can be found [here](https://github.com/lschmidttraub/Socca-BAR-SP).
 
 ## Introduction
 
@@ -71,7 +71,7 @@ We stress that due to the small sample size, the conclusions we draw only apply 
 ### [Overview of Set Piece Statistics](BAR-SP/statistics)
 
 In this section, we provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
-We generate the charts and tables in this section with the snippet $2765, using data from the league phase and round of 16.
+We generate the charts and tables in this section with the snippet $2765.
 The analysis is divided into [offensive](BAR-SP/statistics#offensive-set-pieces) and [defensive](BAR-SP/statistics#defensive-set-pieces) set-pieces.
 
 

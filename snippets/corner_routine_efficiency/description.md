@@ -84,3 +84,8 @@ Saving plots to corner_routine_plots/ ...
   Leverkusen", Dortmund vs "Borussia Dortmund") are dropped from the
   denominator. Barcelona is spelled consistently and therefore
   unaffected.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

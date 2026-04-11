@@ -115,3 +115,8 @@ skillcorner_match_id,statsbomb_match_id,opponent,corner_index,...,start_x,start_
   `data/skillcorner/` containing `{match_id}.json` (metadata),
   `{match_id}_tracking_extrapolated.jsonl` (frame-by-frame positions).
   Matches without SkillCorner tracking are silently skipped.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

@@ -84,3 +84,8 @@ Plot saved to matchup_far_post_share.png
   (PSG, Bayern, Monaco, Leverkusen, Dortmund) would be dropped here,
   but Barcelona is consistent across both sources so no Barcelona
   matches are lost to this filter.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

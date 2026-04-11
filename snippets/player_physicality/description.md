@@ -89,3 +89,8 @@ Plot saved to barca_match_height.png
 - **League average**: unweighted mean of the per-team top-6 values
   (used in `top6_height_comparison.py` only).
 
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.
+

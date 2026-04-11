@@ -142,3 +142,8 @@ Saving plot to corner_spatial_plots/ ...
   StatsBomb events and would be skipped if used as the focus team.
   Barcelona's own spelling is stable, so every Barcelona corner is
   picked up.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

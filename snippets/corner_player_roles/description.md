@@ -102,3 +102,8 @@ Saving plots to corner_player_plots/ ...
   Dortmund) are skipped because this snippet only uses exact-match
   name resolution. Barcelona is spelled identically in both sources,
   so the rankings above are unaffected.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

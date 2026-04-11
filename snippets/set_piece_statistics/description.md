@@ -223,3 +223,8 @@ Saving plots to set_piece_plots/ ...
   StatsBomb event spelling at load time (e.g. PSG → Paris
   Saint-Germain, Frankfurt → Eintracht Frankfurt). All 36 teams are
   included in league averages.
+
+## Disclaimer
+
+Generative AI was used in the creation of both the code and
+documentation for this snippet.

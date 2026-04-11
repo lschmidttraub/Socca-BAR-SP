@@ -46,8 +46,8 @@ ZIP_NAMES = ("league_phase.zip", "last16.zip", "playoffs.zip")
 FOCUS_TEAM = "Barcelona"
 DEFAULT_OUTPUT_DIR = Path("corner_routine_plots")
 
-BARCA_COLOR = "#a50026"
-AVG_COLOR = "#f4a261"
+BARCA_COLOR = "#2476b3"
+AVG_COLOR = "#ff7e16"
 
 # Corner classification constants (StatsBomb 120×80 pitch).
 SHORT_THRESHOLD_YARDS = 15.0
