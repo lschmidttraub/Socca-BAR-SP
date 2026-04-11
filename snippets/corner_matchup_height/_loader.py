@@ -39,13 +39,29 @@ SEQUENCE_MAX_SECONDS = 20.0
 PASS_TYPE_ID = 30
 SHOT_TYPE_ID = 16
 
-# A handful of teams are spelled differently in matches.csv vs the
-# StatsBomb event files (PSG vs "Paris Saint-Germain", Bayern München
-# vs "Bayern Munich", Monaco vs "AS Monaco", Leverkusen vs "Bayer
-# Leverkusen", Dortmund vs "Borussia Dortmund"). We only proceed when
-# the focus team's CSV name appears verbatim in the events — no fuzzy
-# matching — which is fine for Barcelona since its name is consistent
-# in both sources.
+# CSV team names that differ from their StatsBomb event spelling.
+# Applied when reading matches.csv so every downstream lookup is
+# an exact match against the events.
+CSV_TO_STATSBOMB: dict[str, str] = {
+    "Internazionale": "Inter Milan",
+    "PSG": "Paris Saint-Germain",
+    "Monaco": "AS Monaco",
+    "Leverkusen": "Bayer Leverkusen",
+    "Dortmund": "Borussia Dortmund",
+    "Frankfurt": "Eintracht Frankfurt",
+    "Qarabag": "Qarabağ FK",
+    "Bayern München": "Bayern Munich",
+    "Olympiacos Piraeus": "Olympiacos",
+    "PSV": "PSV Eindhoven",
+    "København": "FC København",
+}
+
+
+def _normalise_team(name: str) -> str:
+    """Apply CSV→StatsBomb spelling fixes."""
+    for old, new in CSV_TO_STATSBOMB.items():
+        name = name.replace(old, new)
+    return name
 
 
 # ── Raw JSON loading ──────────────────────────────────────────────────
@@ -53,7 +69,11 @@ SHOT_TYPE_ID = 16
 
 def _read_matches_csv(csv_path: Path = MATCHES_CSV) -> list[dict]:
     with open(csv_path, newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        row["home"] = _normalise_team(row.get("home", ""))
+        row["away"] = _normalise_team(row.get("away", ""))
+    return rows
 
 
 def _load_events(match_id: str, statsbomb_dir: Path = STATSBOMB_DIR) -> list[dict] | None:

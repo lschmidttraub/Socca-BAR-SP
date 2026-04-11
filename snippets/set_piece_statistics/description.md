@@ -2,10 +2,7 @@
 
 ## What it does
 
-Re-computes every set-piece statistic and re-renders every plot embedded
-in the **Stats** section of the [BAR-SP wiki page](): Barcelona's
-offensive and defensive output from free-kick and corner sequences, and
-their per-match set-piece performance across the UCL 2025-26 campaign.
+Re-computes every set-piece statistic and re-renders every plot embedded in the **Stats** section of the [BAR-SP wiki page](): Barcelona's offensive and defensive output from free-kick and corner sequences, and their per-match set-piece performance across the UCL 2025-26 campaign.
 
 Each subsection of the wiki maps to one runnable script in this folder:
 
@@ -19,39 +16,25 @@ Each subsection of the wiki maps to one runnable script in this folder:
 
 All five scripts share two lightweight helper modules:
 
-- `_loader.py` parses `data/matches.csv` and streams StatsBomb JSONs
-  out of the three ZIP archives in `data/statsbomb/` without unpacking
-  them.
-- `_plotting.py` provides the ranked-bar, combined-bar and per-match
-  bar chart helpers used by every script. Styling matches the rest of
-  the project but the helper has no dependency on the project's
-  `src/stats` library — copy the whole folder and the snippet runs
-  anywhere with `matplotlib` and `numpy` installed.
+- `_loader.py` parses `data/matches.csv` and streams StatsBomb JSONs out of the three ZIP archives in `data/statsbomb/` without unpacking them.
+- `_plotting.py` provides the ranked-bar, combined-bar and per-match bar chart helpers used by every script. Styling matches the rest of the project but the helper has no dependency on the project's `src/stats` library — copy the whole folder and the snippet runs anywhere with `matplotlib` and `numpy` installed.
 
 ## Inputs
 
 - **Team name** (first positional CLI arg, default: `"Barcelona"`)
-- **Output directory** (second positional CLI arg, default:
-  `./set_piece_plots/`)
-- **Data sources**: StatsBomb event data
-  (`data/statsbomb/league_phase.zip`, `last16.zip`, `playoffs.zip`)
-  and `data/matches.csv` as the match lookup.
+- **Output directory** (second positional CLI arg, default: `./set_piece_plots/`)
+- **Data sources**: StatsBomb event data (`data/statsbomb/league_phase.zip`, `last16.zip`, `playoffs.zip`) and `data/matches.csv` as the match lookup.
 
 ## Output
 
 Each script does two things:
 
-1. **Stdout** — a plain-text report with the focus team's metrics
-   alongside the league average across all teams in the dataset.
-2. **PNG plots** — saved into the output directory, one file per wiki
-   anchor. Filenames match the wiki naming convention (e.g.
-   `of01_total_goals_fk.png`).
+1. **Stdout** — a plain-text report with the focus team's metrics alongside the league average across all teams in the dataset.
+2. **PNG plots** — saved into the output directory, one file per wiki anchor. Filenames match the wiki naming convention (e.g. `of01_total_goals_fk.png`).
 
-`per_match_performance.py` additionally prints a per-match table with
-corner and free-kick volume, attempts, xG and goals for every Barcelona
-fixture — useful for spotting games like the 10-corner / 0.71 xG
-Copenhagen blowout or the 0.38 xG Frankfurt free-kick haul that the
-wiki singles out.
+`per_match_performance.py` additionally prints a per-match table with corner and free-kick volume, attempts, xG and goals for every Barcelona fixture — useful for spotting games like the 10-corner / 0.71 xG Copenhagen blowout or the 0.38 xG Frankfurt free-kick haul that the wiki singles out.
+
+The plots can be seen in the [statistics plot section](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP/statistics_plot).
 
 ## Example outputs
 
@@ -200,31 +183,15 @@ Saving plots to set_piece_plots/ ...
 
 ## Definitions
 
-- **Free kick (offensive)**: Free-Kick pass *or* direct Free-Kick shot
-  whose event location has `x ≥ 60` on the 120 × 80 StatsBomb pitch
-  (i.e. in the opponent half). Free kicks taken entirely in the
-  defending third are excluded, matching the wiki's "attacking free
-  kicks" framing.
-- **Free kick (defensive)**: same predicate applied to the *opponent's*
-  events, which by StatsBomb's coordinate convention lives in the
-  defending team's own half.
+- **Free kick (offensive)**: Free-Kick pass *or* direct Free-Kick shot whose event location has `x ≥ 60` on the 120 × 80 StatsBomb pitch (i.e. in the opponent half). Free kicks taken entirely in the defending third are excluded, matching the wiki's "attacking free kicks" framing.
+- **Free kick (defensive)**: same predicate applied to the *opponent's* events, which by StatsBomb's coordinate convention lives in the defending team's own half.
 - **Corner**: any `Corner`-type pass event for the team.
-- **Sequence outcome**: the corresponding `play_pattern` value
-  (`"From Corner"` or `"From Free Kick"`). Penalties are filtered out.
+- **Sequence outcome**: the corresponding `play_pattern` value (`"From Corner"` or `"From Free Kick"`). Penalties are filtered out.
 - **xG**: StatsBomb's `shot.statsbomb_xg`.
-- **Ranked-bar plot**: every team's value as a vertical bar, ordered
-  descending; the focus team is highlighted in red and the league mean
-  drawn as an extra orange bar inserted at its sorted position.
-- **Per-match plot**: grouped bars of one metric per Barcelona fixture,
-  focus team in red, opponent in blue. The xG plots additionally
-  annotate the actual goal count inside each bar so the reader can
-  separate "good xG that scored" from "good xG that didn't".
-- **Name normalisation**: `_loader.py` maps CSV team names to their
-  StatsBomb event spelling at load time (e.g. PSG → Paris
-  Saint-Germain, Frankfurt → Eintracht Frankfurt). All 36 teams are
-  included in league averages.
+- **Ranked-bar plot**: every team's value as a vertical bar, ordered descending; the focus team is highlighted in red and the league mean drawn as an extra orange bar inserted at its sorted position.
+- **Per-match plot**: grouped bars of one metric per Barcelona fixture, focus team in red, opponent in blue. The xG plots additionally annotate the actual goal count inside each bar so the reader can separate "good xG that scored" from "good xG that didn't".
+- **Name normalisation**: `_loader.py` maps CSV team names to their StatsBomb event spelling at load time (e.g. PSG → Paris Saint-Germain, Frankfurt → Eintracht Frankfurt). All 36 teams are included in league averages.
 
 ## Disclaimer
 
-Generative AI was used in the creation of both the code and
-documentation for this snippet.
+Generative AI was used in the creation of both the code and documentation for this snippet.

@@ -48,6 +48,31 @@ FOCUS_TEAM = "Barcelona"
 TOP_N = 6
 LINEUP_ZIPS = ("league_phase.zip", "playoffs.zip")
 
+# CSV team names that differ from their StatsBomb event/lineup spelling.
+# Applied when reading matches.csv so every downstream lookup is
+# an exact match against the lineup files.
+CSV_TO_STATSBOMB: dict[str, str] = {
+    "Internazionale": "Inter Milan",
+    "PSG": "Paris Saint-Germain",
+    "Monaco": "AS Monaco",
+    "Leverkusen": "Bayer Leverkusen",
+    "Dortmund": "Borussia Dortmund",
+    "Frankfurt": "Eintracht Frankfurt",
+    "Qarabag": "Qarabağ FK",
+    "Bayern München": "Bayern Munich",
+    "Olympiacos Piraeus": "Olympiacos",
+    "PSV": "PSV Eindhoven",
+    "København": "FC København",
+}
+
+
+def _normalise_team(name: str) -> str:
+    """Apply CSV→StatsBomb spelling fixes."""
+    for old, new in CSV_TO_STATSBOMB.items():
+        name = name.replace(old, new)
+    return name
+
+
 FOCUS_COLOR = "#a50026"
 OPPONENT_COLOR = "#4575b4"
 
@@ -71,7 +96,11 @@ def _load_lineup(match_id: str) -> list[dict] | None:
 
 def _read_matches_csv() -> list[dict]:
     with open(MATCHES_CSV, newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        row["home"] = _normalise_team(row.get("home", ""))
+        row["away"] = _normalise_team(row.get("away", ""))
+    return rows
 
 
 # ── Player helpers ────────────────────────────────────────────────────
@@ -130,8 +159,8 @@ def collect_match_heights(focus_team: str) -> list[dict]:
 
         sb_names = [td.get("team_name", "") for td in lineup]
         if focus_team not in sb_names:
-            # Focus-team CSV name doesn't match the lineup spelling;
-            # skip rather than guess (Barcelona is always consistent).
+            # CSV names are normalised at load time; a miss here means
+            # a mapping is absent — skip as a safety net.
             continue
 
         focus_idx = sb_names.index(focus_team)

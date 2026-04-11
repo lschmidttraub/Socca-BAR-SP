@@ -37,6 +37,31 @@ SKILLCORNER_DIR = DATA_DIR / "skillcorner"
 
 STATSBOMB_ZIPS = ("league_phase.zip", "last16.zip", "playoffs.zip")
 
+# CSV team names that differ from their StatsBomb event spelling.
+# Applied when reading matches.csv so every downstream lookup is
+# an exact match against the events.
+CSV_TO_STATSBOMB: dict[str, str] = {
+    "Internazionale": "Inter Milan",
+    "PSG": "Paris Saint-Germain",
+    "Monaco": "AS Monaco",
+    "Leverkusen": "Bayer Leverkusen",
+    "Dortmund": "Borussia Dortmund",
+    "Frankfurt": "Eintracht Frankfurt",
+    "Qarabag": "Qarabağ FK",
+    "Bayern München": "Bayern Munich",
+    "Olympiacos Piraeus": "Olympiacos",
+    "PSV": "PSV Eindhoven",
+    "København": "FC København",
+}
+
+
+def _normalise_team(name: str) -> str:
+    """Apply CSV→StatsBomb spelling fixes."""
+    for old, new in CSV_TO_STATSBOMB.items():
+        name = name.replace(old, new)
+    return name
+
+
 # ── Constants ────────────────────────────────────────────────────────
 
 DEFAULT_TEAM = "Barcelona"
@@ -218,6 +243,9 @@ def _statsbomb_corner_outcome(
 def _load_match_rows(team: str) -> list[dict]:
     with open(MATCHES_CSV, newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
+    for row in rows:
+        row["home"] = _normalise_team(row.get("home", ""))
+        row["away"] = _normalise_team(row.get("away", ""))
     return [
         row for row in rows
         if row.get("skillcorner") and team in (row.get("home", ""), row.get("away", ""))

@@ -58,21 +58,39 @@ PEN_BOX_Y_MAX = 62.0
 
 # ── StatsBomb streaming loader (copied from set_piece_statistics) ────
 #
-# Team-name resolution is EXACT MATCH only. A handful of teams have
-# different spellings in matches.csv vs. the StatsBomb events and are
-# therefore dropped from the league-average denominator:
-#   PSG         vs "Paris Saint-Germain"
-#   Bayern      vs "Bayern Munich"
-#   Monaco      vs "AS Monaco"
-#   Leverkusen  vs "Bayer Leverkusen"
-#   Dortmund    vs "Borussia Dortmund"
-# Barcelona is always spelled "Barcelona" in both sources, so the
-# focus team is unaffected.
+# CSV team names that differ from their StatsBomb event spelling.
+# Applied when reading matches.csv so every downstream lookup is
+# an exact match against the events.
+
+CSV_TO_STATSBOMB: dict[str, str] = {
+    "Internazionale": "Inter Milan",
+    "PSG": "Paris Saint-Germain",
+    "Monaco": "AS Monaco",
+    "Leverkusen": "Bayer Leverkusen",
+    "Dortmund": "Borussia Dortmund",
+    "Frankfurt": "Eintracht Frankfurt",
+    "Qarabag": "Qarabağ FK",
+    "Bayern München": "Bayern Munich",
+    "Olympiacos Piraeus": "Olympiacos",
+    "PSV": "PSV Eindhoven",
+    "København": "FC København",
+}
+
+
+def _normalise_team(name: str) -> str:
+    """Apply CSV→StatsBomb spelling fixes."""
+    for old, new in CSV_TO_STATSBOMB.items():
+        name = name.replace(old, new)
+    return name
 
 
 def _read_matches_csv(csv_path: Path = MATCHES_CSV) -> list[dict]:
     with open(csv_path, newline="", encoding="utf-8") as fh:
-        return list(csv.DictReader(fh))
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        row["home"] = _normalise_team(row.get("home", ""))
+        row["away"] = _normalise_team(row.get("away", ""))
+    return rows
 
 
 def _load_events_from_zips(match_id: str) -> list[dict] | None:
