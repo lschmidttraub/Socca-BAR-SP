@@ -12,11 +12,11 @@
 
 Barcelona’s attacking free-kick profile is one of the clearest positive signals in the dataset.
 
-They scored **3 goals from free-kick sequences**, clearly **above the competition average of 1.7** and placing them in the upper group of teams [(stat-of1)](statistics_plot.md#total-goals-conceded-from-free-kicks---barcelona-below-average). 
+They scored **3 goals from free-kick sequences**, clearly **above the competition average of 1.7** and placing them in the upper group of teams [(stat-of1)](BAR-SP/statistics_plot#total-goals-conceded-from-free-kicks---barcelona-below-average). 
 Their process numbers also support this. 
-They **generate a shot from 47.7% of attacking free kicks**, compared with a **league average of 42.1%** [(stat-of2)](statistics_plot.md#attempts-per-free-kick---barcelona-above-average). 
-Their total **xG from free-kick sequences is 1.8**, higher than the **league average of 1.5** (league phase only) [(stat-of3)](statistics_plot.md#total-xg-from-free-kicks---barcelona-above-average).
-Most strikingly, their **goal conversion per free kick is 6.8%**, well above the **competition average of 4.3%** [(stat-of4)](statistics_plot.md#goals-per-free-kick---barcelona-significantly-above-average).
+They **generate a shot from 47.7% of attacking free kicks**, compared with a **league average of 42.1%** [(stat-of2)](BAR-SP/statistics_plot#attempts-per-free-kick---barcelona-above-average). 
+Their total **xG from free-kick sequences is 1.8**, higher than the **league average of 1.5** (league phase only) [(stat-of3)](BAR-SP/statistics_plot#total-xg-from-free-kicks---barcelona-above-average).
+Most strikingly, their **goal conversion per free kick is 6.8%**, well above the **competition average of 4.3%** [(stat-of4)](BAR-SP/statistics_plot#goals-per-free-kick---barcelona-significantly-above-average).
 
 This combination is important. 
 Barcelona are not only converting unusually well as they also produce above-average shot volume and xG from these situations. 
@@ -25,11 +25,11 @@ The overview therefore suggests that Barcelona's attacking free-kick routines ar
 
 #### Offensive Corner Sequences
 
-The picture changes considerably for attacking corners - Barcelona scored 2 goals from corner sequences, exactly matching the competition average [(stat-oc1)](statistics_plot.md#total-goals-from-corners---barcelona-matches-average).
+The picture changes considerably for attacking corners - Barcelona scored 2 goals from corner sequences, exactly matching the competition average [(stat-oc1)](BAR-SP/statistics_plot#total-goals-from-corners---barcelona-matches-average).
 
-Their **attempt rate per corner is 44.7%**, below the league average of 48.8% [(stat-oc2)](statistics_plot.md#number-of-attempts-per-corner---barcelona-below-average).
-Their average xG from corners per game is 0.189, below the average of 0.219, and their **total corner xG is 1.9** compared with a **competition average of 2.1** [(stat-oc3)](statistics_plot.md#average-xg-generated-after-corners---barcelona-below-average). 
-Their **goal rate per corner is 4.3%**, again **below the competition mean of 5.1%** [(stat-oc4)](statistics_plot.md#goals-per-corner---barcelona-below-average).
+Their **attempt rate per corner is 44.7%**, below the league average of 48.8% [(stat-oc2)](BAR-SP/statistics_plot#number-of-attempts-per-corner---barcelona-below-average).
+Their average xG from corners per game is 0.189, below the average of 0.219, and their **total corner xG is 1.9** compared with a **competition average of 2.1** [(stat-oc3)](BAR-SP/statistics_plot#average-xg-generated-after-corners---barcelona-below-average). 
+Their **goal rate per corner is 4.3%**, again **below the competition mean of 5.1%** [(stat-oc4)](BAR-SP/statistics_plot#goals-per-corner---barcelona-below-average).
 
 So while Barcelona are not weak from corners, they are also not one of the standout attacking corner sides in this UCL field. 
 In overview terms, that is one of the most important findings from the plots. 
@@ -51,21 +51,21 @@ For corners, the more relevant question is whether the underlying tactical struc
 
 #### Defensive Free-kick Sequences
 
-FC Barcelona conceded **0 goals from free-kick sequences**, while the competition average is 1.7 [(stat-df1)](statistics_plot.md#total-goals-conceded-from-free-kicks---barcelona-below-average). 
-This is also reflected in their average xG conceded from free-kick sequences per game which is only 0.087, far below the mean of 0.169 [(stat-df2)](statistics_plot.md#average-conceded-xg-from-free-kicks-per-game---barcelona-below-average). 
-They allow shots from just 33.3% of free kicks faced in their own half of the pitch, compared with a league average of 43.6% [(stat-df3)](statistics_plot.md#average-conceded-attempts-from-free-kick-sequences---barcelona-below-average).
+FC Barcelona conceded **0 goals from free-kick sequences**, while the competition average is 1.7 [(stat-df1)](BAR-SP/statistics_plot#total-goals-conceded-from-free-kicks---barcelona-below-average). 
+This is also reflected in their average xG conceded from free-kick sequences per game which is only 0.087, far below the mean of 0.169 [(stat-df2)](BAR-SP/statistics_plot#average-conceded-xg-from-free-kicks-per-game---barcelona-below-average). 
+They allow shots from just 33.3% of free kicks faced in their own half of the pitch, compared with a league average of 43.6% [(stat-df3)](BAR-SP/statistics_plot#average-conceded-attempts-from-free-kick-sequences---barcelona-below-average).
 
-This is **especially notable because Barcelona concede 4.2 free kicks in their own half per game**, which is slightly **above the competition average of 4.06** [(stat-df4)](statistics_plot.md#number-of-free-kicks-conceded---barcelona-above-average). 
+This is **especially notable because Barcelona concede 4.2 free kicks in their own half per game**, which is slightly **above the competition average of 4.06** [(stat-df4)](BAR-SP/statistics_plot#number-of-free-kicks-conceded---barcelona-above-average). 
 In other words, they are not simply avoiding these situations entirely, they appear to be managing them very effectively once they occur.
 That makes defending free kicks one of the clearest strengths of Barça in the quantitative overview.
 
 #### Defensive Corner Sequences
 
 Barcelona also defend corners similarly well in the UCL sample. 
-They **conceded only 1 goal from corner sequences**, compared with a **competition average of 2** [(stat-dc1)](statistics_plot.md#total-goals-conceded-from-corners---barcelona-below-average). 
-Their average xG conceded from corners per game is 0.192, lower than the league average of 0.231 [(stat-dc2)](statistics_plot.md#average-conceded-xg-from-corners-per-game---barcelona-below-average). 
-They **allow a shot from only 31.6% of corners faced**, dramatically **lower than the average of 46.9%** [(stat-dc3)](statistics_plot.md#average-conceded-xg-from-corners-per-game---barcelona-below-average), and they concede goals on just 2.63% of corners faced, compared with a competition mean of 4.9%. [(stat-dc4)](statistics_plot.md#goals-conceded-per-corner---barcelona-performs-well)
-Barça also faces relatively few corners in the first place: 3.8 corners conceded per game versus a competition average of 4.81 [(stat-dc5)](statistics_plot.md#average-corners-faced-per-game---barcelona-below-average).
+They **conceded only 1 goal from corner sequences**, compared with a **competition average of 2** [(stat-dc1)](BAR-SP/statistics_plot#total-goals-conceded-from-corners---barcelona-below-average). 
+Their average xG conceded from corners per game is 0.192, lower than the league average of 0.231 [(stat-dc2)](BAR-SP/statistics_plot#average-conceded-xg-from-corners-per-game---barcelona-below-average). 
+They **allow a shot from only 31.6% of corners faced**, dramatically **lower than the average of 46.9%** [(stat-dc3)](BAR-SP/statistics_plot#average-conceded-xg-from-corners-per-game---barcelona-below-average), and they concede goals on just 2.63% of corners faced, compared with a competition mean of 4.9%. [(stat-dc4)](BAR-SP/statistics_plot#goals-conceded-per-corner---barcelona-performs-well)
+Barça also faces relatively few corners in the first place: 3.8 corners conceded per game versus a competition average of 4.81 [(stat-dc5)](BAR-SP/statistics_plot#average-corners-faced-per-game---barcelona-below-average).
 
 It is particularly interesting given the tactical literature that often frames Barcelona as potentially vulnerable to physical or aerial stress. 
 In this UCL sample, the aggregate numbers do not show an obviously fragile corner-defending side. 
