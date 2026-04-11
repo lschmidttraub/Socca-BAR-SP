@@ -15,7 +15,7 @@ Reports from the Flick era already suggest that dead-ball situations have repres
 Among these situations, corners appear to be especially relevant. 
 Existing analyses repeatedly identify corners as the phase in which Barcelona’s tactical ideas are most clearly visible, both offensively, through coordinated and vertical routines, and defensively, through recurring issues in marking and far-post protection.
 This became particularly evident in individual matches that received specific attention in the football analytics community and let to illustrations of recurring patterns. 
-We use here a first-leg analysis of the Copa del Rey semi-final 24/25 against Atlético Madrid (4:4) as well as more broader analyses of the season 2024/25.
+A first-leg analysis of the Copa del Rey semi-final 24/25 against Atlético Madrid (4:4) as well as more broader analyses of the season 2024/25 is used here.
 For this reason, especially analysing corners of the CL 25/26 provides a strong entry point for understanding how Barcelona currently use set pieces in elite competition and if adaptions since last season have happened.
 Subsequently, the most relevant findings of existing analyses are reviewed.
 <br>[[BTL 2024]](https://breakingthelines.com/tactical-analysis/a-deep-dive-into-barcelonas-set-piece-success-this-season/)
