@@ -26,6 +26,7 @@ In this sense, short-corner routines may act as tactical approach to help offset
 |                             Attempt Rate                             |                          xG per Corner                          |
 |:--------------------------------------------------------------------:|:---------------------------------------------------------------:|
 | ![](assets/upload/offensive/corners/attempts_per_corner_bars.png) | ![](assets/upload/offensive/corners/xg_per_corner_bars.png) |
+<figcaption style="margin: 0 0 0 5px">We generated the plots using snippet $2865</figcaption>
 
 Raphinha clearly dominates as the corner taker, indicating a high level of delivery execution consistency.
 By contrast, receivers and first shooters are more widely distributed across several players, mainly Center Backs and Strikers.
@@ -35,6 +36,7 @@ Delivery is standardised, but reception and finishing remain flexible.
 |            Top Takers of Barcelona's Corners             |                  Top Receivers of Barcelona's Corners                  |
 |:--------------------------------------------------------:|:----------------------------------------------------------------------:|
 | ![](assets/upload/offensive/corners/corner_takers_single.png) | ![](assets/upload/offensive/corners/delivery_receivers_single.png) |
+<figcaption style="margin: 0 0 0 5px">We generated the plots using snippet $2866</figcaption>
 
 The spatial maps deepen this reading, illustrating clear but not exclusive tendencies for areas of delivery. 
 Many deliveries are directed into the central six-yard area and near-post corridor, with a smaller overall share toward the far post, the edge of the box, and wider recycle zones. 
@@ -58,6 +60,7 @@ This supports the broader interpretation that Barcelona’s corner strategy is b
 
 ![](assets/upload/offensive/corners/corner_first_touch_map.png)
 <figcaption  style="margin: 0 0 20px 5px">First Touch Map - Sequences often continue with pass-on or carry</figcaption>
+<figcaption style="margin: 0 0 0 5px">We generated the spatial pitch maps using snippet $2863</figcaption>
 
 The far-post-share plot adds a potentially interesting contextual detail regarding physicality and corner strategy. 
 Barcelona’s use of the far-post zone appears to increase particularly against the most extreme opponents in terms of height, namely Newcastle, by far the tallest team in the competition, and Copenhagen, the only shorter team with a height disadvantage in their match against Barcelona.
@@ -66,10 +69,12 @@ This observation is particularly significant, as in all other games, corner were
 
 ![](assets/upload/offensive/corners/matchup_far_post_share_single.png)
 <figcaption  style="margin: 0 0 20px 5px">Share of far-post Corners - Selected strategy against Copenhagen (Kobe) and Newcastle (NU)</figcaption>
+<figcaption style="margin: 0 0 0 5px">We generated the plot using snippet $2867</figcaption>
 
 #### Movement of Attacking Players
 
 Four particularly informative visualisations were selected for closer offesive corner movement analysis: two corner situations against Copenhagen and Praga that led to attempts, one corner against Newcastle that did not result in an attempt, and the goal sequence against Frankfurt.
+We generated the corner movement maps using snippet $2864.
 The major part of all corner visualisations made suggests that Barcelona’s offensive corners are generally built on compact occupation and small coordinated adjustments, rather than on large, highly dynamic pre-delivery movement.
 
 The visualised corner against Sparta Praha can be seen as one typical example:

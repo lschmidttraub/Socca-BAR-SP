@@ -8,8 +8,8 @@ Reference snippets from the wiki via `$<id>` (e.g. `$2765`).
 |--------------------------------------------------------------------|------------|--------------------------------------------------------------------------------------|
 | [`set_piece_statistics/`](set_piece_statistics/)                   | $2765      | Offensive / defensive / per-match set-piece stats + 22 league-comparison plots       |
 | [`player_physicality/`](player_physicality/)                       | $2769      | Top-6 outfield-player mean-height comparison (all-team + per-match)                  |
-| [`corner_routine_efficiency/`](corner_routine_efficiency/)         | —          | Attempts/xG per corner — short vs cross, Barcelona vs league avg *(not yet uploaded)* |
-| [`corner_player_roles/`](corner_player_roles/)                     | —          | Top corner takers and first-delivery receivers for Barcelona *(not yet uploaded)*    |
-| [`corner_spatial_maps/`](corner_spatial_maps/)                     | —          | Three pitch maps: spatial profile, endpoints by side, first touch *(not yet uploaded)* |
-| [`corner_matchup_height/`](corner_matchup_height/)                 | —          | Far-post share vs opponent height gap (per-match scatter) *(not yet uploaded)*       |
-| [`corner_run_maps/`](corner_run_maps/)                             | —          | Per-corner 3-panel attacker movement maps from SkillCorner tracking *(not yet uploaded)* |
+| [`corner_routine_efficiency/`](corner_routine_efficiency/)         | $2865          | Attempts/xG per corner — short vs cross, Barcelona vs league avg *(not yet uploaded)* |
+| [`corner_player_roles/`](corner_player_roles/)                     | $2866          | Top corner takers and first-delivery receivers for Barcelona *(not yet uploaded)*    |
+| [`corner_spatial_maps/`](corner_spatial_maps/)                     | $2863          | Three pitch maps: spatial profile, endpoints by side, first touch *(not yet uploaded)* |
+| [`corner_matchup_height/`](corner_matchup_height/)                 | $2867         | Far-post share vs opponent height gap (per-match scatter) *(not yet uploaded)*       |
+| [`corner_run_maps/`](corner_run_maps/)                             | $2864          | Per-corner 3-panel attacker movement maps from SkillCorner tracking *(not yet uploaded)* |
