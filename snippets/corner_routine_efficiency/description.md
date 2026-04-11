@@ -2,7 +2,7 @@
 
 ## What it does
 
-Re-creates the two grouped-bar charts embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](). Each Barcelona corner kick is classified as either a **short** routine (opener pass length ≤ 15 yards OR opener end-location inside the attacking penalty box) or a **crossed** routine (everything else). Shots from the `"From Corner"` play pattern (penalties excluded) are attributed to the most recent same-team corner with a smaller event index, so each shot counts against exactly one opener.
+Re-creates the two grouped-bar charts embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP). Each Barcelona corner kick is classified as either a **short** routine (opener pass length ≤ 15 yards OR opener end-location inside the attacking penalty box) or a **crossed** routine (everything else). Shots from the `"From Corner"` play pattern (penalties excluded) are attributed to the most recent same-team corner with a smaller event index, so each shot counts against exactly one opener.
 
 The script then aggregates attempts per corner and xG per corner for both categories and compares Barcelona against the league average computed across every team in the dataset that has at least one corner of the relevant type. Two PNGs are written plus a plain-text stdout report.
 

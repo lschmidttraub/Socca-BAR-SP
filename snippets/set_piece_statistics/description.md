@@ -2,7 +2,7 @@
 
 ## What it does
 
-Re-computes every set-piece statistic and re-renders every plot embedded in the **Stats** section of the [BAR-SP wiki page](): Barcelona's offensive and defensive output from free-kick and corner sequences, and their per-match set-piece performance across the UCL 2025-26 campaign.
+Re-computes every set-piece statistic and re-renders every plot embedded in the **Stats** section of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP): Barcelona's offensive and defensive output from free-kick and corner sequences, and their per-match set-piece performance across the UCL 2025-26 campaign.
 
 Each subsection of the wiki maps to one runnable script in this folder:
 

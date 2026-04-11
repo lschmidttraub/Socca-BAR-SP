@@ -2,7 +2,7 @@
 
 ## What it does
 
-Re-generates both player-physicality plots embedded in the **Player Physicality** subsection of the [BAR-SP wiki page](). Two scripts cover the two distinct views the wiki uses:
+Re-generates both player-physicality plots embedded in the **Player Physicality** subsection of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP). Two scripts cover the two distinct views the wiki uses:
 
 | Wiki plot                                       | Script                       |
 |-------------------------------------------------|------------------------------|

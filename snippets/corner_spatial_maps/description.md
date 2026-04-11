@@ -2,7 +2,7 @@
 
 ## What it does
 
-Re-creates the three spatial maps embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](): the half-pitch **Spatial Profile** (delivery routes, endpoint zones and first-shot locations), the dark-themed **Delivery Endpoints by Side** and the **First Touch Map**. Together they describe *where* Barcelona deliver their corners, which target zones they favour on each side and what the receiving player does with the first touch — the three questions that frame the wiki's "controlled second-phase construction" reading of Barcelona's corner routine.
+Re-creates the three spatial maps embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP): the half-pitch **Spatial Profile** (delivery routes, endpoint zones and first-shot locations), the dark-themed **Delivery Endpoints by Side** and the **First Touch Map**. Together they describe *where* Barcelona deliver their corners, which target zones they favour on each side and what the receiving player does with the first touch — the three questions that frame the wiki's "controlled second-phase construction" reading of Barcelona's corner routine.
 
 Each plot is built from the same corner-sequence extraction: identifying every `Corner`-type pass, walking forward in the possession to find the *meaningful delivery* (direct pass itself for long corners; the first long pass or shot after a short corner), classifying its endpoint into one of six target zones, and recording the first tracked team touch afterwards.
 

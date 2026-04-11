@@ -10,7 +10,7 @@ Generates per-corner three-panel figures showing the movement of Barcelona's att
 | 02 Paths  | Interpolated movement paths with gradient-fade and arrows   |
 | 03 Ends   | Player end positions 2.5 s after the kick                   |
 
-These are the movement-analysis maps embedded in the *Movement of Attacking Players* subsection of the [BAR-SP wiki page](). Four specific corners are shown in the wiki (vs Sparta Praha, Copenhagen, Newcastle, Frankfurt), but the script generates maps for all 41 tracked corners across the campaign.
+These are the movement-analysis maps embedded in the *Movement of Attacking Players* subsection of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP). Four specific corners are shown in the wiki (vs Sparta Praha, Copenhagen, Newcastle, Frankfurt), but the script generates maps for all 41 tracked corners across the campaign.
 
 The script also writes a CSV summary table with per-player start/end coordinates and displacement for every corner, useful for downstream aggregation.
 

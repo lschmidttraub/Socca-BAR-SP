@@ -2,7 +2,7 @@
 
 ## What it does
 
-Re-computes the two player-role rankings embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](): who takes Barcelona's corners, and who ends up on the receiving end of the meaningful delivery once any short-corner manipulation phase is stripped away. The result is the pair of horizontal bar charts that back the wiki's "Raphinha clearly dominates as the corner taker … receivers are more widely distributed" observation.
+Re-computes the two player-role rankings embedded in the *Offensive Corners* subsection of the [BAR-SP wiki page](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/BAR-SP): who takes Barcelona's corners, and who ends up on the receiving end of the meaningful delivery once any short-corner manipulation phase is stripped away. The result is the pair of horizontal bar charts that back the wiki's "Raphinha clearly dominates as the corner taker … receivers are more widely distributed" observation.
 
 The snippet ships a single runnable script plus a shared loader:
 
