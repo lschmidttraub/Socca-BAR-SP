@@ -1,15 +1,20 @@
 """
 def_corner_first_action_scatter.py
 
-Scatter plot of first-action locations for all Barcelona defending corners,
-shown on a half-pitch. Dots are coloured by corner outcome; left/right corners
-are separated naturally by their y-coordinate.
+Scatter plot of first-action locations for all Barcelona defending corners.
+The pitch shows the left half only — Barcelona's goal is at x=0 (left).
+Each arrow runs from the corner flag to the first-action point.
+Dots are coloured by corner outcome and shaped by body part (aerial vs ground).
+
+Left corners  (y < 40) appear at the bottom of the goal end.
+Right corners (y ≥ 40) appear at the top of the goal end.
 
 Usage:
-    python src/def_corner_first_action_scatter.py
+    python src/defense/corners/def_corner_first_action_scatter.py
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from mplsoccer import Pitch
 
 from defending_corners import (
@@ -18,9 +23,8 @@ from defending_corners import (
     build_pairs,
     classify_corner_outcome,
     corner_side,
-    first_sequence_action,
+    first_touch_action,
     is_aerial,
-    normalize_to_right,
 )
 
 OUTCOME_COLORS = {
@@ -36,23 +40,46 @@ OUTCOME_COLORS = {
     "Other":        "#dee2e6",
 }
 
+_PITCH_LENGTH = 120  # StatsBomb pitch length in pitch units
 
-# ── Data helpers ──────────────────────────────────────────────────────────────
+
+# ── Coordinate normalisation ──────────────────────────────────────────────────
+
+def _to_barca_coords(loc: list, event_team: str) -> list:
+    """Convert a StatsBomb location to Barcelona's coordinate system (goal at x=0).
+
+    StatsBomb normalises each team's events so that team always attacks
+    left-to-right (x: 0→120). The corner kick (by the opponent) and a
+    Barcelona clearance therefore live in DIFFERENT coordinate systems even
+    though they appear in the same match file. Flip x for opponent events;
+    leave Barcelona events unchanged.
+    """
+    x, y = loc[0], loc[1]
+    if BARCELONA.casefold() not in event_team.casefold():
+        x = _PITCH_LENGTH - x
+    return [x, y]
+
+
+# ── Data collection ───────────────────────────────────────────────────────────
 
 def collect_scatter_data(pairs: list[tuple]) -> list[dict]:
-    """Return one record per defending corner with normalised first-action location,
-    outcome, and corner side."""
+    """Return one record per defending corner with normalised first-action location."""
     records = []
     for corner, events in pairs:
-        action = first_sequence_action(corner, events)
+        action = first_touch_action(corner, events)
         if action is None:
             continue
         corner_loc = corner.get("location")
         action_loc = action.get("location")
         if corner_loc is None or action_loc is None:
             continue
-        norm_action = normalize_to_right(action_loc, corner_loc)
-        norm_corner = normalize_to_right(corner_loc, corner_loc)
+
+        corner_team = corner.get("team", {}).get("name", "")
+        action_team = action.get("team", {}).get("name", "")
+
+        norm_corner = _to_barca_coords(corner_loc, corner_team)
+        norm_action = _to_barca_coords(action_loc, action_team)
+
         records.append({
             "x":        norm_action[0],
             "y":        norm_action[1],
@@ -68,25 +95,23 @@ def collect_scatter_data(pairs: list[tuple]) -> list[dict]:
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
 def plot_scatter(records: list[dict], save: bool = True) -> None:
-    """Half-pitch scatter of first-action locations, coloured by outcome,
-    with thin arrows from the corner flag to each first-action point."""
+    """Half-pitch scatter of first-action locations, coloured by outcome."""
     pitch = Pitch(
         pitch_type="statsbomb",
-        half=True,
-        pitch_color="#1a1a2e",
-        line_color="#aaaaaa",
+        pitch_color="white",
+        line_color="#444444",
     )
-    fig, ax = pitch.draw(figsize=(14, 8))
+    fig, ax = pitch.draw(figsize=(10, 8))
+    ax.set_xlim(-2, 62)  # left half only — Barcelona's goal at x=0
 
-    MARKERS = {True: "D", False: "o"}   # aerial = diamond, ground = circle
+    MARKERS = {True: "D", False: "o"}  # aerial = diamond, ground = circle
+    plotted_outcomes: set[str] = set()
 
-    plotted_outcomes = set()
     for record in records:
         outcome = record["outcome"]
-        color = OUTCOME_COLORS.get(outcome, "#ffffff")
-        marker = MARKERS[record["aerial"]]
+        color   = OUTCOME_COLORS.get(outcome, "#ffffff")
+        marker  = MARKERS[record["aerial"]]
 
-        # Arrow from corner flag to first action
         ax.annotate(
             "",
             xy=(record["x"], record["y"]),
@@ -115,7 +140,6 @@ def plot_scatter(records: list[dict], save: bool = True) -> None:
             zorder=3,
         )
 
-    # Outcome legend (colour)
     outcome_legend = ax.legend(
         title="Outcome",
         loc="upper left",
@@ -126,14 +150,13 @@ def plot_scatter(records: list[dict], save: bool = True) -> None:
     )
     ax.add_artist(outcome_legend)
 
-    # Aerial legend (marker shape)
-    from matplotlib.lines import Line2D
-    aerial_handles = [
-        Line2D([0], [0], marker="D", color="w", markerfacecolor="grey", markersize=8, label="Aerial (head)"),
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="grey", markersize=8, label="Ground (foot)"),
-    ]
     ax.legend(
-        handles=aerial_handles,
+        handles=[
+            Line2D([0], [0], marker="D", color="w", markerfacecolor="grey",
+                   markersize=8, label="Aerial (head)"),
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="grey",
+                   markersize=8, label="Ground (foot)"),
+        ],
         title="Body part",
         loc="lower left",
         bbox_to_anchor=(1.01, 0.0),
@@ -141,14 +164,15 @@ def plot_scatter(records: list[dict], save: bool = True) -> None:
         fontsize=9,
         title_fontsize=10,
     )
+
     ax.set_title(
         f"First Action Location – Barcelona Defending Corners (N={len(records)})\n"
-        "Left side of pitch = Barcelona's goal end   ·   top/bottom split = corner side",
-        color="white",
+        "Barcelona's goal on the left  ·  bottom = left corner (y<40), top = right corner (y≥40)",
+        color="black",
         fontsize=11,
         pad=12,
     )
-    fig.set_facecolor("#1a1a2e")
+    fig.set_facecolor("white")
     plt.tight_layout()
 
     if save:

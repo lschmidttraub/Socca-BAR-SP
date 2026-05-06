@@ -1,15 +1,42 @@
+import io
 import json
 import math
+import zipfile
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-ASSETS_DIR = Path(__file__).parent.parent.parent.parent / "assets"
+ASSETS_DIR        = Path(__file__).parent.parent.parent.parent / "assets"
 DEF_CORNER_ASSETS_DIR = ASSETS_DIR / "def_corner_analysis"
-MATCHES_CSV = Path(__file__).parent.parent.parent.parent / "data" / "matches.csv"
-DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "statsbomb" / "league_phase"
+MATCHES_CSV       = Path(__file__).parent.parent.parent.parent / "data" / "matches.csv"
+STATSBOMB_DIR     = Path(__file__).parent.parent.parent.parent / "data" / "statsbomb"
 BARCELONA = "Barcelona"
+
+_STATSBOMB_ZIPS = ["league_phase.zip", "last16.zip", "playoffs.zip", "quarterfinals.zip"]
+
+# Built once: maps each filename inside any ZIP to the ZIP path that contains it.
+def _build_statsbomb_index() -> dict[str, Path]:
+    index: dict[str, Path] = {}
+    for zip_name in _STATSBOMB_ZIPS:
+        zip_path = STATSBOMB_DIR / zip_name
+        if not zip_path.exists():
+            continue
+        with zipfile.ZipFile(zip_path) as zf:
+            for name in zf.namelist():
+                index[name] = zip_path
+    return index
+
+_STATSBOMB_INDEX: dict[str, Path] = _build_statsbomb_index()
+
+
+def _read_statsbomb_bytes(filename: str) -> bytes | None:
+    """Look up filename in the pre-built index and return its raw bytes, or None."""
+    zip_path = _STATSBOMB_INDEX.get(filename)
+    if zip_path is None:
+        return None
+    with zipfile.ZipFile(zip_path) as zf:
+        return zf.read(filename)
 
 
 # ── Match / team helpers ──────────────────────────────────────────────────────
@@ -46,16 +73,18 @@ def all_teams(matches_csv: Path = MATCHES_CSV) -> list[str]:
 
 def read_statsbomb(statsbomb_id: int) -> list:
     """Return events from the statsbomb JSON file for the given match ID."""
-    path = DATA_DIR / f"{statsbomb_id}.json"
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    raw = _read_statsbomb_bytes(f"{statsbomb_id}.json")
+    if raw is None:
+        raise FileNotFoundError(f"StatsBomb events not found for match {statsbomb_id}")
+    return json.loads(raw.decode("utf-8"))
 
 
 def playing_teams(statsbomb_id: int) -> tuple[str, str]:
     """Return the two teams playing in a match from the lineups JSON."""
-    path = DATA_DIR / f"{statsbomb_id}_lineups.json"
-    with open(path, encoding="utf-8") as f:
-        lineups = json.load(f)
+    raw = _read_statsbomb_bytes(f"{statsbomb_id}_lineups.json")
+    if raw is None:
+        raise FileNotFoundError(f"StatsBomb lineups not found for match {statsbomb_id}")
+    lineups = json.loads(raw.decode("utf-8"))
     return (lineups[0]["team_name"], lineups[1]["team_name"])
 
 
@@ -193,11 +222,11 @@ def build_pairs(team_name: str) -> list[tuple]:
     """Return (corner_ev, events) pairs for all defending corners of team_name."""
     pairs = []
     for game_id in team_games(team_name):
-        path = DATA_DIR / f"{game_id}.json"
-        if not path.exists():
+        try:
+            events = read_statsbomb(game_id)
+        except FileNotFoundError:
             print(f"Missing statsbomb file for game {game_id}, skipping.")
             continue
-        events = read_statsbomb(game_id)
         for corner in team_defend_corners(events, team_name):
             pairs.append((corner, events))
     return pairs
@@ -241,8 +270,18 @@ def normalize_to_right(loc: list, corner_loc: list) -> list:
     """Return loc with x flipped if the corner kick is in the left half (x < 60),
     so all defending corners are shown as if Barcelona's goal is at x = 120.
     This aligns with mplsoccer's half=True view (x: 60–120)."""
-    x, y = loc
+    x, y = loc[0], loc[1]
     if corner_loc[0] < 60:
+        x = 120 - x
+    return [x, y]
+
+
+def normalize_to_left(loc: list, corner_loc: list) -> list:
+    """Return loc with x flipped if the corner kick is in the right half (x >= 60),
+    so all defending corners are shown with Barcelona's goal at x = 0 (left side).
+    Use with a left-half pitch view (x: 0–60)."""
+    x, y = loc[0], loc[1]
+    if corner_loc[0] >= 60:
         x = 120 - x
     return [x, y]
 
@@ -275,6 +314,16 @@ def first_sequence_action(corner_ev: dict, events: list) -> dict | None:
     """Return the first event in the corner sequence after the corner kick itself."""
     seq = corner_sequence(corner_ev, events)
     return seq[0] if seq else None
+
+
+def first_touch_action(corner_ev: dict, events: list) -> dict | None:
+    """Return the first event in the corner sequence that has body_part info.
+    Falls back to the first sequence action if none carry body_part — those
+    are treated as ground by is_aerial()."""
+    for ev in corner_sequence(corner_ev, events):
+        if action_body_part(ev) is not None:
+            return ev
+    return first_sequence_action(corner_ev, events)
 
 
 def corner_to_first_action_distance(corner_ev: dict, events: list) -> float | None:
@@ -325,8 +374,8 @@ def plot_corner_classes(
         ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3, f"{h:.1f}%\n({count})", ha="center", va="bottom", fontsize=8)
     for bar in bars_a:
         h = bar.get_height()
-        count = round(h / 100 * avg_n)
-        ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3, f"{h:.1f}%\n({count})", ha="center", va="bottom", fontsize=8)
+        count = h / 100 * avg_n
+        ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3, f"{h:.1f}%\n({count:.1f})", ha="center", va="bottom", fontsize=8)
 
     ax.set_ylabel("% of defending corners")
     ax.set_title(f"Defending Corners – Barcelona vs. League Average")
@@ -414,7 +463,7 @@ if __name__ == "__main__":
     print(f"League average defending corners per team: {avg_n:.1f}")
 
     # Plots corners by Barcelona vs AVG grouped by outcome
-    #plot_corner_classes(barca_pcts, avg_pcts, barca_n, avg_n)
+    plot_corner_classes(barca_pcts, avg_pcts, barca_n, avg_n)
     # Plots corners grouped by side, outcome
-    #plot_corner_classes_by_side(barca_pairs)
+    plot_corner_classes_by_side(barca_pairs)
     

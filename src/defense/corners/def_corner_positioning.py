@@ -1,7 +1,7 @@
 """
 def_corner_positioning.py
 
-Analyze the positioning of Barcelona players in defending corner situations
+Analyse the positioning of Barcelona players in defending corner situations
 using SkillCorner tracking data.
 
 For each corner_reception frame where Barcelona is defending, all player
@@ -13,35 +13,33 @@ Data layout
 data/matches.csv
     columns: date, utc, statsbomb, skillcorner, home, score, away, wyscout, videooffset
 
-data_new/skillcorner/{skillcorner_id}.zip  (or extracted folder)
+data/skillcorner/{skillcorner_id}.zip
     {id}_dynamic_events.csv
         start_type  -- "corner_reception" identifies the frame of interest
         frame_start -- frame number to look up in tracking
-        group       -- "home team" / "away team" (the attacking team)
+        team_id     -- team that is attacking (i.e. NOT the defending team)
 
     {id}_tracking_extrapolated.jsonl
         frame                     -- int
-        period                    -- int
-        timestamp                 -- float (seconds)
-        ball_data.x / .y          -- ball position in metres (origin = pitch centre)
         player_data[].player_id   -- int
         player_data[].x / .y      -- position in metres (origin = pitch centre)
-        player_data[].is_detected -- bool
 
-    {id}_match.json
+    {id}.json
         home_team / away_team     -- {"name": str, ...}
         players[]                 -- [{"id": int, "name": str, "team_id": int,
                                        "position": {"name": str}, ...}]
 
 Usage:
-    python src/def_corner_positioning.py
+    python src/defense/corners/def_corner_positioning.py
 """
 
 import io
 import json
 import zipfile
+from collections import defaultdict
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from defending_corners import (
@@ -56,13 +54,8 @@ SKILLCORNER_DIR = Path(__file__).parent.parent.parent.parent / "data" / "skillco
 OUT_DIR         = DEF_CORNER_ASSETS_DIR / "positioning"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-PITCH_LENGTH = 105.0
-PITCH_WIDTH  = 68.0
 
-
-# ---------------------------------------------------------------------------
-# SkillCorner package I/O
-# ---------------------------------------------------------------------------
+# ── SkillCorner I/O ───────────────────────────────────────────────────────────
 
 def _zip_path(skillcorner_id: int) -> Path | None:
     p = SKILLCORNER_DIR / f"{skillcorner_id}.zip"
@@ -70,7 +63,6 @@ def _zip_path(skillcorner_id: int) -> Path | None:
 
 
 def _read_member(skillcorner_id: int, filename: str) -> bytes | None:
-    """Read a named file from {skillcorner_id}.zip."""
     p = _zip_path(skillcorner_id)
     if p is None:
         return None
@@ -99,112 +91,26 @@ def iter_tracking_frames(skillcorner_id: int):
             yield json.loads(line)
 
 
-# ---------------------------------------------------------------------------
-# Corner helpers
-# ---------------------------------------------------------------------------
-
-def corners_against(skillcorner_id: int, defending_tid: int) -> list[dict]:
-    """
-    Return all corner_reception events in a game where `defending_tid` is defending.
-
-    Parameters
-    ----------
-    skillcorner_id : SkillCorner game id
-    defending_tid  : team_id of the defending team
-
-    Returns
-    -------
-    List of dicts, one per corner, with keys:
-        frame_start, period, minute_start, second_start, attacking_side
-    """
-    dynamic_events = read_dynamic_events(skillcorner_id)
-    if dynamic_events is None:
-        return []
-
-    corner_rows = dynamic_events[
-        (dynamic_events["start_type"].astype(str).str.casefold() == "corner_reception")
-        & (dynamic_events["team_id"] != defending_tid)
-    ]
-
-    return corner_rows[[
-        "frame_start", "period", "minute_start", "second_start", "attacking_side",
-    ]].dropna(subset=["frame_start"]).to_dict(orient="records")
-
-
-def per_corner_avg_distances(
-    skillcorner_id: int,
-    defending_tid: int,
-    player_index: dict,
-    n_smallest: int | None = None,
-) -> list[float]:
-    """
-    Return one float per corner: the average nearest-opponent distance across
-    outfield players at that corner frame.
-
-    Parameters
-    ----------
-    n_smallest : if given, average only over the N players whose nearest-opponent
-                 distance is smallest (i.e. most tightly marked); otherwise
-                 average over all outfield players.
-    """
-    corners = corners_against(skillcorner_id, defending_tid)
-    if not corners:
-        return []
-
-    target_frames = {int(c["frame_start"]): None for c in corners}
-    remaining = set(target_frames)
-
-    for tracking_frame in iter_tracking_frames(skillcorner_id):
-        fid = tracking_frame.get("frame")
-        if fid in remaining:
-            dists = nearest_opponent_distance(tracking_frame, player_index, defending_tid)
-            if dists:
-                if n_smallest is not None:
-                    dists = sorted(dists)[:n_smallest]
-                target_frames[fid] = sum(dists) / len(dists)
-            remaining.discard(fid)
-            if not remaining:
-                break
-
-    return [v for v in target_frames.values() if v is not None]
-
-
-def game_avg_distances(skillcorner_id: int, defending_tid: int, player_index: dict) -> float | None:
-    """Average nearest-opponent distance across all corners in a single game."""
-    vals = per_corner_avg_distances(skillcorner_id, defending_tid, player_index)
-    return sum(vals) / len(vals) if vals else None
-
-
-# ---------------------------------------------------------------------------
-# Match metadata helpers
-# ---------------------------------------------------------------------------
+# ── Match metadata helpers ────────────────────────────────────────────────────
 
 def parse_player_index(match_meta: dict) -> dict[int, dict]:
-    """
-    Return player_id -> {name, team_id, team_side, is_gk} from match.json.
-    team_side is "home team" or "away team".
-    """
+    """Return player_id -> {name, team_id, is_gk} from match.json."""
     index: dict[int, dict] = {}
     for player in match_meta.get("players", []):
         pid = player.get("id") or player.get("player_id")
         if pid is None:
             continue
-        side = player.get("team_side") or player.get("group", "")
         index[int(pid)] = {
-            "name":      player.get("name") or player.get("short_name", str(pid)),
-            "team_id":   player.get("team_id"),
-            "team_side": side,
-            "is_gk":     player.get("position", {}).get("name", "") == "Goalkeeper"
-                         if isinstance(player.get("position"), dict)
-                         else False,
+            "name":    player.get("name") or player.get("short_name", str(pid)),
+            "team_id": player.get("team_id"),
+            "is_gk":   (player.get("position", {}).get("name", "") == "Goalkeeper"
+                        if isinstance(player.get("position"), dict) else False),
         }
     return index
 
 
 def teams_from_meta(match_meta: dict) -> list[dict]:
-    """
-    Return [{name, id}, {name, id}] for the two teams in a match from match.json.
-    """
+    """Return [{name, id}, {name, id}] for the two teams in a match."""
     result = []
     for key in ("home_team", "away_team", "homeTeam", "awayTeam"):
         val = match_meta.get(key)
@@ -216,175 +122,232 @@ def teams_from_meta(match_meta: dict) -> list[dict]:
     return result
 
 
-def barca_team_id(match_meta: dict) -> int | None:
-    """Return the SkillCorner team_id for Barcelona from match.json, or None."""
-    for t in teams_from_meta(match_meta):
-        if BARCELONA.casefold() in t["name"].casefold():
-            return t["id"]
-    return None
+# ── Positioning helper ────────────────────────────────────────────────────────
 
-
-# ---------------------------------------------------------------------------
-# Positioning helper
-# ---------------------------------------------------------------------------
-
-def nearest_opponent_distance(
+def nearest_opponent_distances(
     frame: dict,
     player_index: dict[int, dict],
     barca_tid: int,
 ) -> list[float]:
-    """
-    Return [distance to nearest opponent from player p | p <- barcelona_players \ {goalkeeper}].
+    """Return one distance per outfield Barcelona player: distance to their nearest opponent.
 
-    Excludes both the Barcelona GK (from the Barcelona set) and the opponent GK
-    (from the opponent set). Returns one float per outfield Barcelona player who
-    has a known position in the frame.
-
-    Parameters
-    ----------
-    frame        : one dict from iter_tracking_frames()
-    player_index : output of parse_player_index()
-    barca_tid    : SkillCorner team_id for Barcelona
+    Both goalkeepers are excluded from both sets.
     """
     barca_positions: dict[int, list] = {}
     opp_positions:   dict[int, list] = {}
 
     for p in frame.get("player_data", []):
         pid = p.get("player_id")
-        x   = p.get("x")
-        y   = p.get("y")
+        x, y = p.get("x"), p.get("y")
         if pid is None or x is None or y is None:
             continue
         meta  = player_index.get(int(pid), {})
         tid   = meta.get("team_id")
-        is_gk = meta.get("is_gk", False)
-
-        if tid == barca_tid and not is_gk:
+        if meta.get("is_gk", False):
+            continue
+        if tid == barca_tid:
             barca_positions[int(pid)] = [x, y]
-        elif tid != barca_tid and not is_gk:
+        else:
             opp_positions[int(pid)] = [x, y]
 
     if not opp_positions:
         return []
 
-    result = []
-    for pid, loc in barca_positions.items():
-        nearest_id = min(opp_positions, key=lambda o: distance(loc, opp_positions[o]))
-        result.append(distance(loc, opp_positions[nearest_id]))
+    opp_locs = list(opp_positions.values())
+    return [
+        min(distance(loc, opp) for opp in opp_locs)
+        for loc in barca_positions.values()
+    ]
+
+
+# ── Core data collection — single pass per game ───────────────────────────────
+
+def collect_game_data(
+    skillcorner_id: int,
+    teams: list[dict],
+    player_index: dict,
+) -> dict[str, dict]:
+    """Return per-team positioning metrics using exactly one read of each data file.
+
+    The old approach made four passes over the tracking JSONL per game
+    (two metric variants × two teams). This function makes one pass and
+    computes both variants simultaneously.
+
+    Returns
+    -------
+    {team_name: {"all": [per-corner avg dist], "top5": [per-corner avg dist, 5 closest players]}}
+    """
+    # ── Read dynamic events once for all teams ────────────────────────────────
+    dynamic_events = read_dynamic_events(skillcorner_id)
+    if dynamic_events is None:
+        return {}
+
+    corner_rows = dynamic_events[
+        dynamic_events["start_type"].astype(str).str.casefold() == "corner_reception"
+    ]
+
+    # Build frame_id → defending team_id map (one read covers all teams)
+    team_frames: dict[int, list[int]] = {}   # tid -> [frame_ids]
+    frame_to_tid: dict[int, int] = {}        # frame_id -> defending tid
+
+    for team in teams:
+        rows = corner_rows[corner_rows["team_id"] != team["id"]].dropna(subset=["frame_start"])
+        fids = [int(f) for f in rows["frame_start"]]
+        team_frames[team["id"]] = fids
+        for fid in fids:
+            frame_to_tid.setdefault(fid, team["id"])
+
+    if not frame_to_tid:
+        return {}
+
+    # ── Single pass over tracking JSONL ──────────────────────────────────────
+    remaining = set(frame_to_tid)
+    frame_dists: dict[int, list[float]] = {}
+
+    for frame in iter_tracking_frames(skillcorner_id):
+        fid = frame.get("frame")
+        if fid not in remaining:
+            continue
+        dists = nearest_opponent_distances(frame, player_index, frame_to_tid[fid])
+        if dists:
+            frame_dists[fid] = dists
+        remaining.discard(fid)
+        if not remaining:
+            break
+
+    # ── Aggregate both metric variants per team ───────────────────────────────
+    result: dict[str, dict] = {}
+    for team in teams:
+        tid = team["id"]
+        all_vals, top5_vals = [], []
+        for fid in team_frames.get(tid, []):
+            dists = frame_dists.get(fid)
+            if not dists:
+                continue
+            all_vals.append(sum(dists) / len(dists))
+            s = sorted(dists)[:5]
+            top5_vals.append(sum(s) / len(s))
+        result[team["name"]] = {"all": all_vals, "top5": top5_vals}
 
     return result
 
 
-# ---------------------------------------------------------------------------
-# Main loop
-# ---------------------------------------------------------------------------
+# ── Plotting ──────────────────────────────────────────────────────────────────
 
-import matplotlib.pyplot as plt
-from collections import defaultdict
+def plot_distances(
+    distances: dict[str, list[float]],
+    title: str,
+    xlabel: str,
+    out_path: Path,
+    highlight: str | None = None,
+    save: bool = True,
+) -> None:
+    """Horizontal bar chart of average nearest-opponent distance per team/opponent.
 
-# ---------------------------------------------------------------------------
-# Main loop — all games, all teams
-# ---------------------------------------------------------------------------
+    Parameters
+    ----------
+    distances : {label: [per-corner distances]}
+    highlight : if given, colour that bar red (used to mark Barcelona)
+    """
+    team_df = pd.DataFrame([
+        {"team": name, "avg_dist": sum(d) / len(d), "n_corners": len(d)}
+        for name, d in distances.items()
+        if d
+    ]).sort_values("avg_dist")
 
-matches_df = _read_matches_df(MATCHES_CSV)
-team_distances:    defaultdict[str, list[float]] = defaultdict(list)
-team_distances_5:  defaultdict[str, list[float]] = defaultdict(list)
-# team_name -> list of per-corner avg distances (one float per corner, across all their games)
+    fig, ax = plt.subplots(figsize=(10, max(4, len(team_df) * 0.38)))
+    fig.set_facecolor("white")
+    bars = ax.barh(team_df["team"], team_df["avg_dist"], color="steelblue", edgecolor="white")
 
-for _, match_row in matches_df.iterrows():
-    skillcorner_id = int(match_row["skillcorner"]) if pd.notna(match_row["skillcorner"]) else None
-    if skillcorner_id is None or _zip_path(skillcorner_id) is None:
-        continue
+    if highlight:
+        mask = team_df["team"].str.contains(highlight, case=False)
+        for bar, is_highlighted in zip(bars, mask):
+            if is_highlighted:
+                bar.set_color("#e63946")
 
-    match_meta = read_match_meta(skillcorner_id)
-    if not match_meta:
-        continue
+    for bar, val, n in zip(bars, team_df["avg_dist"], team_df["n_corners"]):
+        ax.text(
+            val + 0.05, bar.get_y() + bar.get_height() / 2,
+            f"{val:.2f} m  ({n}c)", va="center", fontsize=7.5,
+        )
 
-    teams        = teams_from_meta(match_meta)
-    player_index = parse_player_index(match_meta)
+    ax.set_xlabel(xlabel)
+    ax.set_title(title)
+    ax.grid(axis="x", alpha=0.25)
+    plt.tight_layout()
 
-    if len(teams) < 2:
-        continue
+    if save:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        print(f"Plot saved to {out_path}")
 
-    for team in teams:
-        corner_dists = per_corner_avg_distances(skillcorner_id, team["id"], player_index)
-        if corner_dists:
-            team_distances[team["name"]].extend(corner_dists)
+    plt.show()
 
-        corner_dists_5 = per_corner_avg_distances(skillcorner_id, team["id"], player_index, n_smallest=5)
-        if corner_dists_5:
-            team_distances_5[team["name"]].extend(corner_dists_5)
 
-        if corner_dists:
-            print(f"  [{skillcorner_id}] {team['name']:30s}  +{len(corner_dists)} corners")
+# ── Main ──────────────────────────────────────────────────────────────────────
 
-# ---------------------------------------------------------------------------
-# Plot: avg defending-corner distance per team (all teams)
-# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    matches_df = _read_matches_df(MATCHES_CSV)
 
-team_df = pd.DataFrame([
-    {
-        "team":      name,
-        "avg_dist":  sum(dists) / len(dists),
-        "n_corners": len(dists),
-    }
-    for name, dists in team_distances.items()
-]).sort_values("avg_dist")
+    team_distances:    defaultdict[str, list[float]] = defaultdict(list)
+    team_distances_5:  defaultdict[str, list[float]] = defaultdict(list)
+    barca_per_opponent: defaultdict[str, list[float]] = defaultdict(list)
 
-fig, ax = plt.subplots(figsize=(10, max(4, len(team_df) * 0.38)))
-bars = ax.barh(team_df["team"], team_df["avg_dist"], color="steelblue", edgecolor="white")
+    for _, match_row in matches_df.iterrows():
+        sc_id = int(match_row["skillcorner"]) if pd.notna(match_row["skillcorner"]) else None
+        if sc_id is None or _zip_path(sc_id) is None:
+            continue
 
-# Highlight Barcelona
-barca_idx = team_df["team"].str.contains(BARCELONA, case=False)
-for bar, is_barca in zip(bars, barca_idx):
-    if is_barca:
-        bar.set_color("#e63946")
+        match_meta = read_match_meta(sc_id)
+        if not match_meta:
+            continue
 
-for bar, val, n in zip(bars, team_df["avg_dist"], team_df["n_corners"]):
-    ax.text(val + 0.05, bar.get_y() + bar.get_height() / 2,
-            f"{val:.2f} m  ({n}c)", va="center", fontsize=7.5)
+        teams        = teams_from_meta(match_meta)
+        player_index = parse_player_index(match_meta)
+        if len(teams) < 2:
+            continue
 
-ax.set_xlabel("Avg nearest-opponent distance during defending corners (m)")
-ax.set_title("Defending corner compactness — all teams\n(red = Barcelona)")
-ax.grid(axis="x", alpha=0.25)
-plt.tight_layout()
+        game_data = collect_game_data(sc_id, teams, player_index)
 
-out_path = OUT_DIR / "avg_distances_all_teams.png"
-fig.savefig(out_path, dpi=150, bbox_inches="tight")
-print(f"\nPlot saved to {out_path}")
-plt.show()
+        for team_name, metrics in game_data.items():
+            if not metrics["all"]:
+                continue
+            team_distances[team_name].extend(metrics["all"])
+            team_distances_5[team_name].extend(metrics["top5"])
+            print(f"  [{sc_id}] {team_name:30s}  +{len(metrics['all'])} corners")
 
-# ---------------------------------------------------------------------------
-# Plot: avg defending-corner distance — 5 most tightly marked players per team
-# ---------------------------------------------------------------------------
+        # Accumulate per-opponent data for Barcelona-specific plot
+        barca_entry = next(
+            ((name, data) for name, data in game_data.items()
+             if BARCELONA.casefold() in name.casefold()),
+            None,
+        )
+        if barca_entry:
+            barca_name, barca_data = barca_entry
+            opponent = next(
+                (t["name"] for t in teams if t["name"] != barca_name), None
+            )
+            if opponent and barca_data["all"]:
+                barca_per_opponent[opponent].extend(barca_data["all"])
 
-team_df_5 = pd.DataFrame([
-    {
-        "team":      name,
-        "avg_dist":  sum(dists) / len(dists),
-        "n_corners": len(dists),
-    }
-    for name, dists in team_distances_5.items()
-]).sort_values("avg_dist")
+    plot_distances(
+        team_distances,
+        title="Defending corner compactness — all teams\n(red = Barcelona)",
+        xlabel="Avg nearest-opponent distance during defending corners (m)",
+        out_path=OUT_DIR / "avg_distances_all_teams.png",
+        highlight=BARCELONA,
+    )
 
-fig2, ax2 = plt.subplots(figsize=(10, max(4, len(team_df_5) * 0.38)))
-bars2 = ax2.barh(team_df_5["team"], team_df_5["avg_dist"], color="steelblue", edgecolor="white")
+    plot_distances(
+        team_distances_5,
+        title="Defending corner compactness — 5 most tightly marked players per team\n(red = Barcelona)",
+        xlabel="Avg nearest-opponent distance — 5 most marked players (m)",
+        out_path=OUT_DIR / "avg_distances_all_teams_top5marked.png",
+        highlight=BARCELONA,
+    )
 
-barca_idx_5 = team_df_5["team"].str.contains(BARCELONA, case=False)
-for bar, is_barca in zip(bars2, barca_idx_5):
-    if is_barca:
-        bar.set_color("#e63946")
-
-for bar, val, n in zip(bars2, team_df_5["avg_dist"], team_df_5["n_corners"]):
-    ax2.text(val + 0.05, bar.get_y() + bar.get_height() / 2,
-             f"{val:.2f} m  ({n}c)", va="center", fontsize=7.5)
-
-ax2.set_xlabel("Avg nearest-opponent distance during defending corners (m) — 5 most marked players")
-ax2.set_title("Defending corner compactness — 5 most tightly marked players per team\n(red = Barcelona)")
-ax2.grid(axis="x", alpha=0.25)
-plt.tight_layout()
-
-out_path_5 = OUT_DIR / "avg_distances_all_teams_top5marked.png"
-fig2.savefig(out_path_5, dpi=150, bbox_inches="tight")
-print(f"Plot saved to {out_path_5}")
-plt.show()
+    plot_distances(
+        barca_per_opponent,
+        title="Barcelona defending corners — avg nearest-opponent distance per game",
+        xlabel="Avg nearest-opponent distance (m)",
+        out_path=OUT_DIR / "avg_distances_per_game.png",
+    )
