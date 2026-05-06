@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-ASSETS_DIR = Path(__file__).parent.parent / "assets"
+ASSETS_DIR = Path(__file__).parent.parent.parent.parent / "assets"
 DEF_CORNER_ASSETS_DIR = ASSETS_DIR / "def_corner_analysis"
-MATCHES_CSV = Path(__file__).parent.parent / "data" / "matches.csv"
-DATA_DIR = Path(__file__).parent.parent / "data" / "statsbomb" / "league_phase"
+MATCHES_CSV = Path(__file__).parent.parent.parent.parent / "data" / "matches.csv"
+DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "statsbomb" / "league_phase"
 BARCELONA = "Barcelona"
 
 

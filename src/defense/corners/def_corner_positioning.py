@@ -52,7 +52,7 @@ from defending_corners import (
     distance,
 )
 
-SKILLCORNER_DIR = Path(__file__).parent.parent / "data" / "skillcorner"
+SKILLCORNER_DIR = Path(__file__).parent.parent.parent.parent / "data" / "skillcorner"
 OUT_DIR         = DEF_CORNER_ASSETS_DIR / "positioning"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
