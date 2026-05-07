@@ -1,0 +1,13 @@
+game_id,container,corner_selection_method,corner_rows_selected,requested_frames,found_frames,identified_team_players,positions_extracted,home_team_name,away_team_name
+2031733,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2031733.zip,player_column:player_id,1,1,1,22,11,Newcastle United,FC Barcelona
+2034405,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2034405.zip,player_column:player_id,3,3,3,23,33,FC Barcelona,Paris Saint-Germain
+2037202,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2037202.zip,player_column:player_id,4,4,4,16,44,FC Barcelona,Olympiakos Le Pirée
+2040244,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2040244.zip,player_column:player_id,1,1,1,16,11,Club Brugge KV,FC Barcelona
+2045107,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2045107.zip,fallback_all_corner_reception_rows,2,2,2,16,22,Chelsea,FC Barcelona
+2047362,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2047362.zip,player_column:player_id,2,2,2,16,22,FC Barcelona,Eintracht Frankfurt
+2050711,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2050711.zip,player_column:player_id,1,1,1,15,11,SK Slavia Prague,FC Barcelona
+2051683,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2051683.zip,player_column:player_id,3,3,3,16,33,FC Barcelona,FC Copenhagen
+2057941,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2057941.zip,player_column:player_id,1,1,1,16,11,Newcastle United,FC Barcelona
+2059201,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2059201.zip,player_column:player_id,1,1,1,16,11,FC Barcelona,Newcastle United
+2061925,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2061925.zip,player_column:player_id,6,6,6,16,62,FC Barcelona,Atlético Madrid
+2062905,C:\Users\nikla\Socca-BAR-SP\data\skillcorner\2062905.zip,player_column:player_id,3,3,3,16,33,Atlético Madrid,FC Barcelona

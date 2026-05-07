@@ -130,9 +130,9 @@ def main(top_n):
 
     fig, ax = plt.subplots(figsize=(14, 6))
     ax.bar([i - width/2 for i in x], barca_vals, width=width,
-           label="Barcelona", color="#a50026")
+           label="Barcelona", color="#4575b4")
     ax.bar([i + width/2 for i in x], avg_vals, width=width,
-           label=f"Avg per team ({group_label})", color="#92c5de", edgecolor="#4575b4", linewidth=0.8)
+           label=f"Avg per team ({group_label})", color="#fc8d59", edgecolor="#d73027", linewidth=0.8)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=45, ha="right")

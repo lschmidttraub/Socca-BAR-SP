@@ -1,21 +1,23 @@
 """
-corner_xg_barca_vs_avg.py
+corner_xg_per_corner_barca_vs_avg.py
 
 Bar chart only:
-    - short corner xG: Barcelona vs average team
-    - crossed corner xG: Barcelona vs average team
+    - short corner xG/corner: Barcelona vs average team
+    - crossed corner xG/corner: Barcelona vs average team
 
-Logic:
-    1) find every corner kick
-    2) classify opener as short/cross by pass length
-    3) assign each shot with play_pattern == "From Corner"
-       to the most recent same-team corner before it
-    4) sum xG by opener type
+Corner classification:
+    - cross if the opening corner pass ends inside the penalty box
+    - otherwise cross if pass length > 15
+    - otherwise short
+
+Shots are assigned to the most recent same-team corner before the shot,
+provided the shot has play_pattern == "From Corner".
 
 Usage:
-    python src/corner_xg_barca_vs_avg.py
+    python src/corner_xg_per_corner_barca_vs_avg.py
 """
 
+from pathlib import Path
 import json
 import math
 from pathlib import Path
@@ -24,7 +26,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 DATA_DIR = Path(__file__).parent.parent / "data" / "statsbomb" / "league_phase"
-
+ASSETS_DIR = Path(__file__).parent.parent / "assets"
+out = ASSETS_DIR / "xg_per_corner_bars.png"
 
 def load_json(path):
     with open(path, encoding="utf-8") as f:
@@ -38,27 +41,6 @@ def is_corner_kick(ev):
     )
 
 
-def pass_length(start, end):
-    return math.hypot(end[0] - start[0], end[1] - start[1])
-
-
-def classify_corner(ev, short_threshold=15.0):
-    """
-    Robust split:
-      - short: opener pass length <= 15
-      - cross: opener pass length > 15
-
-    This is safer here than relying on pass.cross.
-    """
-    start = ev.get("location")
-    end = ev.get("pass", {}).get("end_location")
-
-    if start is None or end is None:
-        return None
-
-    return "short" if pass_length(start, end) <= short_threshold else "cross"
-
-
 def is_from_corner_shot(ev):
     return (
         ev.get("type", {}).get("id") == 16
@@ -69,6 +51,55 @@ def is_from_corner_shot(ev):
 
 def shot_xg(ev):
     return float(ev.get("shot", {}).get("statsbomb_xg", 0.0) or 0.0)
+
+
+def pass_length(start, end):
+    return math.hypot(end[0] - start[0], end[1] - start[1])
+
+
+def normalize_to_attacking_right(start_xy, xy):
+    """
+    Normalize coordinates so the attacking goal is always at x=120.
+    Infer attack direction from the corner start location.
+    """
+    sx, sy = start_xy
+    x, y = xy
+
+    attacking_right = sx > 60
+    if attacking_right:
+        return x, y
+    return 120 - x, 80 - y
+
+
+def in_penalty_box_normalized(x, y):
+    """
+    StatsBomb pitch: 120 x 80
+    Penalty box in attacking-right frame:
+        x >= 102
+        18 <= y <= 62
+    """
+    return x >= 102 and 18 <= y <= 62
+
+
+def classify_corner(ev, short_threshold=15.0):
+    """
+    Cross if:
+      1) end location is in the box
+      2) OR pass length > short_threshold
+    Else short.
+    """
+    start = ev.get("location")
+    end = ev.get("pass", {}).get("end_location")
+
+    if start is None or end is None:
+        return None
+
+    end_norm_x, end_norm_y = normalize_to_attacking_right(start, end)
+
+    if in_penalty_box_normalized(end_norm_x, end_norm_y):
+        return "cross"
+
+    return "cross" if pass_length(start, end) > short_threshold else "short"
 
 
 corner_rows = []
@@ -100,7 +131,7 @@ for event_path in sorted(DATA_DIR.glob("*.json")):
     if not corners:
         continue
 
-    # Assign each From Corner shot to the most recent same-team corner before it
+    # assign each From Corner shot to the most recent same-team corner before it
     for shot in events:
         if not is_from_corner_shot(shot):
             continue
@@ -126,37 +157,45 @@ if not corner_rows:
 
 df = pd.DataFrame(corner_rows)
 
-# total xG by team and corner type
-team_xg = (
+# team totals by corner type
+team_summary = (
     df.groupby(["team", "corner_type"], as_index=False)
-    .agg(xg=("xg", "sum"))
+    .agg(
+        corners=("corner_index", "count"),
+        xg=("xg", "sum"),
+    )
 )
 
-# ensure all teams have both short/cross rows
-teams = sorted(team_xg["team"].unique())
+# ensure every team has both rows
+teams = sorted(team_summary["team"].unique())
 full_idx = pd.MultiIndex.from_product(
     [teams, ["short", "cross"]],
     names=["team", "corner_type"]
 )
 
-team_xg = (
-    team_xg.set_index(["team", "corner_type"])
+team_summary = (
+    team_summary.set_index(["team", "corner_type"])
     .reindex(full_idx, fill_value=0.0)
     .reset_index()
 )
 
-barca = team_xg[team_xg["team"] == "Barcelona"]
+team_summary["xg_per_corner"] = team_summary.apply(
+    lambda r: (r["xg"] / r["corners"]) if r["corners"] else 0.0,
+    axis=1,
+)
+
+barca = team_summary[team_summary["team"] == "Barcelona"]
 if barca.empty:
     raise RuntimeError("Barcelona not found in dataset.")
 
-barca_xg = barca.set_index("corner_type")["xg"].to_dict()
-avg_xg = team_xg.groupby("corner_type")["xg"].mean().to_dict()
+barca_rates = barca.set_index("corner_type")["xg_per_corner"].to_dict()
+avg_rates = team_summary.groupby("corner_type")["xg_per_corner"].mean().to_dict()
 
 categories = ["short", "cross"]
-barca_vals = [barca_xg.get(c, 0.0) for c in categories]
-avg_vals = [avg_xg.get(c, 0.0) for c in categories]
+barca_vals = [barca_rates.get(c, 0.0) for c in categories]
+avg_vals = [avg_rates.get(c, 0.0) for c in categories]
 
-# Plot
+# plot
 x = range(len(categories))
 width = 0.35
 
@@ -166,10 +205,10 @@ ax.bar([i + width / 2 for i in x], avg_vals, width=width, label="Average team")
 
 ax.set_xticks(list(x))
 ax.set_xticklabels(["Short corners", "Crossed corners"])
-ax.set_ylabel("Total xG")
-ax.set_title("Corner xG: Barcelona vs Average Team")
+ax.set_ylabel("xG per corner")
+ax.set_title("Corner xG per Corner: Barcelona vs Average Team")
 ax.legend()
 ax.grid(axis="y", alpha=0.25)
-
+fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
 plt.tight_layout()
 plt.show()

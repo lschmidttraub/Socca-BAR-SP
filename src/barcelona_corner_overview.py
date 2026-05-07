@@ -51,6 +51,7 @@ Notes
 from __future__ import annotations
 
 import argparse
+import csv
 import io
 import json
 import math
@@ -115,10 +116,47 @@ class PackageReader:
 
 
 # -----------------------------------------------------------------------------
+# Matches CSV lookup
+# -----------------------------------------------------------------------------
+
+# Column indices for the matches CSV:
+# date, utc, statsbomb, skillcorner, home, score, away, wyscout, videooffset
+_CSV_HOME_COL = 4
+_CSV_AWAY_COL = 6
+_CSV_SC_ID_COL = 3
+
+
+def load_barca_game_ids_from_csv(csv_path: Path, team: str = "Barcelona") -> List[str]:
+    """
+    Read the matches CSV and return SkillCorner game IDs for games involving `team`.
+
+    Handles an optional header row by skipping any row whose skillcorner_id column
+    is not numeric.
+    """
+    team_cf = team.casefold()
+    game_ids: List[str] = []
+    with open(csv_path, newline="", encoding="utf-8") as fh:
+        for row in csv.reader(fh):
+            if len(row) <= _CSV_SC_ID_COL:
+                continue
+            sc_id = row[_CSV_SC_ID_COL].strip()
+            if not sc_id.lstrip("-").isdigit():
+                continue  # skip header or malformed rows
+            home = row[_CSV_HOME_COL].strip()
+            away = row[_CSV_AWAY_COL].strip()
+            if team_cf in home.casefold() or team_cf in away.casefold():
+                game_ids.append(sc_id)
+    return game_ids
+
+
+# -----------------------------------------------------------------------------
 # Discovery
 # -----------------------------------------------------------------------------
 
-def discover_game_packages(dataset_root: Path) -> List[GameResources]:
+def discover_game_packages(
+    dataset_root: Path,
+    game_id_filter: Optional[Set[str]] = None,
+) -> List[GameResources]:
     """Discover game folders/zips and resolve the relevant file members."""
     resources: List[GameResources] = []
 
@@ -127,6 +165,8 @@ def discover_game_packages(dataset_root: Path) -> List[GameResources]:
 
     # Zip packages like data_new/skillcorner/12345.zip
     for zip_path in sorted(dataset_root.glob("*.zip")):
+        if game_id_filter is not None and zip_path.stem not in game_id_filter:
+            continue
         with zipfile.ZipFile(zip_path) as zf:
             names = zf.namelist()
         res = _resolve_members(names, container_path=zip_path, is_zip=True)
@@ -135,6 +175,8 @@ def discover_game_packages(dataset_root: Path) -> List[GameResources]:
 
     # Extracted game folders like data_new/skillcorner/12345/
     for folder in sorted(p for p in dataset_root.iterdir() if p.is_dir()):
+        if game_id_filter is not None and folder.name not in game_id_filter:
+            continue
         names = [str(p) for p in folder.rglob("*") if p.is_file()]
         res = _resolve_members(names, container_path=folder, is_zip=False)
         if res is not None:
@@ -160,6 +202,12 @@ def _resolve_members(
     match_member = sorted(match_candidates)[0] if match_candidates else None
 
     game_id = _extract_game_id(dynamic_member) or _extract_game_id(tracking_member) or container_path.stem
+
+    # Fall back to {game_id}.json when no *_match.json exists (SkillCorner package format)
+    if match_member is None:
+        plain_json = f"{game_id}.json"
+        if plain_json in names:
+            match_member = plain_json
 
     return GameResources(
         game_id=str(game_id),
@@ -213,9 +261,31 @@ TEAM_KEYS = [
 ]
 
 
+def _extract_team_id(team_dict) -> Optional[int]:
+    """Extract the numeric id from a team dict, if present."""
+    if not isinstance(team_dict, dict):
+        return None
+    raw = team_dict.get("id") or team_dict.get("team_id")
+    try:
+        return int(raw) if raw is not None else None
+    except Exception:
+        return None
+
+
 def parse_match_meta(match_json: dict) -> MatchMeta:
-    home_team_name = _nested_name(match_json.get("home_team")) or _nested_name(match_json.get("homeTeam"))
-    away_team_name = _nested_name(match_json.get("away_team")) or _nested_name(match_json.get("awayTeam"))
+    home_obj = match_json.get("home_team") or match_json.get("homeTeam")
+    away_obj = match_json.get("away_team") or match_json.get("awayTeam")
+    home_team_name = _nested_name(home_obj)
+    away_team_name = _nested_name(away_obj)
+
+    # Build team_id → team_name map so SkillCorner player dicts (team_id only) can be resolved.
+    team_id_to_name: Dict[int, str] = {}
+    home_id = _extract_team_id(home_obj)
+    away_id = _extract_team_id(away_obj)
+    if home_id is not None and home_team_name:
+        team_id_to_name[home_id] = home_team_name
+    if away_id is not None and away_team_name:
+        team_id_to_name[away_id] = away_team_name
 
     players: Dict[int, PlayerMeta] = {}
 
@@ -223,13 +293,13 @@ def parse_match_meta(match_json: dict) -> MatchMeta:
     for key in ("players", "lineup", "line_up"):
         value = match_json.get(key)
         if isinstance(value, list):
-            _ingest_player_list(value, players, home_team_name, away_team_name)
+            _ingest_player_list(value, players, home_team_name, away_team_name, team_id_to_name)
 
     # Fallback recursive scan if the structure is different.
     if not players:
         for obj in _walk_json(match_json):
             if isinstance(obj, list):
-                _ingest_player_list(obj, players, home_team_name, away_team_name)
+                _ingest_player_list(obj, players, home_team_name, away_team_name, team_id_to_name)
 
     return MatchMeta(
         home_team_name=home_team_name,
@@ -251,6 +321,7 @@ def _ingest_player_list(
     players: Dict[int, PlayerMeta],
     home_team_name: Optional[str],
     away_team_name: Optional[str],
+    team_id_to_name: Optional[Dict[int, str]] = None,
 ) -> None:
     for item in maybe_players:
         if not isinstance(item, dict):
@@ -272,10 +343,11 @@ def _ingest_player_list(
         team_name = team_name or item.get("team_name") or item.get("teamName")
 
         team_id = item.get("team_id")
-        if team_name is None and team_id is not None:
-            # Sometimes lineups reference home/away team ids, but we only know names.
-            # Leave as None if not directly recoverable.
-            pass
+        if team_name is None and team_id is not None and team_id_to_name:
+            try:
+                team_name = team_id_to_name.get(int(team_id))
+            except Exception:
+                pass
 
         side_raw = item.get("team_side") or item.get("side") or item.get("group")
         if isinstance(side_raw, str):
@@ -758,18 +830,27 @@ def run(args: argparse.Namespace) -> dict:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    packages = discover_game_packages(dataset_root)
+    # Build the game-id filter from the matches CSV (fast path) and/or --game-ids.
+    game_id_filter: Optional[Set[str]] = None
+
+    matches_csv = Path(args.matches_csv) if args.matches_csv else dataset_root.parent / "matches.csv"
+    if matches_csv.exists():
+        csv_ids = load_barca_game_ids_from_csv(matches_csv, args.team)
+        game_id_filter = set(csv_ids)
+        print(f"Matches CSV: {matches_csv}  →  {len(game_id_filter)} Barcelona game(s) found")
+    else:
+        print(f"No matches CSV at {matches_csv} — scanning all packages")
+
+    if args.game_ids:
+        explicit_ids = {g.strip() for g in args.game_ids.split(",") if g.strip()}
+        game_id_filter = (game_id_filter & explicit_ids) if game_id_filter is not None else explicit_ids
+
+    packages = discover_game_packages(dataset_root, game_id_filter=game_id_filter)
     if not packages:
         raise FileNotFoundError(
             f"No valid game packages found under {dataset_root}. "
             "Expected folders or zip files containing *_dynamic_events.csv and *_tracking_extrapolated.jsonl."
         )
-
-    if args.game_ids:
-        requested_ids = {g.strip() for g in args.game_ids.split(",") if g.strip()}
-        packages = [p for p in packages if p.game_id in requested_ids]
-        if not packages:
-            raise ValueError(f"No discovered game packages match --game-ids={args.game_ids!r}")
 
     all_records: List[dict] = []
     per_game_report: List[dict] = []
@@ -886,9 +967,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Create a Barcelona corner-reception positional overview and heatmap from SkillCorner packages."
     )
+    _here = Path(__file__).resolve().parent.parent
     parser.add_argument(
         "--dataset-root",
-        required=True,
+        default=str(_here / "data" / "skillcorner"),
         help="Root directory containing SkillCorner game folders and/or game_id.zip files.",
     )
     parser.add_argument(
@@ -898,8 +980,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-dir",
-        required=True,
+        default=str(_here / "assets" / "defensive_corners_overview"),
         help="Directory where CSVs, plots, and summary JSON will be written.",
+    )
+    parser.add_argument(
+        "--matches-csv",
+        default="",
+        help=(
+            "Path to the matches CSV file used to pre-filter Barcelona games by SkillCorner ID. "
+            "Defaults to <dataset-root>/../matches.csv if that file exists."
+        ),
     )
     parser.add_argument(
         "--game-ids",

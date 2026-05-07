@@ -57,7 +57,7 @@ from stats.analyses.setpiece_maps import _team_in_match
 ASSETS_ROOT = (
     PROJECT_ROOT / "assets" / "offensive_corners"
 )
-DATA = PROJECT_ROOT / "data" / "all_data"
+DATA = PROJECT_ROOT / "data" / "statsbomb" / "league_phase"
 
 TEAM = "Barcelona"
 SHORT_CORNER_MAX_LEN = 15.0
@@ -96,9 +96,9 @@ ZONE_COLORS = {
     "Wide recycle": "#878787",
 }
 
-DARK_FIG_COLOR = "#0a2512"
-DARK_PITCH_COLOR = "#2f6f31"
-DARK_LINE_COLOR = "#f5f5f5"
+DARK_FIG_COLOR = "white"
+DARK_PITCH_COLOR = "white"
+DARK_LINE_COLOR = "#c7d5cc"
 
 FIRST_TOUCH_COLORS = {
     "Shot": "#ff4d6d",
@@ -748,9 +748,9 @@ def _apply_dark_header(
     title_size: int = 18,
     subtitle_size: float = 11.0,
 ) -> None:
-    fig.text(0.5, title_y, title, ha="center", va="top", color="white", fontsize=title_size, fontweight="bold")
+    fig.text(0.5, title_y, title, ha="center", va="top", color="#111111", fontsize=title_size, fontweight="bold")
     if subtitle:
-        fig.text(0.5, subtitle_y, subtitle, ha="center", va="top", color="white", fontsize=subtitle_size)
+        fig.text(0.5, subtitle_y, subtitle, ha="center", va="top", color="#333333", fontsize=subtitle_size)
 
 
 def _apply_light_header(
@@ -885,10 +885,10 @@ def _add_dark_legend(fig: plt.Figure, handles: list[Any], ncol: int = 4) -> None
         bbox_to_anchor=(0.5, 0.02),
         fontsize=10,
     )
-    legend.get_frame().set_facecolor("#1d1d1d")
-    legend.get_frame().set_edgecolor("#1d1d1d")
+    legend.get_frame().set_facecolor("white")
+    legend.get_frame().set_edgecolor("#cccccc")
     for text in legend.get_texts():
-        text.set_color("white")
+        text.set_color("#111111")
 
 
 def _plot_delivery_routes_by_side(sequences: list[dict[str, Any]], output_path: Path) -> None:
@@ -923,13 +923,13 @@ def _plot_delivery_routes_by_side(sequences: list[dict[str, Any]], output_path: 
         )
         ax.set_title(
             f"{_side_title(side)}  -  n = {len(subset)}",
-            color="white",
+            color="#111111",
             fontsize=13,
             pad=12,
         )
         ax.text(
-            62, 5, text or "No corners", color="white", fontsize=9,
-            bbox={"facecolor": "#1d1d1d", "edgecolor": "none", "alpha": 0.6, "pad": 4},
+            62, 5, text or "No corners", color="#111111", fontsize=9,
+            bbox={"facecolor": "#f5f5f5", "edgecolor": "none", "alpha": 0.9, "pad": 4},
         )
 
     _add_dark_legend(
@@ -975,7 +975,7 @@ def _plot_delivery_endpoints_by_side(sequences: list[dict[str, Any]], output_pat
             )
         ax.set_title(
             f"{_side_title(side)}  -  n = {len(subset)}",
-            color="white",
+            color="#111111",
             fontsize=13,
             pad=12,
         )
@@ -1025,7 +1025,7 @@ def _plot_first_touch_map(sequences: list[dict[str, Any]], output_path: Path) ->
                 )
         ax.set_title(
             f"{_side_title(side)}  -  n = {len(subset)}",
-            color="white",
+            color="#111111",
             fontsize=13,
             pad=12,
         )
@@ -1034,8 +1034,8 @@ def _plot_first_touch_map(sequences: list[dict[str, Any]], output_path: Path) ->
             for label in ("Shot", "Pass", "Carry")
         )
         ax.text(
-            62, 1.2, summary, color="white", fontsize=9,
-            bbox={"facecolor": "#1d1d1d", "edgecolor": "none", "alpha": 0.6, "pad": 3},
+            62, 1.2, summary, color="#111111", fontsize=9,
+            bbox={"facecolor": "#f5f5f5", "edgecolor": "none", "alpha": 0.9, "pad": 3},
         )
 
     _add_dark_legend(
@@ -1090,7 +1090,7 @@ def _plot_shot_assist_map(sequences: list[dict[str, Any]], output_path: Path) ->
 
         ax.set_title(
             f"{_side_title(side)}  -  n = {len(links)} shots",
-            color="white",
+            color="#111111",
             fontsize=13,
             pad=12,
         )
@@ -1099,8 +1099,8 @@ def _plot_shot_assist_map(sequences: list[dict[str, Any]], output_path: Path) ->
             for label in ("Goal", "Saved", "Other")
         )
         ax.text(
-            62, 1.2, summary, color="white", fontsize=9,
-            bbox={"facecolor": "#1d1d1d", "edgecolor": "none", "alpha": 0.6, "pad": 3},
+            62, 1.2, summary, color="#111111", fontsize=9,
+            bbox={"facecolor": "#f5f5f5", "edgecolor": "none", "alpha": 0.9, "pad": 3},
         )
 
     _add_dark_legend(
@@ -1176,7 +1176,7 @@ def _plot_goal_sequences(sequences: list[dict[str, Any]], output_path: Path) -> 
         scorer = next((action["player"] for action in seq["goal_actions"] if action["is_goal"]), "Unknown")
         ax.set_title(
             f"{seq['match_label']}, {seq['minute']}' - {scorer}",
-            color="white",
+            color="#111111",
             fontsize=12,
             pad=12,
         )
@@ -1223,8 +1223,8 @@ def _single_pitch_title(fig: plt.Figure, title: str, subtitle: str = "") -> None
 
 def _annotate_pitch_footer(ax: plt.Axes, text: str) -> None:
     ax.text(
-        62, 1.2, text, color="white", fontsize=10,
-        bbox={"facecolor": "#1d1d1d", "edgecolor": "none", "alpha": 0.7, "pad": 3.2},
+        62, 1.2, text, color="#111111", fontsize=10,
+        bbox={"facecolor": "#f5f5f5", "edgecolor": "none", "alpha": 0.9, "pad": 3.2},
     )
 
 
@@ -1257,7 +1257,7 @@ def _plot_delivery_routes_side(
         )
         pitch.scatter([end[0]], [end[1]], ax=ax, s=46, color=color, edgecolors="white", linewidth=0.55, zorder=3)
 
-    ax.set_title(f"n = {len(subset)}", color="white", fontsize=13, pad=10)
+    ax.set_title(f"n = {len(subset)}", color="#111111", fontsize=13, pad=10)
     _annotate_pitch_footer(
         ax,
         "   ".join(f"{label}: {counts.get(label, 0)}" for label in ROUTINE_ORDER if counts.get(label, 0) > 0) or "No corners",
@@ -1304,7 +1304,7 @@ def _plot_delivery_endpoints_side(
         xs, ys = zip(*pts)
         pitch.scatter(xs, ys, ax=ax, s=58, color=ZONE_COLORS[zone], edgecolors="white", linewidth=0.55, alpha=0.92)
 
-    ax.set_title(f"n = {len(subset)}", color="white", fontsize=13, pad=10)
+    ax.set_title(f"n = {len(subset)}", color="#111111", fontsize=13, pad=10)
     _annotate_pitch_footer(
         ax,
         "   ".join(f"{zone}: {counts.get(zone, 0)}" for zone in ZONE_ORDER if counts.get(zone, 0) > 0) or "No deliveries",
@@ -1357,7 +1357,7 @@ def _plot_first_touch_side(
                 alpha=0.82, zorder=3,
             )
 
-    ax.set_title(f"n = {len(subset)}", color="white", fontsize=13, pad=10)
+    ax.set_title(f"n = {len(subset)}", color="#111111", fontsize=13, pad=10)
     _annotate_pitch_footer(
         ax,
         f"shots: {action_counter.get('Shot', 0)}   passes: {action_counter.get('Pass', 0)}   carries: {action_counter.get('Carry', 0)}",
@@ -1443,7 +1443,7 @@ def _plot_shot_assist_side(
         if shot_loc is not None:
             pitch.scatter([shot_loc[0]], [shot_loc[1]], ax=ax, marker="*", s=138, color=color, edgecolors="white", linewidth=0.8, zorder=4)
 
-    ax.set_title(f"n = {len(links)} shots", color="white", fontsize=13, pad=10)
+    ax.set_title(f"n = {len(links)} shots", color="#111111", fontsize=13, pad=10)
     _annotate_pitch_footer(
         ax,
         f"goals: {counts.get('Goal', 0)}   saved: {counts.get('Saved', 0)}   other: {counts.get('Other', 0)}",
@@ -1465,15 +1465,15 @@ def _plot_shot_assist_side(
 def _plot_goal_sequence_single(sequence: dict[str, Any], output_path: Path) -> None:
     fig, ax, pitch = _dark_single_pitch()
     scorer = next((action["player"] for action in sequence["goal_actions"] if action["is_goal"]), "Unknown")
-    fig.text(0.5, 0.975, "Barcelona goal from corner", ha="center", va="top", color="white", fontsize=18, fontweight="bold")
-    fig.text(0.5, 0.945, f"{sequence['match_label']}, {sequence['minute']}'", ha="center", va="top", color="white", fontsize=16, fontweight="bold")
+    fig.text(0.5, 0.975, "Barcelona goal from corner", ha="center", va="top", color="#111111", fontsize=18, fontweight="bold")
+    fig.text(0.5, 0.945, f"{sequence['match_label']}, {sequence['minute']}'", ha="center", va="top", color="#111111", fontsize=16, fontweight="bold")
     fig.text(
         0.5,
         0.918,
         f"Scorer: {scorer}   Blue = pass   Yellow = carry   Red star = goal shot",
         ha="center",
         va="top",
-        color="white",
+        color="#333333",
         fontsize=10.4,
     )
     _draw_corner_marker(pitch, ax, sequence["corner_side"])

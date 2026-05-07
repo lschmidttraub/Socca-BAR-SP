@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 # ── Colour palette ───────────────────────────────────────────────────
 
-FOCUS_COLOR = "#a50026"       # Barcelona / focus team
-AVG_COLOR = "#4575b4"         # comparison group average
+FOCUS_COLOR = "#4575b4"       # Barcelona / focus team (blue)
+AVG_COLOR = "#d73027"         # comparison group / opponent (red)
 POSITIVE_COLOR = "#1a9850"    # above average / good
 NEGATIVE_COLOR = "#d73027"    # below average / bad
 NEUTRAL_COLOR = "#878787"     # neutral / grid

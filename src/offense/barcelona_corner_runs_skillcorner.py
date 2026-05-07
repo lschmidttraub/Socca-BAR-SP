@@ -48,7 +48,7 @@ from stats.viz.style import FOCUS_COLOR, NEUTRAL_COLOR, apply_theme, save_fig
 
 ASSETS_ROOT = PROJECT_ROOT / "assets" / "offensive_corner_runs_skillcorner"
 MATCHES_CSV = PROJECT_ROOT / "data" / "matches.csv"
-STATSBOMB_ROOT = PROJECT_ROOT / "data" / "all_data"
+STATSBOMB_ROOT = PROJECT_ROOT / "data" / "statsbomb" / "league_phase"
 SKILLCORNER_ROOT = PROJECT_ROOT / "data" / "skillcorner"
 
 TEAM = "Barcelona"
@@ -247,8 +247,11 @@ def _load_skillcorner_meta(zip_path: Path, match_id: str) -> tuple[dict, dict[in
 
 def _build_corner_windows(row: dict) -> list[CornerWindow]:
     statsbomb_match_id = row["statsbomb"].strip()
+    events_path = STATSBOMB_ROOT / f"{statsbomb_match_id}.json"
+    if not events_path.exists():
+        return []
     opponent = row["away"] if TEAM == row["home"] else row["home"]
-    events = json.loads((STATSBOMB_ROOT / f"{statsbomb_match_id}.json").read_text(encoding="utf-8"))
+    events = json.loads(events_path.read_text(encoding="utf-8"))
     windows: list[CornerWindow] = []
     for idx, event in enumerate(events):
         if not (f.is_pass(event) and f.is_corner_pass(event) and event.get("team", {}).get("name") == TEAM):

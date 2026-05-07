@@ -139,11 +139,11 @@ def main():
 
     bars_barca = ax.bar(
         [i - width / 2 for i in x], barca_vals, width=width,
-        label="Barcelona", color="#a50026",
+        label="Barcelona", color="#4575b4",
     )
     bars_max = ax.bar(
         [i + width / 2 for i in x], max_vals, width=width,
-        label="Best other team (per bucket)", color="#92c5de", edgecolor="#4575b4", linewidth=0.8,
+        label="Best other team (per bucket)", color="#fc8d59", edgecolor="#d73027", linewidth=0.8,
     )
 
     # Annotate team name above each max bar

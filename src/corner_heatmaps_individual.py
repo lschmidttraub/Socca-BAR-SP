@@ -9,7 +9,7 @@ from pathlib import Path
 from src.check_pids import get_pid_to_team_id
 
 
-DATA_DIR = Path(__file__).parent.parent / "data_new"
+DATA_DIR = Path(__file__).parent.parent / "data"
 TEAM = "Barcelona"
 TEAM_SHORT_NAME = "FC Barcelona"
 TEAM_ID = 264
@@ -201,13 +201,13 @@ def create_map(positions, title, filename):
     df = df[df['tid'] == TEAM_ID]
     pitch = Pitch(
         pitch_type='statsbomb',
-        pitch_color='#22312b',
+        pitch_color='white',
         line_color='#c7d5cc'
     )
     fig, ax = pitch.draw(figsize=(10, 7))
-    pitch.scatter(df['x'], df['y'], ax=ax, c='white', s=50, edgecolors='black', zorder=2)
-    plt.title(title, color='white', fontsize=16)
-    fig.set_facecolor('#22312b')
+    pitch.scatter(df['x'], df['y'], ax=ax, c='#4575b4', s=50, edgecolors='white', zorder=2)
+    plt.title(title, color='#111111', fontsize=16)
+    fig.set_facecolor('white')
     fig_dir = Path(__file__).parent.parent / "assets" / filename
     plt.savefig(fig_dir)
     plt.show()

@@ -20,8 +20,12 @@ def _read_matches_csv(csv_path: Path) -> list[dict]:
 
 
 def _find_matches_csv(data_dir: Path) -> Path | None:
-    """Locate matches.csv: check data_dir itself, then its parent."""
-    for candidate in [data_dir / "matches.csv", data_dir.parent / "matches.csv"]:
+    """Locate matches.csv: check data_dir itself, parent, and grandparent."""
+    for candidate in [
+        data_dir / "matches.csv",
+        data_dir.parent / "matches.csv",
+        data_dir.parent.parent / "matches.csv",
+    ]:
         if candidate.is_file():
             return candidate
     return None

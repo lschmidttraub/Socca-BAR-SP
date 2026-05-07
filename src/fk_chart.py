@@ -142,10 +142,10 @@ def main(top_n = 16):
     width = 0.2
 
     fig, ax = plt.subplots(figsize=(14, 6))
-    ax.bar([i - 1.5*width for i in x], barca_sv, width=width, label="Barcelona shots",          color="#a50026")
-    ax.bar([i - 0.5*width for i in x], barca_pv, width=width, label="Barcelona passes",         color="#4575b4")
-    ax.bar([i + 0.5*width for i in x], avg_sv,   width=width, label=f"Avg shots ({group_label})",  color="#f4a582", edgecolor="#a50026", linewidth=0.8)
-    ax.bar([i + 1.5*width for i in x], avg_pv,   width=width, label=f"Avg passes ({group_label})", color="#92c5de", edgecolor="#4575b4", linewidth=0.8)
+    ax.bar([i - 1.5*width for i in x], barca_sv, width=width, label="Barcelona shots",          color="#4575b4")
+    ax.bar([i - 0.5*width for i in x], barca_pv, width=width, label="Barcelona passes",         color="#6baed6")
+    ax.bar([i + 0.5*width for i in x], avg_sv,   width=width, label=f"Avg shots ({group_label})",  color="#fc8d59", edgecolor="#d73027", linewidth=0.8)
+    ax.bar([i + 1.5*width for i in x], avg_pv,   width=width, label=f"Avg passes ({group_label})", color="#fdcc8a", edgecolor="#d73027", linewidth=0.8)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=45, ha="right")
