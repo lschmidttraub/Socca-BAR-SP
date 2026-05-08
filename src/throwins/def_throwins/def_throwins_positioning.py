@@ -7,7 +7,7 @@ SkillCorner tracking data gives all 22 player positions at the frame of each
 throw-in.  Positions are normalized so every throw-in appears to come from
 the same touchline point:
 
-    (dx, dy) where dx > 0 = toward Barcelona's goal  (opponent's attacking direction)
+    (dx, dy) where dx < 0 = toward Barcelona's goal  (Barcelona's goal on the left)
               and  dy > 0 = into the pitch             (away from touchline)
 
 Three separate heatmaps per team for Defensive / Middle / Attacking zones
@@ -54,11 +54,12 @@ _HALF_WID = 34.0
 ZONE_ORDER = ["Defensive", "Middle", "Attacking"]
 
 _TI_START_TYPES = frozenset({
-    "throw_in_reception", "throw_in_taken", "throw_in", "throwin", "attacking_throw_in",
+    "throw_in_reception",
+    "throw_in_interception",
 })
 
 _DX = (-50, 50)
-_DY = (-2,  36)
+_DY = (-2,  70)
 _N_BINS = 40
 
 
@@ -105,11 +106,17 @@ def parse_player_index(meta: dict) -> dict[int, dict]:
         pid = p.get("id") or p.get("player_id")
         if pid is None:
             continue
-        index[int(pid)] = {
-            "team_id": p.get("team_id"),
-            "is_gk":   (p.get("position", {}).get("name", "") == "Goalkeeper"
-                        if isinstance(p.get("position"), dict) else False),
-        }
+        role = p.get("player_role", {})
+        is_gk = isinstance(role, dict) and (
+            "goalkeeper" in role.get("name", "").lower()
+            or "goalkeeper" in role.get("position_group", "").lower()
+        )
+        entry = {"team_id": p.get("team_id"), "is_gk": is_gk}
+        index[int(pid)] = entry
+        # Tracking frames reference players by trackable_object, not id
+        to = p.get("trackable_object")
+        if to is not None:
+            index[int(to)] = entry
     return index
 
 
@@ -160,7 +167,7 @@ def _normalize(x: float, y: float,
 
     Opponent attacks in the opposite direction to Barcelona, so x_sign is negated.
     """
-    x_sign = -1.0 if barca_attacks_pos else 1.0   # opponent's forward direction
+    x_sign = 1.0 if barca_attacks_pos else -1.0   # Barcelona's goal on the left (negative dx)
     y_sign = -1.0 if y_ti > 0 else 1.0            # always into pitch = +dy
     return (x - x_ti) * x_sign, (y - y_ti) * y_sign
 
@@ -173,44 +180,30 @@ def collect_positions() -> dict[str, dict]:
     Structure: {zone: {"barca": [(dx, dy), ...], "opp": [...], "count": int}}
     """
     result = {z: {"barca": [], "opp": [], "count": 0} for z in ZONE_ORDER}
-    all_types: set[str] = set()
 
-    games_checked = 0
     for _, row in _read_matches_df().iterrows():
         if pd.isna(row.get("skillcorner")):
             continue
         sc_id = int(row["skillcorner"])
         if _zip_path(sc_id) is None:
-            print(f"  [{sc_id}] zip not found, skipping")
             continue
 
         meta         = read_match_meta(sc_id)
         player_index = parse_player_index(meta)
         barca_tid    = find_barca_tid(meta)
         if barca_tid is None:
-            print(f"  [{sc_id}] Barcelona team ID not found in meta, skipping")
             continue
 
         dyn = read_dynamic_events(sc_id)
         if dyn is None:
-            print(f"  [{sc_id}] dynamic events not found, skipping")
             continue
 
-        games_checked += 1
-        game_types = dyn["start_type"].dropna().astype(str).str.casefold().unique()
-        all_types.update(game_types)
-
-        # Opponent throw-ins: team_id is NOT Barcelona
-        # Cast team_id to int to avoid str/int mismatches
         dyn_copy = dyn.copy()
         dyn_copy["team_id"] = pd.to_numeric(dyn_copy["team_id"], errors="coerce")
         ti_rows = dyn_copy[
             dyn_copy["start_type"].astype(str).str.casefold().isin(_TI_START_TYPES)
             & (dyn_copy["team_id"] != barca_tid)
         ].dropna(subset=["frame_start"])
-
-        print(f"  [{sc_id}] barca_tid={barca_tid}  dyn rows={len(dyn)}  "
-              f"start_types={sorted(game_types)}  throw-in rows={len(ti_rows)}")
 
         if ti_rows.empty:
             continue
@@ -259,11 +252,6 @@ def collect_positions() -> dict[str, dict]:
             target.discard(fid)
             if not target:
                 break
-
-    print(f"\nGames with SkillCorner data checked: {games_checked}")
-    print(f"All start_types seen: {sorted(all_types)}")
-    if not any(result[z]["barca"] for z in ZONE_ORDER):
-        print("No opponent throw-in frames matched. Check start_types above.")
 
     return result
 
@@ -324,7 +312,7 @@ def plot_positioning_heatmaps(positions: dict[str, dict], save: bool = True) -> 
                 ax.set_ylabel("Into pitch (m) →", fontsize=8)
             if row == 1:
                 ax.set_xlabel(
-                    "← Own goal  |  Barça goal →\n(metres along pitch, relative to throw-in)",
+                    "← Barça goal  |  Opponent goal →\n(metres along pitch, relative to throw-in)",
                     fontsize=8,
                 )
             ax.tick_params(labelsize=7)
