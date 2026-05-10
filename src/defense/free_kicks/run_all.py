@@ -19,6 +19,7 @@ import def_fk_outcomes
 import def_fk_delivery_map
 import def_fk_first_touch
 import def_fk_direct_shots
+import def_fk_runs
 
 
 SCRIPTS = [
@@ -26,6 +27,7 @@ SCRIPTS = [
     ("Delivery origin → endpoint",  def_fk_delivery_map.run),
     ("First touch after delivery",  def_fk_first_touch.run),
     ("Direct FK shots conceded",    def_fk_direct_shots.run),
+    ("Per-FK possession runs",      def_fk_runs.run),
 ]
 
 

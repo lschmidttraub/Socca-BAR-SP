@@ -18,7 +18,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "corners"))
 from defending_corners import (  # noqa: E402  (after sys.path mutation)
     BARCELONA,
-    DATA_DIR,
     MATCHES_CSV,
     ASSETS_DIR,
     all_teams,
@@ -118,11 +117,11 @@ def build_pairs(team_name: str) -> list[tuple]:
     *team_name* across all of their league-phase matches."""
     pairs: list[tuple] = []
     for game_id in team_games(team_name):
-        path = DATA_DIR / f"{game_id}.json"
-        if not path.exists():
+        try:
+            events = read_statsbomb(game_id)
+        except FileNotFoundError:
             print(f"Missing statsbomb file for game {game_id}, skipping.")
             continue
-        events = read_statsbomb(game_id)
         for fk in team_defend_fks(events, team_name):
             pairs.append((fk, events))
     return pairs
@@ -315,7 +314,7 @@ def normalize_to_right(loc: list, fk_loc: list) -> list:
 
 __all__ = [
     # Constants
-    "BARCELONA", "DATA_DIR", "MATCHES_CSV", "ASSETS_DIR", "DEF_FK_ASSETS_DIR",
+    "BARCELONA", "MATCHES_CSV", "ASSETS_DIR", "DEF_FK_ASSETS_DIR",
     "OPP_ATTACKING_X", "SHORT_FK_LENGTH",
     "GOAL_X", "GOAL_Y", "PEN_AREA_X_MIN",
     "OUTCOME_ORDER", "OUTCOME_COLORS",
