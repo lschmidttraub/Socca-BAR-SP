@@ -46,7 +46,7 @@ DEFAULT_OUTPUT = Path("barca_match_height.png")
 
 FOCUS_TEAM = "Barcelona"
 TOP_N = 6
-LINEUP_ZIPS = ("league_phase.zip", "playoffs.zip")
+LINEUP_ZIPS = ("league_phase.zip", "playoffs.zip", "quarterfinals.zip")
 
 # CSV team names that differ from their StatsBomb event/lineup spelling.
 # Applied when reading matches.csv so every downstream lookup is

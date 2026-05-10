@@ -50,7 +50,7 @@ DEFAULT_OUTPUT = Path("all_teams_top6_height.png")
 FOCUS_TEAM = "Barcelona"
 TOP_N = 6  # tallest N outfield players to average
 # last16.zip has no lineup files — drop it.
-LINEUP_ZIPS = ("league_phase.zip", "playoffs.zip")
+LINEUP_ZIPS = ("league_phase.zip", "playoffs.zip", "quarterfinals.zip")
 
 # Styling — matches the repo-wide palette used by src/stats/viz/style.py
 FOCUS_COLOR = "#a50026"    # Barcelona
