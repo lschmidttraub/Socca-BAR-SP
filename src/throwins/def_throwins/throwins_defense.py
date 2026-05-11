@@ -153,6 +153,14 @@ def plot_defense_scatter(df: pd.DataFrame, save: bool = True) -> None:
     for ax, zone in zip(axes, ZONE_ORDER):
         zone_df = df[df["zone"] == zone]
 
+        # KDE heatmap of throw-in landing points (background layer)
+        if len(zone_df) >= 5:
+            pitch.kdeplot(
+                zone_df["end_x"], zone_df["end_y"], ax=ax,
+                cmap="Blues", fill=True, alpha=0.45,
+                levels=10, thresh=0.05, zorder=1,
+            )
+
         for _, r in zone_df.iterrows():
             color = POSSESSION_COLORS.get(r["barca_won"], "#adb5bd")
             ax.annotate(
@@ -200,6 +208,243 @@ def plot_defense_scatter(df: pd.DataFrame, save: bool = True) -> None:
     if save:
         THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         out = THROWINS_ASSETS_DIR / "throwins_defense_scatter.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
+
+
+def plot_normalized_landing_heatmap(df: pd.DataFrame, save: bool = True) -> None:
+    """Normalized throw-in landing heatmap with win-back arrows.
+
+    Coordinates relative to throw-in origin:
+      dx > 0  = toward opponent's goal (away from Barcelona's goal)
+      dy > 0  = into the pitch (always, regardless of which touchline)
+    """
+    try:
+        from scipy.ndimage import gaussian_filter
+        _has_scipy = True
+    except ImportError:
+        _has_scipy = False
+
+    import numpy as np
+
+    df = df.dropna(subset=["x", "y", "end_x", "end_y"]).copy()
+    df["dx"] = df["end_x"] - df["x"]
+    df["dy"] = np.where(df["y"] < 40, df["end_y"] - df["y"], df["y"] - df["end_y"])
+
+    _DX     = (-50, 70)
+    _DY     = (-5,  40)
+    _N_BINS = 40
+
+    def _make_heatmap(sub: pd.DataFrame) -> np.ndarray:
+        if len(sub) < 3:
+            return np.zeros((_N_BINS, _N_BINS))
+        xs = np.clip(sub["dx"].values, *_DX)
+        ys = np.clip(sub["dy"].values, *_DY)
+        h, _, _ = np.histogram2d(xs, ys, bins=_N_BINS, range=[_DX, _DY])
+        if _has_scipy:
+            h = gaussian_filter(h, sigma=1.5)
+        h = h / h.max() if h.max() > 0 else h
+        return h.T
+
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig.set_facecolor("white")
+
+    for ax, zone in zip(axes, ZONE_ORDER):
+        zone_df = df[df["zone"] == zone]
+
+        ax.imshow(
+            _make_heatmap(zone_df),
+            origin="lower", extent=[*_DX, *_DY],
+            aspect="auto", cmap="Blues",
+            vmin=0, vmax=1, alpha=0.85,
+        )
+
+        for _, r in zone_df.iterrows():
+            color = POSSESSION_COLORS.get(r["barca_won"], "#adb5bd")
+            ax.annotate(
+                "",
+                xy=(r["dx"], r["dy"]),
+                xytext=(0, 0),
+                arrowprops=dict(
+                    arrowstyle="-|>", color=color,
+                    lw=0.8, alpha=0.55, mutation_scale=8,
+                ),
+                zorder=3,
+            )
+
+        for won, label in [(True, "Barça won ball"), (False, "Opp kept ball")]:
+            sub = zone_df[zone_df["barca_won"] == won]
+            if sub.empty:
+                continue
+            ax.scatter(
+                sub["dx"], sub["dy"],
+                color=POSSESSION_COLORS[won], edgecolors="white",
+                linewidths=0.4, s=35, label=label, zorder=4, alpha=0.8,
+            )
+
+        ax.plot(0, 0, "o", color="cyan", markersize=9, zorder=6)
+        ax.axhline(0, color="white", lw=1.5, alpha=0.7)
+        ax.axvline(0, color="white", lw=1.0, alpha=0.4, linestyle="--")
+
+        n_tot = len(zone_df)
+        n_won = int((zone_df["barca_won"] == True).sum())
+        pct   = f"{n_won / n_tot * 100:.0f}%" if n_tot else "—"
+        ax.set_title(
+            f"{zone} zone  (N={n_tot})  ·  {pct} win-back",
+            fontsize=10, pad=8, color="black",
+        )
+        ax.set_facecolor("#1a1a2e")
+        ax.set_xlim(*_DX)
+        ax.set_ylim(*_DY)
+        ax.set_xlabel(
+            "← toward Barça goal  |  toward Opp goal →\n(StatsBomb units, relative to throw-in)",
+            fontsize=8,
+        )
+        ax.legend(loc="upper right", fontsize=8, framealpha=0.7)
+
+    axes[0].set_ylabel("Into pitch →  (StatsBomb units)", fontsize=8)
+
+    fig.suptitle(
+        "Opponent throw-in landing points — normalised to throw-in origin\n"
+        "Heatmap = landing density  ·  Green = Barça won ball back  "
+        "·  Red = opponent kept possession  ·  Cyan dot = throw-in origin",
+        fontsize=12, y=1.02, color="black",
+    )
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_scatter_normalized.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
+
+
+def plot_combined_defense_heatmap(
+    df: pd.DataFrame,
+    positions: dict,
+    save: bool = True,
+) -> None:
+    """Barcelona defensive shape overlaid with opponent throw-in landing points.
+
+    Green heatmap  = Barcelona player density at throw-in moment (SkillCorner, metres).
+    Blue heatmap   = opponent throw-in landing point density (StatsBomb → metres).
+    Arrows         = individual throw-ins coloured by win-back outcome.
+    All coordinates normalised to throw-in origin = (0, 0).
+
+    StatsBomb → metres: x × (105/120), y × (68/80).
+    """
+    try:
+        from scipy.ndimage import gaussian_filter
+        _has_scipy = True
+    except ImportError:
+        _has_scipy = False
+
+    import numpy as np
+
+    _SB_X_TO_M = 105 / 120
+    _SB_Y_TO_M = 68  / 80
+    _DX    = (-50, 50)
+    _DY    = (-2,  70)
+    _BINS  = 40
+
+    def _heatmap(xs, ys):
+        if len(xs) < 3:
+            return np.zeros((_BINS, _BINS))
+        h, _, _ = np.histogram2d(
+            np.clip(xs, *_DX), np.clip(ys, *_DY),
+            bins=_BINS, range=[_DX, _DY],
+        )
+        if _has_scipy:
+            h = gaussian_filter(h, sigma=1.5)
+        h = h / h.max() if h.max() > 0 else h
+        return h.T
+
+    df = df.dropna(subset=["x", "y", "end_x", "end_y"]).copy()
+    df["dx_m"] = (df["end_x"] - df["x"]) * _SB_X_TO_M
+    df["dy_m"] = np.where(
+        df["y"] < 40,
+        (df["end_y"] - df["y"]) * _SB_Y_TO_M,
+        (df["y"] - df["end_y"]) * _SB_Y_TO_M,
+    )
+
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig.set_facecolor("white")
+
+    for ax, zone in zip(axes, ZONE_ORDER):
+        zone_df   = df[df["zone"] == zone]
+        barca_pts = positions.get(zone, {}).get("barca", [])
+
+        # Barcelona player positioning (SkillCorner, already in metres)
+        if barca_pts:
+            bx = np.array([p[0] for p in barca_pts])
+            by = np.array([p[1] for p in barca_pts])
+            ax.imshow(
+                _heatmap(bx, by),
+                origin="lower", extent=[*_DX, *_DY],
+                aspect="auto", cmap="Greens",
+                vmin=0, vmax=1, alpha=0.70, zorder=1,
+            )
+
+        # Individual throw-in arrows
+        for _, r in zone_df.iterrows():
+            color = POSSESSION_COLORS.get(r["barca_won"], "#adb5bd")
+            ax.annotate(
+                "",
+                xy=(r["dx_m"], r["dy_m"]),
+                xytext=(0, 0),
+                arrowprops=dict(
+                    arrowstyle="-|>", color=color,
+                    lw=0.8, alpha=0.50, mutation_scale=8,
+                ),
+                zorder=3,
+            )
+
+        for won, label in [(True, "Barça won ball"), (False, "Opp kept ball")]:
+            sub = zone_df[zone_df["barca_won"] == won]
+            if sub.empty:
+                continue
+            ax.scatter(
+                sub["dx_m"], sub["dy_m"],
+                color=POSSESSION_COLORS[won], edgecolors="white",
+                linewidths=0.4, s=30, label=label, zorder=4, alpha=0.85,
+            )
+
+        ax.plot(0, 0, "o", color="cyan", markersize=9, zorder=6)
+        ax.axhline(0, color="white", lw=1.5, alpha=0.7)
+        ax.axvline(0, color="white", lw=1.0, alpha=0.4, linestyle="--")
+
+        n_tot = len(zone_df)
+        n_won = int((zone_df["barca_won"] == True).sum())
+        n_sk  = positions.get(zone, {}).get("count", 0)
+        pct   = f"{n_won / n_tot * 100:.0f}%" if n_tot else "—"
+        ax.set_title(
+            f"{zone} zone  ·  StatsBomb N={n_tot}  ·  SkillCorner n={n_sk}  ·  {pct} win-back",
+            fontsize=9, pad=8, color="black",
+        )
+        ax.set_facecolor("#1a1a2e")
+        ax.set_xlim(*_DX)
+        ax.set_ylim(*_DY)
+        ax.set_xlabel(
+            "← toward Barça goal  |  toward Opp goal →\n(metres, relative to throw-in origin)",
+            fontsize=8,
+        )
+        ax.legend(loc="upper right", fontsize=8, framealpha=0.7)
+
+    axes[0].set_ylabel("Into pitch →  (metres)", fontsize=8)
+
+    fig.suptitle(
+        "Opponent throw-in landing points vs. Barcelona defensive shape — normalised to throw-in origin\n"
+        "Green = Barcelona player positions (SkillCorner)  ·  "
+        "Arrows = throw-in landing points (StatsBomb)  ·  Cyan dot = throw-in origin",
+        fontsize=11, y=1.02, color="black",
+    )
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_combined.png"
         fig.savefig(out, dpi=150, bbox_inches="tight")
         print(f"Saved {out}")
     plt.show()
@@ -286,8 +531,11 @@ def plot_team_comparison(team_stats: dict[str, dict], save: bool = True) -> None
     plt.show()
 
 
-def plot_corridor_winback(df: pd.DataFrame, save: bool = True) -> None:
-    """Bar chart: Barcelona's win-back rate for throws into the middle corridor vs wide."""
+def plot_corridor_winback(df: pd.DataFrame, team_stats: dict[str, dict] | None = None, save: bool = True) -> None:
+    """Bar chart: Barcelona's win-back rate for throws into the middle corridor vs wide.
+
+    If team_stats is provided, a dashed league-average line is drawn on each bar.
+    """
     df = df.dropna(subset=["end_y"]).copy()
     df["in_corridor"] = df["end_y"].apply(_in_middle_corridor)
 
@@ -300,12 +548,37 @@ def plot_corridor_winback(df: pd.DataFrame, save: bool = True) -> None:
             cat_rows.append({"cat": label, "winback_pct": n_won / n * 100, "n": n})
     cp = pd.DataFrame(cat_rows)
 
+    # League averages per category from team_stats
+    league_avgs: dict[str, float] = {}
+    if team_stats:
+        corr_total = sum(d["corridor_total"] for d in team_stats.values())
+        corr_won   = sum(d["corridor_won"]   for d in team_stats.values())
+        wide_total = sum(d["total"] - d["corridor_total"] for d in team_stats.values())
+        wide_won   = sum(d["won"]   - d["corridor_won"]   for d in team_stats.values())
+        if corr_total:
+            league_avgs["Middle corridor"] = corr_won / corr_total * 100
+        if wide_total:
+            league_avgs["Wide"] = wide_won / wide_total * 100
+
     fig, ax = plt.subplots(figsize=(6, 5))
     fig.set_facecolor("white")
     bars = ax.bar(cp["cat"], cp["winback_pct"], color=["#f4a261", "#4895ef"], edgecolor="white")
     for bar, val, n in zip(bars, cp["winback_pct"], cp["n"]):
         ax.text(bar.get_x() + bar.get_width() / 2, val + 0.5,
                 f"{val:.1f}%\n(n={n})", ha="center", va="bottom", fontsize=10)
+
+    # Draw league-average line segment over each bar
+    for bar, row in zip(bars, cp.itertuples()):
+        avg = league_avgs.get(row.cat)
+        if avg is None:
+            continue
+        x_mid = bar.get_x() + bar.get_width() / 2
+        half  = bar.get_width() * 0.45
+        ax.plot([x_mid - half, x_mid + half], [avg, avg],
+                color="black", linestyle="--", linewidth=1.6, zorder=5)
+        ax.text(x_mid + half + 0.03, avg, f"avg {avg:.1f}%",
+                va="center", fontsize=8, color="black")
+
     ax.set_ylabel("Win-back rate (%)")
     ax.set_title(
         "Barcelona — win-back rate when opponent throws into\n"
