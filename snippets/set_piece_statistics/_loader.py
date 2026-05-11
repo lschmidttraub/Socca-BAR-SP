@@ -26,7 +26,7 @@ STATSBOMB_DIR = DATA_DIR / "statsbomb"
 MATCHES_CSV = DATA_DIR / "matches.csv"
 
 LEAGUE_PHASE_ZIP = "league_phase.zip"
-ZIP_NAMES = (LEAGUE_PHASE_ZIP, "last16.zip", "playoffs.zip")
+ZIP_NAMES = (LEAGUE_PHASE_ZIP, "last16.zip", "playoffs.zip", "quarterfinals.zip")
 
 # CSV team names that differ from their StatsBomb event spelling.
 # Applied when reading matches.csv so every downstream lookup is

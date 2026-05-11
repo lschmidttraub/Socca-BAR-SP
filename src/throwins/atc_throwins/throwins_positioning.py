@@ -57,7 +57,7 @@ ZONE_ORDER = ["Defensive", "Middle", "Attacking"]
 # SkillCorner start_type values that identify a throw-in being taken.
 # The script prints available types if none match, aiding discovery.
 _TI_START_TYPES = frozenset({
-    "throw_in_taken", "throw_in", "throwin", "attacking_throw_in",
+    "throw_in_reception",
 })
 
 # Heatmap display range in normalised coordinates (metres)
@@ -109,11 +109,16 @@ def parse_player_index(meta: dict) -> dict[int, dict]:
         pid = p.get("id") or p.get("player_id")
         if pid is None:
             continue
-        index[int(pid)] = {
-            "team_id": p.get("team_id"),
-            "is_gk":   (p.get("position", {}).get("name", "") == "Goalkeeper"
-                        if isinstance(p.get("position"), dict) else False),
-        }
+        role = p.get("player_role", {})
+        is_gk = isinstance(role, dict) and (
+            "goalkeeper" in role.get("name", "").lower()
+            or "goalkeeper" in role.get("position_group", "").lower()
+        )
+        entry = {"team_id": p.get("team_id"), "is_gk": is_gk}
+        index[int(pid)] = entry
+        to = p.get("trackable_object")
+        if to is not None:
+            index[int(to)] = entry
     return index
 
 

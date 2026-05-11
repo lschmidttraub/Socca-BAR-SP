@@ -489,20 +489,45 @@ def collect_lost_sequences(max_seconds: float = 6.0) -> list[list[tuple[float, f
     return chains
 
 
+_PITCH_WIDTH_HALF = 40.0    # y = 40 is the centre line width-wise
+
+
+def _changed_side(path: list[tuple[float, float]]) -> bool:
+    """True if any waypoint after the throw-in crosses to the opposite y-half.
+
+    A throw-in originates on a touchline (y ≈ 0 or y ≈ 80).  The sequence
+    'changed the side' when the ball at any point crosses the y = 40 midline
+    relative to the throw-in origin.
+    """
+    origin_bottom = path[0][1] < _PITCH_WIDTH_HALF
+    return any((p[1] < _PITCH_WIDTH_HALF) != origin_bottom for p in path[1:])
+
+
 def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: float = 6.0, save: bool = True) -> None:
     """Full-pitch path plot of opponent throw-in sequences where Barcelona did not win the ball.
 
     Each chain is a single continuous polyline (pass + carry waypoints).
+    Blue  = sequence switched side (crossed y = 40 midline).
+    Red   = sequence stayed on the same side.
     An arrowhead marks the final point. Barcelona's goal is on the left (x = 0).
     """
+    from matplotlib.lines import Line2D
+
+    COLOR_SWITCH  = "#4895ef"   # blue  — changed side
+    COLOR_STAY    = "#e63946"   # red   — same side
+
+    n_switch = sum(1 for path in chains if _changed_side(path))
+    n_stay   = len(chains) - n_switch
+
     pitch = Pitch(pitch_type="statsbomb", pitch_color="white", line_color="#444444")
     fig, ax = pitch.draw(figsize=(14, 9))
 
     for path in chains:
+        color = COLOR_SWITCH if _changed_side(path) else COLOR_STAY
         xs = [p[0] for p in path]
         ys = [p[1] for p in path]
 
-        ax.plot(xs, ys, color="#e63946", lw=0.9, alpha=0.35, zorder=2)
+        ax.plot(xs, ys, color=color, lw=0.9, alpha=0.35, zorder=2)
 
         # Arrowhead at the final segment
         if len(path) >= 2:
@@ -511,7 +536,7 @@ def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: fl
                 xy=path[-1],
                 xytext=path[-2],
                 arrowprops=dict(
-                    arrowstyle="-|>", color="#e63946",
+                    arrowstyle="-|>", color=color,
                     lw=0.9, alpha=0.5, mutation_scale=7,
                 ),
                 zorder=3,
@@ -524,9 +549,18 @@ def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: fl
             s=35, zorder=4, alpha=0.8,
         )
 
+    legend_handles = [
+        Line2D([0], [0], color=COLOR_SWITCH, lw=2, label=f"Switched side  (n={n_switch})"),
+        Line2D([0], [0], color=COLOR_STAY,   lw=2, label=f"Same side  (n={n_stay})"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#f4a261",
+               markersize=8, label="Throw-in origin"),
+    ]
+    ax.legend(handles=legend_handles, loc="upper right", fontsize=9, framealpha=0.85)
+
     ax.set_title(
-        f"Opponent throw-in sequences — Barcelona did not win the ball back  (N={len(chains)})\n"
-        f"First {max_seconds:.0f} s  ·  Each arrow = one action (pass/carry/shot)  "
+        f"Opponent throw-in sequences — Barcelona did not win the ball back  "
+        f"(N={len(chains)}: {n_switch} switched side · {n_stay} same side)\n"
+        f"First {max_seconds:.0f} s  ·  Blue = switched side  ·  Red = same side  "
         "·  Orange dot = throw-in origin  ·  Barcelona's goal on the left",
         fontsize=11, pad=12, color="black",
     )
