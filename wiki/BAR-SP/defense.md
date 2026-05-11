@@ -73,3 +73,24 @@ The code is a very slightly modified version of Leverkusen's snippet $3206.
 - Some kind of convex hull/voronoi pitch control
 - Look at how Barcelona can leverages defensive free-kicks to create counter-attacks
 - Look at how free-kick tactics vary in different match phases/when Barcelona is in the lead
+
+## Defensive throw ins 
+
+TODO: Decide which plots should be used and write a text
+
+Concentrate on playstile with closed middle coridor 
+
+- Barcelona is strong in defending throwins (winback rate 31,3% 5fth in league) <throwins_defense_comparison.png>
+- Barcelona tries to block the field including the middle coridor and create preassure near the throw in ; Middle coridor is clearly blocked in defending zone , in central and attacking zone there are still player (green dot) <throwins_defense_positioning.png>
+- I do not know if we should use <throwins_defense_corridor_comparison> due to small n and it is not that extreme to say something strong (>50% still)
+- Much more winbacks in the middle coridor <throwins_defense_corridor_winback> , but isnt it obvious true for most of the teams ? 
+- Most lost sequences did not change the side in first 6 sec. showing Barcelona cuting of the middle <throwins_defense_lost_sequences>
+- <throwins_defense_scatter.png> does not really support anuything said before
+- Barcelona clearly can pressure more in defense -> higher winback rate ; helpfull? <throwins_defense_zone_stats.png>
+
+## Defensive penalties
+
+TODO: same as for throw ins 
+
+- very high possesion and save gamestile in own third leads to very few opportunities for the opponent to get a penalty (only one). 
+(Concentrate on high possession rather on penalty itself)
