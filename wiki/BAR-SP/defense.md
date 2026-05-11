@@ -12,7 +12,7 @@ In light of this information, defensive free-kicks are one of Barcelona’s clea
 ### Added Value of Defensive Free-kicks
 
 So the overview seems positive, but let us take a more granular look at the added value of defensive free-kicks.
-In the plot below, we show, from left to right, heatmaps of xG, fouls, and opponent obv for all free-kicks in Barcelona’s defensive half.
+In the plot below, we show, from left to right, heatmaps of xG, opponent OBV gain, and fouls for all free-kicks in Barcelona’s defensive half.
 <img src="assets/upload/defensive/free-kicks/foul_freekick_xg_heatmap.png" width="100%" />
 
 TO BE IMPROVED/MADE INTO A CONTINUOUS TEXT
