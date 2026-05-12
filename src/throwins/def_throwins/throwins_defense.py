@@ -531,6 +531,76 @@ def plot_team_comparison(team_stats: dict[str, dict], save: bool = True) -> None
     plt.show()
 
 
+def plot_opponent_throw_direction(team_stats: dict[str, dict], save: bool = True) -> None:
+    """Stacked horizontal bars: % of opponent throws that are central vs wide per defending team.
+
+    'Central' = throw lands in the middle corridor (y ≈ 26.7–53.3).
+    'Wide'    = throw stays near the touchline it started from.
+    Sorted by central %, Barcelona highlighted in red.
+    """
+    rows = [
+        {
+            "team":        name,
+            "central_pct": d["corridor_total"] / d["total"] * 100,
+            "wide_pct":    (d["total"] - d["corridor_total"]) / d["total"] * 100,
+            "n":           d["total"],
+        }
+        for name, d in team_stats.items()
+        if d["total"] >= 10
+    ]
+    df = pd.DataFrame(rows).sort_values("central_pct")
+    league_central = df["central_pct"].mean()
+
+    fig, ax = plt.subplots(figsize=(10, max(6, len(df) * 0.5)))
+    fig.set_facecolor("white")
+
+    bars_wide = ax.barh(
+        df["team"], df["wide_pct"],
+        color="#4895ef", edgecolor="white", label="Wide",
+    )
+    bars_central = ax.barh(
+        df["team"], df["central_pct"],
+        left=df["wide_pct"],
+        color="#f4a261", edgecolor="white", label="Central (corridor)",
+    )
+
+    # Label the central % on each bar; colour Barcelona's row red
+    barca_mask = df["team"].str.contains(BARCELONA, case=False)
+    for bar_w, bar_c, pct, n, is_barca in zip(
+        bars_wide, bars_central, df["central_pct"], df["n"], barca_mask
+    ):
+        if is_barca:
+            bar_w.set_color("#e63946")
+            bar_c.set_color("#c9184a")
+        ax.text(
+            101, bar_c.get_y() + bar_c.get_height() / 2,
+            f"{pct:.1f}%  (n={n})", va="center", fontsize=7.5,
+        )
+
+    ax.axvline(league_central + df["wide_pct"].mean(), color="black",
+               linestyle="--", linewidth=1.2,
+               label=f"League avg central: {league_central:.1f}%")
+
+    ax.set_xlim(0, 130)
+    ax.set_xlabel("Share of opponent throw-ins (%)")
+    ax.set_title(
+        "How do opponents play throw-ins against each team?  (red = Barcelona)\n"
+        f"Central = ball played into middle corridor (y ≈ {_CORRIDOR_Y_MIN:.0f}–{_CORRIDOR_Y_MAX:.0f})"
+        "  ·  Wide = near touchline  ·  sorted by central %",
+        fontsize=11,
+    )
+    ax.legend(fontsize=9, loc="lower right")
+    ax.grid(axis="x", alpha=0.25)
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_throw_direction.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
+
+
 def plot_corridor_winback(df: pd.DataFrame, team_stats: dict[str, dict] | None = None, save: bool = True) -> None:
     """Bar chart: Barcelona's win-back rate for throws into the middle corridor vs wide.
 
@@ -762,6 +832,7 @@ def collect_lost_sequences(max_seconds: float = 6.0) -> list[list[tuple[float, f
     return chains
 
 
+
 _PITCH_WIDTH_HALF = 40.0    # y = 40 is the centre line width-wise
 
 
@@ -774,6 +845,125 @@ def _changed_side(path: list[tuple[float, float]]) -> bool:
     """
     origin_bottom = path[0][1] < _PITCH_WIDTH_HALF
     return any((p[1] < _PITCH_WIDTH_HALF) != origin_bottom for p in path[1:])
+
+
+def collect_side_change_stats(max_seconds: float = 6.0) -> dict[str, dict]:
+    """For every team, count lost throw-in sequences that changed side within max_seconds.
+
+    Uses the same path-building logic as collect_lost_sequences / _changed_side so
+    that Barcelona's numbers here match the blue/total ratio in plot_lost_sequences.
+
+    Returns {team_name: {"total_lost": int, "side_changed": int}}.
+    """
+    df_matches = _read_matches_df()
+    stats: dict[str, dict] = {}
+
+    for _, row in df_matches.iterrows():
+        if pd.isna(row["statsbomb"]):
+            continue
+        game_id = int(row["statsbomb"])
+        try:
+            events = read_statsbomb(game_id)
+        except FileNotFoundError:
+            continue
+
+        sorted_events = sorted(events, key=lambda e: e.get("index", -1))
+        team_names = {
+            ev.get("team", {}).get("name", "")
+            for ev in sorted_events
+            if ev.get("team", {}).get("name")
+        }
+
+        for defending_team in team_names:
+            if defending_team not in stats:
+                stats[defending_team] = {"total_lost": 0, "side_changed": 0}
+
+            for ev in opponent_throw_ins(sorted_events, defending_team):
+                won_by_opp = throw_in_possession_won(ev, sorted_events)
+                if won_by_opp is not True:
+                    continue
+
+                loc     = ev.get("location")
+                end_loc = _end_location(ev)
+                if not loc or not end_loc:
+                    continue
+                if not (_on_pitch(loc[0], loc[1]) and _on_pitch(end_loc[0], end_loc[1])):
+                    continue
+
+                throw_time   = _event_seconds(ev)
+                throw_period = ev.get("period", 0)
+
+                path: list[tuple[float, float]] = [(loc[0], loc[1]), (end_loc[0], end_loc[1])]
+
+                for seq_ev in throw_in_sequence(ev, sorted_events):
+                    if seq_ev.get("period", 0) != throw_period:
+                        break
+                    if _event_seconds(seq_ev) - throw_time > max_seconds:
+                        break
+                    seq_loc = seq_ev.get("location")
+                    seq_end = _end_location(seq_ev)
+                    if not (seq_loc and seq_end):
+                        continue
+                    if _on_pitch(seq_loc[0], seq_loc[1]) and _on_pitch(seq_end[0], seq_end[1]):
+                        path.append((seq_loc[0], seq_loc[1]))
+                        path.append((seq_end[0], seq_end[1]))
+
+                stats[defending_team]["total_lost"] += 1
+                if _changed_side(path):
+                    stats[defending_team]["side_changed"] += 1
+
+    return stats
+
+
+def plot_side_change_rate(
+    side_stats: dict[str, dict],
+    max_seconds: float = 6.0,
+    save: bool = True,
+) -> None:
+    """All teams ranked by % of lost throw-in sequences that changed side; Barcelona highlighted."""
+    rows = [
+        {
+            "team": name,
+            "pct":  d["side_changed"] / d["total_lost"] * 100,
+            "n":    d["total_lost"],
+        }
+        for name, d in side_stats.items()
+        if d["total_lost"] >= 10
+    ]
+    df  = pd.DataFrame(rows).sort_values("pct")
+    avg = df["pct"].mean()
+
+    fig, ax = plt.subplots(figsize=(10, max(6, len(df) * 0.5)))
+    fig.set_facecolor("white")
+    bars = ax.barh(df["team"], df["pct"], color="steelblue", edgecolor="white")
+
+    barca_mask = df["team"].str.contains(BARCELONA, case=False)
+    for bar, is_barca in zip(bars, barca_mask):
+        if is_barca:
+            bar.set_color("#e63946")
+
+    for bar, val, n in zip(bars, df["pct"], df["n"]):
+        ax.text(val + 0.3, bar.get_y() + bar.get_height() / 2,
+                f"{val:.1f}%  (n={n})", va="center", fontsize=7.5)
+
+    ax.axvline(avg, color="black", linestyle="--", linewidth=1.2,
+               label=f"League avg: {avg:.1f}%")
+    ax.set_xlabel("% of lost throw-in sequences that changed side")
+    ax.set_title(
+        f"When the opponent wins the ball from a throw-in, how often does play switch side within {max_seconds:.0f} s?\n"
+        "(red = Barcelona  ·  sorted by side-change rate  ·  only sequences where defending team lost possession)",
+        fontsize=11,
+    )
+    ax.legend(fontsize=9)
+    ax.grid(axis="x", alpha=0.25)
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_side_change.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
 
 
 def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: float = 6.0, save: bool = True) -> None:
@@ -802,7 +992,6 @@ def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: fl
 
         ax.plot(xs, ys, color=color, lw=0.9, alpha=0.35, zorder=2)
 
-        # Arrowhead at the final segment
         if len(path) >= 2:
             ax.annotate(
                 "",
@@ -815,7 +1004,6 @@ def plot_lost_sequences(chains: list[list[tuple[float, float]]], max_seconds: fl
                 zorder=3,
             )
 
-        # Mark throw-in origin
         pitch.scatter(
             path[0][0], path[0][1], ax=ax,
             color="#f4a261", edgecolors="white", linewidths=0.4,

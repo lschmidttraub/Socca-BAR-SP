@@ -79,10 +79,9 @@ The code is a very slightly modified version of Leverkusen's snippet $3206.
 
 ## Defensive throw ins
 
-TODO: Decide which plots should be used and write a text
+TODO: polish, correct and decide on some points
 
-Concentrate on playstile with closed middle coridor
-
+Concentrate on playstile with closed middle coridor 
 - Barcelona is strong in defending throwins (winback rate 31,3% 5fth in league) <throwins_defense_comparison.png>
 - Barcelona tries to block the field including the middle coridor and create preassure near the throw in ; Middle coridor is clearly blocked in defending zone , in central and attacking zone there are still player (green dot) <throwins_defense_positioning.png>
 - Most lost sequences did not change the side in first 6 sec. showing Barcelona cuting of the middle <throwins_defense_lost_sequences>
@@ -92,13 +91,23 @@ Concentrate on playstile with closed middle coridor
 
 Will be finished, improved and corrected:
 
-Barcelona seems to be a strong team in defending against throw ins. They win nearly every third ball(31,3%) back and are 5th in the league. <throwins_defense_comparison.png>
+Barcelona seems to be a strong team in defending against throw ins. They win nearly every third ball(31,3%) back and are 5th in the league according to this metric. <throwins_defense_comparison.png>
 Barcelona is known as a technical team and so it is natural to look at positioning of Barcelona's player during opponent's throw in.
-We now can clearly see the two main strategies. First, Barcelona is preasuring ...
+<throwins_defense_positioning.png>
+We now can clearly see the two main strategies. First, Barcelona is preasuring near the throw in and second, they block the middle coridor. By doing so, they force the opponent to play the ball near the sideline and do not switch the side. We can clearly see it  in <throwins_defense_side_change.png>, Barcelona has least % of side changes for lost throw ins by opponent. One also can see the effect of the middle coridor block in <throwins_defense_lost_sequences.png> where even in case when Barelona does not win the ball back the opponent rarely manage to switch the side and manage to quickly push through the middle coridor very few times. <throwins_defense_combined.png> also shows how Bacelona win the ball back when it goes into central zone especially in own defensive zone. (TODO: Maybe just left the defensive zone, as other do not support this thesis). 
+From <throwins_defense_distances.png> we observe, that Barcelona is rather compact to the opponent during throw ins. While in general the average distance to next opponent does not vary strong between teams, especially for defending and middle zone we can see that the avg over 5 smallest distances is 0.5m less then the league average while the distance of 5 biggest distances is nearly at league average. We can argue that Barcelona is doing man matching on specific opponents and does more wide zonal control with the rest (?!) .
+
 
 ## Defensive penalties
 
 TODO: same as for throw ins
 
-- very high possesion and save gamestile in own third leads to very few opportunities for the opponent to get a penalty (only one).
+- very high possesion and save gamestile in own third leads to very few opportunities for the opponent to get a penalty (only one). 
 (Concentrate on high possession rather on penalty itself)
+
+Will be finished, improved and corrected:
+When looking at Barcelona's defence against penalties, one notice that only one penaltie was shot against Barcelona. Hence, it does not really make sence to analyze goalkeeper behaviour. It is rather interesting to understand why Barcelona gets so few penalties conceded in comparison to other teams in the Champions League <def_penalties_per_game.png>. 
+First, more ball possession in own defensive zone leads to less ball possession for opponent and hence less moments when Barcelona's player can foul an oponent leading to a penalty against Barcelona. Indeed, as one can see in <def_possession_pct.png> Barcelona has the third highest possession procentage in the league. 
+Correlation between this two factors can be seen in <correlation_possession_penalties.png> (Of course, there are some outliers since penalties are rare and so n is pretty low for this few games; It is also the cause why only last16-teams are in the plot, the rest played less games). 
+Second, more fouls made by a team in general speak for a more agressive playstile which causes more penalties. Again, if we look at <fouls_per_game.png>, Barcelona does rather less fouls then other teams. 
+Correlation between this two factors can be seen in <correlation_fouls_penalties.png>. 

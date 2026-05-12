@@ -34,7 +34,7 @@ MATCHES_CSV = DATA_DIR / "matches.csv"
 STATSBOMB_DIR = DATA_DIR / "statsbomb"
 SKILLCORNER_DIR = DATA_DIR / "skillcorner"
 STATSBOMB_ZIPS = ("league_phase.zip", "last16.zip", "playoffs.zip")
-OUTPUT_DIR = Path("assets") / "offensive_goal_movement"
+OUTPUT_DIR = Path("assets") / "throwins"
 
 
 # ── Analysis parameters ──────────────────────────────────────────────
@@ -472,15 +472,7 @@ def _draw_panel(
                 arrowprops={"arrowstyle": "-|>", "color": color, "lw": 1.8, "alpha": 0.95},
                 zorder=zorder + 1,
             )
-            if is_scorer:
-                mid = len(xs) // 2
-                ax.annotate(
-                    path_data["name"],
-                    xy=(xs[mid], ys[mid]),
-                    xytext=(5, 5),
-                    textcoords="offset points",
-                    fontsize=8, color=SCORER_COLOR, fontweight="bold", zorder=9,
-                )
+
 
         if variant in {"starts", "paths"}:
             ax.scatter(
