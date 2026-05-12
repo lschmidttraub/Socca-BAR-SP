@@ -13,3 +13,4 @@ Reference snippets from the wiki via `$<id>` (e.g. `$2765`).
 | [`corner_spatial_maps/`](corner_spatial_maps/)                     | $2863          | Three pitch maps: spatial profile, endpoints by side, first touch *(not yet uploaded)* |
 | [`corner_matchup_height/`](corner_matchup_height/)                 | $2867         | Far-post share vs opponent height gap (per-match scatter) *(not yet uploaded)*       |
 | [`corner_run_maps/`](corner_run_maps/)                             | $2864          | Per-corner 3-panel attacker movement maps from SkillCorner tracking *(not yet uploaded)* |
+| [`defensive_cards_by_side/`](defensive_cards_by_side/)             | —              | Yellow & red cards per defensive player, left side vs right side *(not yet uploaded)* |

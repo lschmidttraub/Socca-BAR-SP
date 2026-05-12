@@ -28,5 +28,5 @@ if __name__ == "__main__":
     print(f"\nOpponent throw-ins vs Barcelona (with end location): {n_tot}")
     print(f"Into middle corridor: {n_corr}  ({n_corr / n_tot * 100:.1f}%)" if n_tot else "")
 
-    plot_corridor_winback(barca_df)
+    plot_corridor_winback(barca_df, team_stats=team_stats)
     plot_corridor_team_comparison(team_stats)

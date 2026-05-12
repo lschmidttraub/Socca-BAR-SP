@@ -12,7 +12,10 @@ from throwins_defense import (
     ZONE_ORDER,
     collect_data,
     plot_defense_scatter,
+    plot_normalized_landing_heatmap,
+    plot_combined_defense_heatmap,
 )
+from def_throwins_positioning import collect_positions
 
 if __name__ == "__main__":
     barca_df, _ = collect_data()
@@ -29,3 +32,8 @@ if __name__ == "__main__":
         print(f"  {zone:<12} {zn:>4} throw-ins  {zw / zn * 100:.1f}% won back" if zn else f"  {zone:<12}    0")
 
     plot_defense_scatter(barca_df)
+    plot_normalized_landing_heatmap(barca_df)
+
+    print("\nCollecting SkillCorner positioning data ...")
+    positions = collect_positions()
+    plot_combined_defense_heatmap(barca_df, positions)
