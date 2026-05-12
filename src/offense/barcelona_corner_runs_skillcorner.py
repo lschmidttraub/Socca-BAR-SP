@@ -726,7 +726,7 @@ def _draw_corner_panel(
                 "",
                 xy=(xs[-1], ys[-1]),
                 xytext=(xs[-2], ys[-2]),
-                arrowprops={"arrowstyle": "-|>", "color": color, "lw": 2.0, "alpha": 0.95},
+                arrowprops={"arrowstyle": "-", "color": color, "lw": 2.0, "alpha": 0.95},
                 zorder=5,
             )
 

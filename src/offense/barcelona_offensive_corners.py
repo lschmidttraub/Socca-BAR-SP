@@ -57,7 +57,7 @@ from stats.analyses.setpiece_maps import _team_in_match
 ASSETS_ROOT = (
     PROJECT_ROOT / "assets" / "offensive_corners"
 )
-DATA = PROJECT_ROOT / "data" / "statsbomb" / "league_phase"
+DATA = PROJECT_ROOT / "data" / "all_data"
 
 TEAM = "Barcelona"
 SHORT_CORNER_MAX_LEN = 15.0

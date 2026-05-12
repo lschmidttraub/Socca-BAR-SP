@@ -41,6 +41,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 STATSBOMB_DIR = Path("data/statsbomb")
+ALL_DATA_DIR = Path("data/all_data")
 MATCHES_CSV = Path("data/matches.csv")
 DEFAULT_OUTPUT = Path("barca_match_height.png")
 
@@ -73,8 +74,8 @@ def _normalise_team(name: str) -> str:
     return name
 
 
-FOCUS_COLOR = "#a50026"
-OPPONENT_COLOR = "#4575b4"
+FOCUS_COLOR = "#4575b4"    # Barcelona blue
+OPPONENT_COLOR = "#d73027"  # opponent red
 
 
 # ── Lineup loading ────────────────────────────────────────────────────
@@ -91,6 +92,11 @@ def _load_lineup(match_id: str) -> list[dict] | None:
                 if n.rsplit("/", 1)[-1] == target:
                     with zf.open(n) as fh:
                         return json.load(fh)
+    # fall back to raw JSON files in all_data/
+    raw = ALL_DATA_DIR / target
+    if raw.is_file():
+        with open(raw, encoding="utf-8") as fh:
+            return json.load(fh)
     return None
 
 
@@ -237,7 +243,7 @@ def main(focus_team: str = FOCUS_TEAM, output_path: Path = DEFAULT_OUTPUT) -> No
     print(f"{focus_team} matches with lineup data: {len(matches)}")
     for m in matches:
         gap = m["opponent"] - m["focus"]
-        print(f"  {m['label']:30s} {focus_team[:12]:12s}={m['focus']:5.1f} cm  opp={m['opponent']:5.1f} cm  Δ={gap:+.1f} cm")
+        print(f"  {m['label']:30s} {focus_team[:12]:12s}={m['focus']:5.1f} cm  opp={m['opponent']:5.1f} cm  d={gap:+.1f} cm")
     plot(matches, focus_team, output_path)
 
 

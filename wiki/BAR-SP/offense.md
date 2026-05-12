@@ -13,7 +13,7 @@ Earlier overview results showed that Barcelona were below the competition averag
 However, the present visuals suggest that this does not reflect a random or underdeveloped corner approach. 
 Instead, Barcelona seem to rely on a designed attacking model built around direct inswing deliveries, and a meaningful but secondary use of short corners and first-contact manipulation rather than through clear aerial dominance. 
 
-This is already visible in the routine distribution. Of Barcelona’s offensive corners, 31 were direct inswingers, 11 were short corners, 4 were other direct deliveries, and only 1 was a direct outswinger. 
+This is already visible in the routine distribution. Of Barcelona’s offensive corners, 38 were direct inswingers, 13 were short corners, 6 were other direct deliveries, and only 1 was a direct outswinger. 
 This suggests that inswing corners form the default structure, while short corners serve as an important alternative. 
 Barcelona therefore combine traditional delivery with selective short-corner routines to disrupt defensive organisation.
 
@@ -28,6 +28,8 @@ In this sense, short-corner routines may act as tactical approach to help offset
 | ![](assets/upload/offensive/corners/attempts_per_corner_bars.png) | ![](assets/upload/offensive/corners/xg_per_corner_bars.png) |
 _Figure 1: Corner Attempt Rate and xG by first delivery distance (snippet $2865)_
 
+#### Individual Players involved in Corner Action
+
 Raphinha clearly dominates as the corner taker, indicating a high level of delivery execution consistency.
 By contrast, receivers and first shooters are more widely distributed across several players, mainly Center Backs and Strikers.
 This points to a strategy based on coordinated movement and role allocation rather than on one fixed aerial target. 
@@ -36,20 +38,31 @@ Delivery is standardised, but reception and finishing remain flexible.
 |            Top Takers of Barcelona's Corners             |                  Top Receivers of Barcelona's Corners                  |
 |:--------------------------------------------------------:|:----------------------------------------------------------------------:|
 | ![](assets/upload/offensive/corners/corner_takers_single.png) | ![](assets/upload/offensive/corners/delivery_receivers_single.png) |
-<figcaption style="margin: 0 0 0 5px">We generated the plots using snippet $2866</figcaption>
-_Figure 2: Top Takers and Receivers of Barcelona's Corners (snippet $28656)_
+_Figure 2: Top Takers and Receivers of Barcelona's Corners (snippet $2866)_
 
-The spatial maps deepen this reading, illustrating clear but not exclusive tendencies for areas of delivery. 
+The OBV comparison (Figure 3) adds a first indication of how much value these deliveries create at the individual taker level.
+Raphinha’s corners show a slightly positive mean OBV, but the median remains close to zero, which suggests that many of his corners do not immediately increase the attacking value, while a smaller number of stronger deliveries lift the average.
+Marcus Rashford’s distribution is more negative and less effective overall, although a few positive outliers show that individual deliveries can still create danger.
+Lamine Yamal has the most promising profile in this plot: despite only taking 10 corners, his median and mean are both positive, and his upper range is clearly higher than for the other Barcelona takers.
+This may indicate that his deliveries are more often connected to valuable attacking outcomes, but the small sample makes this interpretation tentative.
+Compared with the tournament-wide distribution, Barcelona’s main takers do not appear extreme outliers, but Yamal’s profile and Raphinha’s positive average support the idea that Barcelona’s corner value depends on selected high-quality deliveries rather than consistently high value from every corner.
+
+![](assets/upload/offensive/corners/corner_obv_takers.png)
+_Figure 3: Corner OBV by player (based on snippet $3008)_
+
+#### Spatial Profile of Corner Delivery
+
+The spatial maps deepen this reading of flexibility, illustrating clear but not exclusive tendencies for areas of delivery. 
 Many deliveries are directed into the central six-yard area and near-post corridor, with a smaller overall share toward the far post, the edge of the box, and wider recycle zones. 
 Barcelona therefore do not attack only one target area.
 Interestingly, the far-post option seems to be a real option for right-side corners.
 Instead, they appear to combine dangerous first-contact zones close to goal with the possibility of recycled possession or a second delivery.
 
 ![](assets/upload/offensive/corners/spatial_profile.png)
-_Figure 3: Spatial Profile (normalized to left-side) - Two main target zones visible_
+_Figure 4: Spatial Profile (normalized to left-side) - Two main target zones visible_
 
 ![](assets/upload/offensive/corners/delivery_endpoints_by_side.png)
-_Figure 4: Delivery endpoints by side - Long corners predominantly used from the right_
+_Figure 5: Delivery endpoints by side - Long corners predominantly used from the right_
 
 This is also reinforced by the map of first touches after offensive corners. 
 After the initial contact, Barcelona usually (especially from the left side) continue the sequence with a pass-on or carry, especially from wider or more advanced positions.
@@ -60,17 +73,31 @@ The presented goal result from multi-action sequences rather than direct finishe
 This supports the broader interpretation that Barcelona’s corner strategy is based less on raw aerial superiority and more on controlled second-phase construction.
 
 ![](assets/upload/offensive/corners/corner_first_touch_map.png)
-_Figure 5: First Touch Map - Sequences often continue with pass-on or carry (snippet $2863)_
+_Figure 6: First Touch Map - Sequences often continue with pass-on or carry (snippet $2863)_
 
 The far-post-share plot adds a potentially interesting contextual detail regarding physicality and corner strategy. 
 Barcelona’s use of the far-post zone appears to increase particularly against the most extreme opponents in terms of height, namely Newcastle, by far the tallest team in the competition, and Copenhagen, the only shorter team with a height disadvantage in their match against Barcelona.
 Although the sample is limited, this supports the idea that Barça may use the far post to avoid central aerial duels when in clear height disadvantage combined with a path strategy and to exploit their advantage against shorter teams.
 This observation is particularly significant, as in all other games, corner were never delivered to the far-post.
+That changed in the quarterfinals against Atlético Madrid, where far-post corners were again used as mathod.
 
 ![](assets/upload/offensive/corners/matchup_far_post_share_single.png)
-_Figure 6: Share of far-post Corners - Selected strategy against Copenhagen (Kobe) and Newcastle (NU) (snippet $2867)_
+_Figure 7: Share of far-post Corners - Selected strategy against Copenhagen (Kobe), Atlético (AM) and Newcastle (NU) (snippet $2867)_
 
-#### Movement of Attacking Players
+To conclude this subsection, we return once more to the individual level in order to add more context to the pure OBV comparison, where Lamine Yamal and then Raphinha appeared as the most favourable takers. 
+The delivery maps, with all corners normalised to one side, show that the three main takers follow broadly similar principles: short options are available, but the central area close to goal remains the dominant target zone. 
+At the same time, the reasons behind their value seem slightly different. 
+Yamal’s strong OBV profile may partly benefit from his larger share of short corners, which can protect possession and create positive continuation value without immediately requiring a high-risk aerial delivery. 
+Raphinha, by contrast, appears more connected to direct chance creation: he produces the largest share of possession-to-shot outcomes and the highest xG from his corners, both in total and per corner. 
+He is also the only taker clearly associated with far-post deliveries, which links back to the earlier finding that the far post may function as a specific tactical weapon in selected matchups. 
+This suggests that Yamal’s corner value is more continuation-oriented, while Raphinha remains the most productive executor for more direct and varied attacking deliveries.
+
+|                                Raphina                                |                          Marcus Rashford                          |                             Lamine Yamal                              |
+|:---------------------------------------------------------------------:|:-----------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| ![](assets/upload/offensive/corners/corner_zone_obv_raphael_dias.png) | ![](assets/upload/offensive/corners/corner_zone_obv_rashford.png) | ![](assets/upload/offensive/corners/corner_zone_obv_lamine_yamal.png) |
+_Figure 8: Corner Impact Profile (OBV / xG) by player (based on snippet $3012)_
+
+#### Attacking Players Dynamics
 
 Four particularly informative visualisations were selected for closer offesive corner movement analysis: two corner situations against Copenhagen and Praga that led to attempts, one corner against Newcastle that did not result in an attempt, and the goal sequence against Frankfurt.
 We generated the corner movement maps using snippet $2864.
@@ -108,6 +135,100 @@ This interpretation fits the broader findings of the report. Barcelona’s corne
 Instead, their attacking value appears to come from the way they use local overloads, selective movement, and continuation after the first contact to create opportunities.
 
 ### Offensive Free-kicks
+
+FC Barcelona’s attacking free kicks provide a positive signal in the set-piece data.
+As mentioned in our statistical overview they rank above average in the main production metrics: 
+they scored 3 goals from free-kick sequences, compared with a league average of 1.94, generated shots from 50.0% of their free kicks compared with 45.2% on average, and accumulated 2.46 xG, clearly above the league mean of 1.79.
+Their goal rate per free kick, however, is almost identical to the competition average.
+This makes the profile more convincing, because the advantage is not primarily explained by unusually efficient finishing, but by Barcelona reaching shooting situations and accumulating chance quality more consistently than most teams.
+
+The routine breakdown (Figure 11) shows that this production comes from a mixed free-kick approach rather than from one dominant pattern.
+Most of Barcelona’s attacking free kicks are classified as other indirect routines, followed by crosses into the box, short free kicks, and direct shots.
+The different routine types serve clearly different purposes.
+Direct free kicks are the most immediate route to a attempt on goal, while crosses into the box offer the strongest balance between usage, shot creation and xG.
+Short free kicks, understandably, contribute little direct xG, as this number includes free-kicks all over the pitch.
+Here the late analysis in context of possession quality improvement is important.
+
+![](assets/upload/offensive/free_kicks/fk_routine_profile.png)
+_Figure 11: Offensive free-kick routine profile of FC Barcelona_
+
+The origin-zone analysis (Figure 12) adds a more cautious but useful tactical perspective.
+Because the number of Barcelona free kicks in several zones is small, the values should not be interpreted as stable evidence for fixed preferences.
+However, comparison with the league average still helps to identify tendencies.
+From long distances, especially in wide and central areas between 30 and 50 metres from goal, Barcelona record many free kicks that fall into the other indirect category.
+These situations can be understood as free-kick attempts without a clearly visible organised attacking routine.
+In these zones, Barcelona therefore appear less likely to force a structured delivery than to restart play, keep possession, or move the ball into a better attacking shape.
+
+Closer to goal, the pattern changes.
+In central and channel positions, Barcelona more often select routines that are directly connected to shot creation, either through direct shots or crosses into the box.
+This is most visible in the 20–30 metre central zone, where Barcelona use direct shots and crossed deliveries more frequently than passive restarts.
+A similar tendency appears in the channel zones, where the team seems more willing to create an attempt once the free kick offers either a shooting angle or a realistic delivery angle into the penalty area.
+This supports the idea that Barcelona’s free-kick approach is selective: not every restart is treated as a designed attacking routine, but more dangerous origin zones trigger more purposeful solutions.
+
+The xG values remain modest and, in most zones, Barcelona are below the league average.
+This again limits strong conclusions, especially because single events can have a large influence in such small samples.
+Still, the channel area from 30 to 50 metres stands out as Barcelona’s most productive zone in this plot.
+Here, they generate higher xG per sequence than the league average and also choose organised routines more often, with crosses and short free kicks appearing alongside fewer purely indirect restarts.
+This suggests that Barcelona may be relatively effective when they can attack the box diagonally from deeper channel positions, where the delivery angle allows them to target dangerous spaces, a finding of the literature review.
+
+![](assets/upload/offensive/free_kicks/fk_xg_delivery_by_zone.png)
+_Figure 12: Offensive free-kick routine profile of FC Barcelona by origin zone_
+
+#### Individual Players involved in Free-kick Action
+
+The player-role distribution for free-kicks in the opponent's half shows a clear contrast to the corner section.
+While corners were mainly delivered by Raphinha, offensive free kicks are spread across a much wider group of takers. 
+Marcus Rashford leads the list with 9 free kicks (he takes most of the direct approaches), followed closely by Pedri, Lamine Yamal, Frenkie de Jong, Raphinha and Eric García. 
+This suggests that free-kick responsibility is more situational and depends strongly on field position, footedness and routine type rather than on one fixed specialist. 
+The receiver profile is more concentrated and dominated by defensive players, especially Eric García, Pau Cubarsí, Gerard Martín, Araújo, and Koundé. 
+This indicates that when Barcelona use free kicks as deliveries into the box, they often rely on centre-backs and physically stronger players as first-contact targets, while the taker role remains more flexible.
+
+|                Top Takers of Barcelona's Free-kicks                |              Top Receivers of Barcelona's Free-kicks               |
+|:------------------------------------------------------------------:|:------------------------------------------------------------------:|
+| ![](assets/upload/offensive/free_kicks/fk_player_roles_takers.png) | ![](assets/upload/offensive/free_kicks/fk_player_roles_receivers.png) |
+_Figure 13: Top Takers and Receivers of Barcelona's free-kicks_
+
+Compared with corners, the free-kick OBV profiles (Figure 14) are generally closer to zero, which is plausible because many free kicks in the opponent’s half are not immediate chance-creation situations.
+Pedri’s free kicks show the most stable positive tendency, although the values are very small, suggesting that his routines often improve the attacking state slightly rather than creating direct danger.
+Raphinha has the widest distribution among Barcelona’s takers, with both positive and negative outcomes, which fits his more varied role across different free-kick situations.
+By contrast, Rashford and Lamine Yamal show more negative average profiles in this plot, likely reflecting that their free kicks include more direct or higher-risk attempts, where unsuccessful actions are immediately punished by OBV.
+
+![](assets/upload/offensive/free_kicks/freekick_obv_takers.png)
+_Figure 14: Free-kick OBV by player (based on snippet $3008)_
+
+The individual free-kick maps (Figure 15) show that the different takers are connected to different types of attacking value, in contrast to similar corner profiles.
+Rashford’s profile is dominated by direct or semi-direct attempts from central zones around the edge of the box, which explains why his free kicks create some xG but show rather negative OBV values when these attempts do not lead to a strong outcome.
+Lamine Yamal’s free kicks are more scattered and include deeper or wider restarts, with only limited direct xG production, so his profile appears less clearly tied to one productive routine.
+Raphinha, despite the smaller sample, stands out again in terms of output: his free kicks generate the highest total xG and average xG per free kick among the three shown, mainly through deliveries into the penalty-spot area and possession-to-shot sequences.
+This supports the earlier interpretation that Barcelona’s free-kick roles are situational, but it also suggests that Raphinha is the most productive taker when the routine is designed to attack the box
+
+|                                  Raphina                                   |                            Marcus Rashford                             |                                           Lamine Yamal                                            |
+|:--------------------------------------------------------------------------:|:----------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
+| ![](assets/upload/offensive/free_kicks/freekick_zone_obv_raphael_dias.png) | ![](assets/upload/offensive/free_kicks/freekick_zone_obv_rashford.png) |            ![](assets/upload/offensive/free_kicks/freekick_zone_obv_lamine_yamal.png)             |
+_Figure 15: Free-kick Impact Profile (OBV / xG) by player (based on snippet $3012)_
+
+#### Spatial Profile of Free-kick Delivery
+
+Subsequently, we analyse the free-kick routine types that are connected to attempt creation: direct and crosses into the box.
+The aim is to identify whether specific tactical patterns become visible.
+We compare these observations with the patterns already found for corners and interpret the results in relation to the hypotheses from the literature review, especially regarding structured deliveries, second-phase value, and Barcelona’s use of set pieces to create danger without relying only on aerial dominance.
+
+For free kicks crossed into the box (Figure 16), Barcelona show a delivery pattern that is closely connected to the mechanisms discussed in the literature review.
+Most deliveries are played diagonally from wider or deeper half-space areas into the central penalty area, especially around the penalty spot, rather than directly into the six-yard box.
+This supports the review finding that comparable indirect free kicks should be understood together with corners, because they can also be used to attack organised defensive structures through delivery angle, runner separation, and second-ball potential.
+At first glance, however, the pattern is slightly different from corners: while corners more often targeted the central six-yard and near-post zones, crossed free kicks seem to create danger from a somewhat deeper central reception zone.
+The resulting shots are limited in number, but they come from central areas, suggesting that these routines are not only simple crosses.
+The goal against Newcastle visible in the plot is such an example.
+
+![](assets/upload/offensive/free_kicks/fk_spatial_profile_cross_into_box.png)
+_Figure 16: Spatial profile of free-kicks crossed into the box_
+
+For direct free kicks (Figure 16), the connection to the initial tactical hypotheses is weaker, because this routine type of course depends on individual execution.
+The attempts are mostly taken from central half-left positions and are aimed towards the near corner.
+Although the sample is small, these attempts generate a noteworthy share of xG and include the goal against Copenhagen.
+
+![](assets/upload/offensive/free_kicks/fk_spatial_profile_direct_shot.png)
+_Figure 16: Spatial profile of direct free-kicks_
 
 Planned Analysis:
   - Mirror the delivery and route analysis of corners (trajectory, target zones)

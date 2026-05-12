@@ -642,35 +642,88 @@ def _plot_spatial_profile(sequences: list[dict], output_path: Path) -> None:
     save_fig(fig, output_path, tight=False)
 
 
+def _plot_spatial_profile_by_routine(sequences: list[dict], routine: str, output_path: Path) -> None:
+    sub = [s for s in sequences if s["routine_type"] == routine]
+    if not sub:
+        return
+
+    pitch = Pitch(pitch_type="statsbomb", pitch_color="white", line_color="#c7d5cc", half=True)
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig.subplots_adjust(top=0.82, bottom=0.08, wspace=0.22)
+    for ax in axes:
+        pitch.draw(ax=ax)
+
+    for seq in sub:
+        sx, sy = seq["delivery_start_x"], seq["delivery_start_y"]
+        ex, ey = seq["delivery_end_x"], seq["delivery_end_y"]
+        if None not in (sx, sy, ex, ey):
+            pitch.arrows(sx, sy, ex, ey, ax=axes[0],
+                         color=ROUTINE_COLORS[routine],
+                         width=1.5, headwidth=4, headlength=4, alpha=0.5)
+    axes[0].set_title("Delivery routes")
+
+    _draw_zone_boxes(axes[1])
+    for zone in ZONE_ORDER:
+        pts = [(s["delivery_end_x"], s["delivery_end_y"])
+               for s in sub if s["delivery_zone"] == zone
+               and s["delivery_end_x"] is not None]
+        if not pts:
+            continue
+        xs, ys = zip(*pts)
+        pitch.scatter(xs, ys, ax=axes[1], s=55, color=ZONE_COLORS[zone],
+                      edgecolors="white", linewidth=0.5, alpha=0.85, label=zone)
+    axes[1].set_title("Delivery endpoints and target zones")
+    axes[1].legend(loc="lower left", fontsize=8)
+
+    shots = [s for s in sub if s["first_shot_x"] is not None]
+    if shots:
+        xs = [s["first_shot_x"] for s in shots]
+        ys = [s["first_shot_y"] for s in shots]
+        sizes = [max(s["first_shot_xg"] * 1200, 40) for s in shots]
+        pitch.scatter(xs, ys, ax=axes[2], s=sizes, color=FOCUS_COLOR,
+                      edgecolors="white", linewidth=0.7, alpha=0.8)
+    axes[2].set_title("Shot locations (size = xG)")
+
+    _apply_light_header(fig, f"Barcelona offensive free kicks — {routine}",
+                        f"Delivery routes, endpoints and shot locations  (n={len(sub)})")
+    save_fig(fig, output_path, tight=False)
+
+
 # ── Plot 3: Player roles ──────────────────────────────────────────────────────
 
-def _plot_player_roles(sequences: list[dict], output_path: Path) -> None:
+def _hbar_single(ax, counter, title, color, top_n=10):
+    top = counter.most_common(top_n)
+    if not top:
+        ax.set_title(title)
+        return
+    names, vals = zip(*reversed(top))
+    bars = ax.barh(names, vals, color=color, alpha=0.85)
+    for bar, val in zip(bars, vals):
+        ax.text(val + 0.05, bar.get_y() + bar.get_height() / 2,
+                str(val), va="center", fontsize=9)
+    ax.set_title(title)
+    ax.set_xlabel("Count")
+    ax.set_xlim(0, max(vals) * 1.18)
+
+
+def _plot_fk_takers(sequences: list[dict], output_path: Path) -> None:
     taker_counts = Counter(s["fk_taker"] for s in sequences if s["fk_taker"] != "Unknown")
+    fig, ax = plt.subplots(figsize=(8, 6))
+    fig.subplots_adjust(top=0.86, bottom=0.08)
+    _hbar_single(ax, taker_counts, f"Top FK takers — {TEAM}", FOCUS_COLOR)
+    _apply_light_header(fig, "Barcelona offensive free kicks — takers",
+                        "Who takes the FK")
+    save_fig(fig, output_path, tight=False)
+
+
+def _plot_fk_receivers(sequences: list[dict], output_path: Path) -> None:
     receiver_counts = Counter(s["first_receiver"] for s in sequences
                               if s["first_receiver"] not in ("Unknown", s["fk_taker"]))
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-    fig.subplots_adjust(top=0.86, bottom=0.08, wspace=0.35)
-
-    def _hbar(ax, counter, title, color, top_n=10):
-        top = counter.most_common(top_n)
-        if not top:
-            ax.set_title(title)
-            return
-        names, vals = zip(*reversed(top))
-        bars = ax.barh(names, vals, color=color, alpha=0.85)
-        for bar, val in zip(bars, vals):
-            ax.text(val + 0.05, bar.get_y() + bar.get_height() / 2,
-                    str(val), va="center", fontsize=9)
-        ax.set_title(title)
-        ax.set_xlabel("Count")
-        ax.set_xlim(0, max(vals) * 1.18)
-
-    _hbar(ax1, taker_counts, f"Top FK takers — {TEAM}", FOCUS_COLOR)
-    _hbar(ax2, receiver_counts, "Top receivers / first contacts", AVG_COLOR)
-
-    _apply_light_header(fig, "Barcelona offensive free kicks — player roles",
-                        "Who takes the FK and who receives it")
+    fig, ax = plt.subplots(figsize=(8, 6))
+    fig.subplots_adjust(top=0.86, bottom=0.08)
+    _hbar_single(ax, receiver_counts, "Top receivers / first contacts", AVG_COLOR)
+    _apply_light_header(fig, "Barcelona offensive free kicks — receivers",
+                        "Who receives the FK / first contact")
     save_fig(fig, output_path, tight=False)
 
 
@@ -1030,8 +1083,7 @@ def _plot_xg_delivery_by_zone(sequences: list[dict], all_seqs: list[dict],
                       if s["fk_lateral"] == lat and s["fk_dist"] == dist]
             if b_vals:
                 m = np.mean(b_vals)
-                e = np.std(b_vals) / max(len(b_vals) ** 0.5, 1)
-                global_xg_top = max(global_xg_top, m + e)
+                global_xg_top = max(global_xg_top, m)
             global_xg_top = max(global_xg_top,
                                 _league_avg_xg_by_zone(all_seqs, lat, dist))
 
@@ -1047,11 +1099,10 @@ def _plot_xg_delivery_by_zone(sequences: list[dict], all_seqs: list[dict],
 
         # ── Top row: avg xG ────────────────────────────────────────────────────
         ax_xg = axes[0, col]
-        b_means, b_sems, b_ns, av_means = [], [], [], []
+        b_means, b_ns, av_means = [], [], []
         for dist in FK_DIST_ORDER:
             vals = [s["total_xg"] for s in lat_barca if s["fk_dist"] == dist]
             b_means.append(np.mean(vals) if vals else 0.0)
-            b_sems.append(np.std(vals) / max(len(vals) ** 0.5, 1) if vals else 0.0)
             b_ns.append(len(vals))
             av_means.append(_league_avg_xg_by_zone(all_seqs, lat, dist))
 
@@ -1061,8 +1112,6 @@ def _plot_xg_delivery_by_zone(sequences: list[dict], all_seqs: list[dict],
         av_bars = ax_xg.bar(avg_pos, av_means, width=BAR_W,
                             color=AVG_COLOR, alpha=0.72,
                             edgecolor="white", linewidth=0.6, label="League avg")
-        ax_xg.errorbar(barca_pos, b_means, yerr=b_sems,
-                       fmt="none", color="#333333", capsize=3, linewidth=1.1)
 
         ceiling = global_xg_top * 1.7 or 0.05
         for bar, m, n in zip(b_bars, b_means, b_ns):
@@ -1174,7 +1223,15 @@ def run(team: str = TEAM, data_dir: Path = DATA, output_dir: Path | None = None)
     plots = [
         ("fk_routine_profile.png",       lambda p: _plot_routine_profile(sequences, p)),
         ("fk_spatial_profile.png",        lambda p: _plot_spatial_profile(sequences, p)),
-        ("fk_player_roles.png",           lambda p: _plot_player_roles(sequences, p)),
+        *[
+            (
+                f"fk_spatial_profile_{r.lower().replace(' ', '_').replace('/', '')}.png",
+                (lambda p, r=r: _plot_spatial_profile_by_routine(sequences, r, p)),
+            )
+            for r in ROUTINE_ORDER
+        ],
+        ("fk_player_roles_takers.png",    lambda p: _plot_fk_takers(sequences, p)),
+        ("fk_player_roles_receivers.png", lambda p: _plot_fk_receivers(sequences, p)),
         ("fk_first_touch_map.png",        lambda p: _plot_first_touch_map(sequences, p)),
         ("fk_shot_assist_map.png",        lambda p: _plot_shot_assist_map(sequences, p)),
         ("fk_goal_sequences.png",         lambda p: _plot_goal_sequences(sequences, p)),

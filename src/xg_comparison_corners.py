@@ -25,9 +25,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "statsbomb" / "league_phase"
+DATA_DIR = Path(__file__).parent.parent / "data" / "all_data"
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
-out = ASSETS_DIR / "xg_per_corner_bars.png"
+out = ASSETS_DIR / "corner_analysis" / "xg_per_corner_bars.png"
 
 def load_json(path):
     with open(path, encoding="utf-8") as f:
