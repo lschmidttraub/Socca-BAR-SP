@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(python -m src.stats.analyses.physicality)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(python src/xg_comparison_corners.py)",
+      "Bash(python src/attempts_comparison_corner.py)",
+      "Bash(python -m src.offense.barcelona_offensive_corners)",
+      "Bash(python snippets/player_physicality/barca_match_height.py Barcelona assets/physicality/barca_match_height.png)"
     ],
     "deny": [
       "Read(./data/**)"

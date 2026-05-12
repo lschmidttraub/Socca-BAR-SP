@@ -91,23 +91,32 @@ For example, against Copenhagen, Barcelona created strong attacking pressure fro
 In contrast, matches against Club Brugge and Chelsea produced almost no attacking corner output, and the two Atlético Madrid quarter-final legs combined for 11 corners but only 0.18 xG and 0 goals. 
 This suggests that Barcelona’s corner threat depends strongly on game state, territorial dominance, and especially opponent behaviour, rather than on a stable level of corner efficiency.
 
-![Corner H2H Numbers in Barcalona Games](assets/upload/statistics/matches01_corners.png)
-![Corner H2H xG in Barcalona Games](assets/upload/statistics/matches02_corners_xg.png)
+![Corner H2H Numbers in Barcalona Games](assets/upload/statistics/corners.png)
+_Figure 1: Number of corners in Barcelona Games_
+
+![Corner H2H xG in Barcalona Games](assets/upload/statistics/corners_xg.png)
+_Figure 2: xG from corners in Barcelona Games_
 
 Free-kick sequences, by comparison, appear to provide more consistent value. 
 Particularly productive performances were observed against Frankfurt (0.38 xG, 0 goals), Copenhagen (0.58 xG, 2 goals), Newcastle (0.40 xG, 1 goal) and the first leg against Atlético Madrid (10 free kicks, 0.42 xG, 0 goals). 
 This supports the earlier interpretation that Barcelona’s stronger attacking set-piece profile in this campaign was driven more by free kicks than by corners, even though the two Atlético legs in particular produced strong underlying numbers without any goals.
 
-![Free-kick H2H Numbers in Barcalona Games](assets/upload/statistics/matches03_free_kicks.png)
-![Free-kick xG in Barcalona Games](assets/upload/statistics/matches04_free_kicks_xg.png)
+![Free-kick H2H Numbers in Barcalona Games](assets/upload/statistics/free_kicks.png)
+_Figure 3: Number of free-kicks in Barcelona Games_
+
+![Free-kick xG in Barcalona Games](assets/upload/statistics/free_kicks_xg.png)
+_Figure 4: xG from free-kicks in Barcelona Games_
 
 ### Player Physicality
 
 The physicality plots show that Barcelona are among the less physically dominant teams in the competition in terms of height. 
 The mean height of their six tallest outfield players is 187.0 cm, below the competition average of 189.2 cm, and this lower profile is also evident in several individual matches, particularly against taller opponents such as Newcastle (193.3 cm), Slavia Praha (190.2 cm) and Atlético Madrid (188.5 cm and 187.7 cm in the two quarter-final legs).
 
-![Plot of Mean Height of top-6 Outfielders](assets/upload/statistics/phy01_all_teams_top6_height.png)
-![H2H of Top-6 Outfielders In Barcelona Games](assets/upload/statistics/phy02_barca_match_height.png)
+![Plot of Mean Height of top-6 Outfielders](assets/upload/statistics/all_teams_top6_height.png)
+_Figure 5: Mean height of 6 tallest outfield players per team_
+
+![H2H of Top-6 Outfielders In Barcelona Games](assets/upload/statistics/barca_match_height.png)
+_Figure 6: Height head-to-head in Barcelona matches_
 <figcaption style="margin: 0 0 0 5px">We generated the plot using snippet $2769</figcaption>
 
 This is relevant in light of the set-piece findings so far. 
