@@ -82,11 +82,20 @@ Concentrate on playstile with closed middle coridor
 
 - Barcelona is strong in defending throwins (winback rate 31,3% 5fth in league) <throwins_defense_comparison.png>
 - Barcelona tries to block the field including the middle coridor and create preassure near the throw in ; Middle coridor is clearly blocked in defending zone , in central and attacking zone there are still player (green dot) <throwins_defense_positioning.png>
-- I do not know if we should use <throwins_defense_corridor_comparison> due to small n and it is not that extreme to say something strong (>50% still)
-- Much more winbacks in the middle coridor <throwins_defense_corridor_winback> , but isnt it obvious true for most of the teams ? 
+- Relatively more winbacks in the middle coridor (but general superiority is clear) <throwins_defense_corridor_winback> , 
 - Most lost sequences did not change the side in first 6 sec. showing Barcelona cuting of the middle <throwins_defense_lost_sequences>
-- <throwins_defense_scatter.png> does not really support anuything said before
+- throwins_defence_combined
 - Barcelona clearly can pressure more in defense -> higher winback rate ; helpfull? <throwins_defense_zone_stats.png>
+- USE NEW DISTANCES PLOT BUT CHECK CORRECTNESS (4-6m avg dist ? )
+
+Will be finished, improved and corrected: 
+
+Barcelona seems to be a strong team in defending against throw ins. They win nearly every third ball(31,3%) back and are 5th in the league. <throwins_defense_comparison.png>
+Barcelona is known as a technical team and so it is natural to look at positioning of Barcelona's player during opponent's throw in.
+We now can clearly see the two main strategies. First, Barcelona is preasuring ...
+
+
+
 
 ## Defensive penalties
 
