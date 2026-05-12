@@ -9,9 +9,8 @@ Zone is from the defending team's perspective:
   Middle     — throw-in in the middle third
   Attacking  — throw-in in the opponent's third (far from own goal)
 
-All games in matches.csv are read once; both teams are processed per game so
-every opponent Barcelona faced also gets a compactness reading for the frames
-where they were defending Barcelona throw-ins.
+Every game in matches.csv is processed; both teams are measured per game
+so all teams in the league appear in the output, not just Barcelona's opponents.
 
 Usage:
     python src/throwins/def_throwins/def_throwins_distances.py
@@ -107,17 +106,6 @@ def parse_player_index(meta: dict) -> dict[int, dict]:
     return index
 
 
-def find_barca_tid(meta: dict) -> int | None:
-    for key in ("home_team", "away_team", "homeTeam", "awayTeam"):
-        val = meta.get(key, {})
-        if isinstance(val, dict):
-            name = val.get("name", "")
-            tid  = val.get("id") or val.get("team_id")
-            if BARCELONA.casefold() in name.casefold() and tid is not None:
-                return int(tid)
-    return None
-
-
 def extract_teams(meta: dict) -> dict[int, str]:
     """Return {team_id: team_name} for both teams in the match."""
     teams: dict[int, str] = {}
@@ -133,23 +121,32 @@ def extract_teams(meta: dict) -> dict[int, str]:
 
 # ── Coordinate / zone helpers ─────────────────────────────────────────────────
 
-def _barca_attacks_positive_x(frame: dict, player_index: dict, barca_tid: int) -> bool | None:
-    """Infer Barcelona's attacking direction from their GK position."""
+def _team_attacks_positive_x(
+    frame: dict, player_index: dict, team_tid: int
+) -> bool | None:
+    """Infer a team's attacking direction from their GK position.
+
+    GK stands near their own goal: GK at negative x → team attacks toward +x.
+    """
     for p in frame.get("player_data", []):
         pid = p.get("player_id")
         if pid is None:
             continue
         m = player_index.get(int(pid), {})
-        if m.get("is_gk") and m.get("team_id") == barca_tid:
+        if m.get("is_gk") and m.get("team_id") == team_tid:
             x = p.get("x")
             if x is not None:
                 return float(x) < 0
     return None
 
 
-def _zone_barca_perspective(x_ti: float, barca_attacks_pos: bool) -> str:
-    """Zone of the throw-in location from Barcelona's attacking perspective."""
-    if barca_attacks_pos:
+def _zone_for_defender(x_ti: float, defender_attacks_pos: bool) -> str:
+    """Zone of the throw-in from the defending team's own-goal perspective.
+
+    Converts SkillCorner x to StatsBomb-style x where
+      0 = defender's own goal,  120 = opponent's goal.
+    """
+    if defender_attacks_pos:
         x_sb = (x_ti + _HALF_LEN) / (2 * _HALF_LEN) * 120
     else:
         x_sb = (_HALF_LEN - x_ti) / (2 * _HALF_LEN) * 120
@@ -157,15 +154,6 @@ def _zone_barca_perspective(x_ti: float, barca_attacks_pos: bool) -> str:
         return "Defensive"
     if x_sb >= ATTACKING_THIRD_MIN:
         return "Attacking"
-    return "Middle"
-
-
-def _invert_zone(zone: str) -> str:
-    """Convert a zone label from Barcelona's perspective to the opponent's."""
-    if zone == "Defensive":
-        return "Attacking"
-    if zone == "Attacking":
-        return "Defensive"
     return "Middle"
 
 
@@ -178,16 +166,18 @@ def _nearest_dist(pos: tuple[float, float], others: list[tuple[float, float]]) -
 
 # ── Data collection ───────────────────────────────────────────────────────────
 
-def collect_distances() -> dict[str, dict[str, list[float]]]:
-    """Return {team_name: {zone: [avg_dist_per_throw_in]}} for all teams.
+def collect_distances() -> dict[str, dict[str, dict[str, list[float]]]]:
+    """Return {team_name: {zone: {"all": [...], "top5": [...]}}} for all teams.
 
-    Both teams are processed per game:
-      - Barcelona defending (opponent throws) → Barcelona's distances
-      - Opponent defending (Barcelona throws) → opponent's distances
+    "all"  — avg distance over every outfield defending player per throw-in
+    "top5" — avg distance of the 5 most closely marked defenders only
+
+    Every game with a SkillCorner zip is processed; both teams are measured
+    so the full league appears in the output.
     Zone labels are always from the defending team's own-goal perspective.
     """
-    result: defaultdict[str, dict[str, list[float]]] = defaultdict(
-        lambda: {z: [] for z in ZONE_ORDER}
+    result: defaultdict[str, dict[str, dict[str, list[float]]]] = defaultdict(
+        lambda: {z: {"all": [], "top5": [], "bot5": []} for z in ZONE_ORDER}
     )
 
     for _, row in _read_matches_df().iterrows():
@@ -199,9 +189,8 @@ def collect_distances() -> dict[str, dict[str, list[float]]]:
 
         meta         = read_match_meta(sc_id)
         player_index = parse_player_index(meta)
-        barca_tid    = find_barca_tid(meta)
-        teams        = extract_teams(meta)
-        if barca_tid is None or len(teams) < 2:
+        teams        = extract_teams(meta)   # {team_id: team_name}
+        if len(teams) < 2:
             continue
 
         dyn = read_dynamic_events(sc_id)
@@ -230,11 +219,6 @@ def collect_distances() -> dict[str, dict[str, list[float]]]:
             if fid not in target:
                 continue
 
-            barca_attacks_pos = _barca_attacks_positive_x(frame, player_index, barca_tid)
-            if barca_attacks_pos is None:
-                target.discard(fid)
-                continue
-
             thrower_tid = frame_to_thrower[fid]
             if thrower_tid not in teams:
                 target.discard(fid)
@@ -244,6 +228,14 @@ def collect_distances() -> dict[str, dict[str, list[float]]]:
                 target.discard(fid)
                 continue
             defender_tid = defender_candidates[0]
+
+            # Zone from the defender's own-goal perspective
+            defender_attacks_pos = _team_attacks_positive_x(
+                frame, player_index, defender_tid
+            )
+            if defender_attacks_pos is None:
+                target.discard(fid)
+                continue
 
             throwing_pos:  list[tuple[float, float]] = []
             defending_pos: list[tuple[float, float]] = []
@@ -268,15 +260,19 @@ def collect_distances() -> dict[str, dict[str, list[float]]]:
 
             # Throw-in taker: throwing outfield player furthest from pitch centre (max |y|)
             x_ti, _ = max(throwing_pos, key=lambda p: abs(p[1]))
+            zone = _zone_for_defender(x_ti, defender_attacks_pos)
 
-            zone_barca = _zone_barca_perspective(x_ti, barca_attacks_pos)
-            zone = zone_barca if defender_tid == barca_tid else _invert_zone(zone_barca)
+            dists    = sorted(_nearest_dist(pos, throwing_pos) for pos in defending_pos)
+            avg_all  = sum(dists) / len(dists)
+            top5     = dists[:5]
+            avg_top5 = sum(top5) / len(top5)
+            bot5     = dists[-5:]
+            avg_bot5 = sum(bot5) / len(bot5)
 
-            dists = [_nearest_dist(pos, throwing_pos) for pos in defending_pos]
-            avg_dist = sum(dists) / len(dists)
-
-            defender_name = teams.get(defender_tid, str(defender_tid))
-            result[defender_name][zone].append(avg_dist)
+            defender_name = teams[defender_tid]
+            result[defender_name][zone]["all"].append(avg_all)
+            result[defender_name][zone]["top5"].append(avg_top5)
+            result[defender_name][zone]["bot5"].append(avg_bot5)
 
             target.discard(fid)
             if not target:
@@ -287,60 +283,79 @@ def collect_distances() -> dict[str, dict[str, list[float]]]:
 
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
+def _draw_zone_bars(
+    ax,
+    distances: dict[str, dict[str, dict[str, list[float]]]],
+    zone: str,
+    metric: str,
+) -> None:
+    """Populate one subplot panel with a sorted horizontal bar chart."""
+    rows = []
+    for team, zone_data in distances.items():
+        vals = zone_data.get(zone, {}).get(metric, [])
+        if vals:
+            rows.append({
+                "team":     team,
+                "avg_dist": sum(vals) / len(vals),
+                "n":        len(vals),
+            })
+
+    if not rows:
+        ax.set_title(f"{zone} — no data", fontsize=10)
+        return
+
+    df   = pd.DataFrame(rows).sort_values("avg_dist")
+    bars = ax.barh(df["team"], df["avg_dist"], color="steelblue", edgecolor="white")
+
+    barca_mask = df["team"].str.contains(BARCELONA, case=False)
+    for bar, is_barca in zip(bars, barca_mask):
+        if is_barca:
+            bar.set_color("#e63946")
+
+    for bar, val, n in zip(bars, df["avg_dist"], df["n"]):
+        ax.text(
+            val + 0.05, bar.get_y() + bar.get_height() / 2,
+            f"{val:.2f} m  ({n})", va="center", fontsize=7.5,
+        )
+
+    league_avg = df["avg_dist"].mean()
+    ax.axvline(league_avg, color="black", linestyle="--", linewidth=1.2,
+               label=f"Avg: {league_avg:.2f} m")
+
+    ax.set_title(f"{zone} zone", fontsize=11)
+    ax.set_xlabel("Avg nearest-opponent distance (m)", fontsize=9)
+    ax.legend(fontsize=8)
+    ax.grid(axis="x", alpha=0.25)
+    ax.tick_params(labelsize=8)
+
+
 def plot_distances_by_zone(
-    distances: dict[str, dict[str, list[float]]],
+    distances: dict[str, dict[str, dict[str, list[float]]]],
     save: bool = True,
 ) -> None:
-    """1×3 horizontal bar chart — one panel per zone, Barcelona highlighted in red."""
+    """3×3 grid: rows = all / 5 most closely marked / 5 least closely marked, columns = zone."""
     n_teams = len(distances)
-    fig, axes = plt.subplots(1, 3, figsize=(18, max(5, n_teams * 0.38)))
+    row_meta = [
+        ("all",  "All outfield players"),
+        ("top5", "5 most closely marked players"),
+        ("bot5", "5 least closely marked players"),
+    ]
+
+    fig, axes = plt.subplots(3, 3, figsize=(18, max(12, n_teams * 0.63)))
     fig.set_facecolor("white")
 
-    for col, zone in enumerate(ZONE_ORDER):
-        ax = axes[col]
-
-        rows = []
-        for team, zone_data in distances.items():
-            vals = zone_data.get(zone, [])
-            if vals:
-                rows.append({
-                    "team":     team,
-                    "avg_dist": sum(vals) / len(vals),
-                    "n":        len(vals),
-                })
-
-        if not rows:
-            ax.set_title(f"{zone} zone — no data", fontsize=10)
-            continue
-
-        df   = pd.DataFrame(rows).sort_values("avg_dist")
-        bars = ax.barh(df["team"], df["avg_dist"], color="steelblue", edgecolor="white")
-
-        barca_mask = df["team"].str.contains(BARCELONA, case=False)
-        for bar, is_barca in zip(bars, barca_mask):
-            if is_barca:
-                bar.set_color("#e63946")
-
-        for bar, val, n in zip(bars, df["avg_dist"], df["n"]):
-            ax.text(
-                val + 0.05, bar.get_y() + bar.get_height() / 2,
-                f"{val:.2f} m  ({n})", va="center", fontsize=7.5,
-            )
-
-        league_avg = df["avg_dist"].mean()
-        ax.axvline(league_avg, color="black", linestyle="--", linewidth=1.2,
-                   label=f"Avg: {league_avg:.2f} m")
-
-        ax.set_title(f"{zone} zone", fontsize=11)
-        ax.set_xlabel("Avg nearest-opponent distance (m)", fontsize=9)
-        ax.legend(fontsize=8)
-        ax.grid(axis="x", alpha=0.25)
-        ax.tick_params(labelsize=8)
+    for row, (metric, row_label) in enumerate(row_meta):
+        for col, zone in enumerate(ZONE_ORDER):
+            ax = axes[row][col]
+            _draw_zone_bars(ax, distances, zone, metric)
+            if col == 0:
+                ax.set_ylabel(row_label, fontsize=9, labelpad=8)
 
     fig.suptitle(
-        "Defensive compactness at throw-ins — avg distance per outfield player to nearest opponent\n"
-        "Red = Barcelona  ·  GKs excluded  ·  Zone = defender's own-goal perspective  ·  dashed = league avg",
-        fontsize=12, y=1.02,
+        "Defensive compactness at throw-ins — avg distance to nearest opponent\n"
+        "Red = Barcelona  ·  GKs excluded  ·  Zone = defender's own-goal perspective  ·  dashed = league avg\n"
+        "Top row: all players  ·  Middle: 5 closest  ·  Bottom: 5 furthest",
+        fontsize=12, y=1.01,
     )
     plt.tight_layout()
 
@@ -363,9 +378,16 @@ if __name__ == "__main__":
     for team, zone_data in sorted(distances.items()):
         parts = []
         for zone in ZONE_ORDER:
-            vals = zone_data.get(zone, [])
-            if vals:
-                parts.append(f"{zone}: {sum(vals)/len(vals):.2f}m ({len(vals)})")
+            vals_all  = zone_data.get(zone, {}).get("all",  [])
+            vals_top5 = zone_data.get(zone, {}).get("top5", [])
+            vals_bot5 = zone_data.get(zone, {}).get("bot5", [])
+            if vals_all:
+                parts.append(
+                    f"{zone}: {sum(vals_all)/len(vals_all):.2f}m all"
+                    f" / {sum(vals_top5)/len(vals_top5):.2f}m top5"
+                    f" / {sum(vals_bot5)/len(vals_bot5):.2f}m bot5"
+                    f" ({len(vals_all)})"
+                )
         if parts:
             print(f"  {team:30s}  {' | '.join(parts)}")
 
