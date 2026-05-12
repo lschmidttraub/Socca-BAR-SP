@@ -207,7 +207,7 @@ This supports the earlier interpretation that Barcelona’s free-kick roles are 
 | ![](assets/upload/offensive/free_kicks/freekick_zone_obv_raphael_dias.png) | ![](assets/upload/offensive/free_kicks/freekick_zone_obv_rashford.png) |            ![](assets/upload/offensive/free_kicks/freekick_zone_obv_lamine_yamal.png)             |
 _Figure 15: Free-kick Impact Profile (OBV / xG) by player (based on snippet $3012)_
 
-#### Spatial Profile of Free-kick Delivery
+#### Spatial Profile of attempt-oriented Free-kick Delivery
 
 Subsequently, we analyse the free-kick routine types that are connected to attempt creation: direct and crosses into the box.
 The aim is to identify whether specific tactical patterns become visible.
@@ -215,6 +215,7 @@ We compare these observations with the patterns already found for corners and in
 
 For free kicks crossed into the box (Figure 16), Barcelona show a delivery pattern that is closely connected to the mechanisms discussed in the literature review.
 Most deliveries are played diagonally from wider or deeper half-space areas into the central penalty area, especially around the penalty spot, rather than directly into the six-yard box.
+Such approaches match the delivery pattern of Rashford and Raphina.
 This supports the review finding that comparable indirect free kicks should be understood together with corners, because they can also be used to attack organised defensive structures through delivery angle, runner separation, and second-ball potential.
 At first glance, however, the pattern is slightly different from corners: while corners more often targeted the central six-yard and near-post zones, crossed free kicks seem to create danger from a somewhat deeper central reception zone.
 The resulting shots are limited in number, but they come from central areas, suggesting that these routines are not only simple crosses.
@@ -223,12 +224,53 @@ The goal against Newcastle visible in the plot is such an example.
 ![](assets/upload/offensive/free_kicks/fk_spatial_profile_cross_into_box.png)
 _Figure 16: Spatial profile of free-kicks crossed into the box_
 
+The free-kick goal against Newcastle shows a successful pattern that was already identified in the corner analysis.
+Again, Barcelona use the initial delivery to move the opponent’s defensive line and create a more favourable second action.
+In this case, the ball is not played towards the far post, but into a deeper central area.
+Lewandowski’s rehearsed lay-off header then redirects the sequence into a higher-value finishing situation, which finally leads to the goal.
+This suggests that the underlying principle is similar across corners and indirect free kicks: Barcelona do not only search for a direct first-contact finish, but often use the first contact to manipulate the defensive structure and create the decisive action afterwards.
+
+![](assets/upload/offensive/free_kicks/goal_newcastle_2059201_min17.png)
+_Figure 17: Free-kick Routes vs. Newcastle - deep kick, deep routes, short header assist; goal_
+
 For direct free kicks (Figure 16), the connection to the initial tactical hypotheses is weaker, because this routine type of course depends on individual execution.
 The attempts are mostly taken from central half-left positions and are aimed towards the near corner.
 Although the sample is small, these attempts generate a noteworthy share of xG and include the goal against Copenhagen.
 
 ![](assets/upload/offensive/free_kicks/fk_spatial_profile_direct_shot.png)
-_Figure 16: Spatial profile of direct free-kicks_
+_Figure 18: Spatial profile of direct free-kicks_
+
+#### Free-kicks From the "Dead Zone"
+
+After analysing deliveries that are directly oriented towards shot creation, this subsection focuses on how FC Barcelona try to transform free kicks from the “dead zone” into improved attacking situations.
+Here, the dead zone refers to free kicks outside the own defensive third, but still far enough away from goal that an immediate shot or direct box delivery is usually not the most promising option.
+Instead of evaluating these situations through xG, which would miss many possession-improving actions, we analyse the OBV change after free kicks taken by the players with the most executions from this zone.
+This allows us to assess whether Barcelona use these restarts merely to continue possession, or whether certain players are able to create measurable attacking value by moving the ball into more favourable game states.
+
+In Figure 19 we illustrated the OBV outcome in maps of all free-kicks by the six players, executing them most often in the "dead zone".
+According to the still possession-oriented Barça style they suggest that these restarts are less about immediate chance creation and more about controlled progression into better attacking states.
+Across all players, the OBV gains are small in magnitude, so the differences should not be interpreted as strong individual quality rankings.
+Still, some role patterns are visible. Pedri and Frenkie de Jong mainly use these situations to circulate or switch the point of attack, often through diagonal passes that move Barcelona away from the pressure zone. Frenkie produces the highest mean OBV among the outfield players shown (+0.0043), which seems to come from more ambitious switches and forward diagonals into the opponent’s half. Pedri’s profile is slightly safer, with 23 positive actions from 25 passes, indicating a very stable but less explosive way of improving possession value.
+
+The centre-backs show a different profile. 
+Araújo and Eric García often restart from deeper positions and play more vertical or line-breaking passes, which can carry slightly more risk but also help Barcelona escape pressure and move the block forward. 
+Eric García’s profile is especially clean, with 16 positive actions from 17 passes and a mean OBV of +0.0034, suggesting that his restarts are usually conservative but effective. 
+Gerard Martín is also positive on average, but his map looks more locally oriented, with several passes staying within the same side or nearby corridor rather than clearly switching the field.
+Joan García has a special role because his dead-zone free kicks often start from very deep areas close to Barcelona’s own box. 
+His passes are longer and more varied, including several large switches and forward balls into advanced zones. He has the highest mean OBV in this group (+0.0045) and no negative actions, although this should be interpreted carefully because goalkeeper restarts are structurally different from outfield free kicks.
+
+Overall, the most valuable players for turning dead-zone free kicks into better situations appear to be Joan García, Frenkie de Jong, and Pedri, but for different reasons: Joan García through long distribution and field switching, Frenkie through progressive diagonals, and Pedri through safe, consistent possession improvement. 
+This supports the broader interpretation that Barcelona treat these free kicks as positional tools: they are used to reset structure, change the side of attack and move the ball into more favourable zones rather than to attack the goal directly.
+
+|                      Frenkie de Jong (CM)                       |                               Pedri (CM)                               |                          Joan García  (GK)                          |
+|:---------------------------------------------------------------:|:----------------------------------------------------------------------:|:-------------------------------------------------------------------:|
+| ![](assets/upload/offensive/free_kicks/fk_deadzone_de_jong.png) | ![](assets/upload/offensive/free_kicks/fk_deadzone_pedro_gonzalez.png) | ![](assets/upload/offensive/free_kicks/fk_deadzone_joan_garcia.png) |
+
+|                          Gerard Martín (CB)                           |                       Ronald Araújo (CB)                       |                          Eric García (CB)                           |
+|:---------------------------------------------------------------------:|:--------------------------------------------------------------:|:-------------------------------------------------------------------:|
+| ![](assets/upload/offensive/free_kicks/fk_deadzone_gerard_martin.png) | ![](assets/upload/offensive/free_kicks/fk_deadzone_araujo.png) | ![](assets/upload/offensive/free_kicks/fk_deadzone_eric_garcia.png) |
+
+_Figure 19: Dead-zone free-kick passes coloured by OBV (green = positive, red = negative; arrow thickness scales with |OBV|)_
 
 Planned Analysis:
   - Mirror the delivery and route analysis of corners (trajectory, target zones)
