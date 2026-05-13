@@ -77,25 +77,30 @@ The code is a very slightly modified version of Leverkusen's snippet $3206.
 - Look at how Barcelona can leverages defensive free-kicks to create counter-attacks
 - Look at how free-kick tactics vary in different match phases/when Barcelona is in the lead
 
-## Defensive throw ins
+## Defensive Throw-ins
 
-TODO: polish, correct and decide on some points
+Barcelona is one of the best teams in the Champions League at winning the ball back from opponent throw-ins, reclaiming possession in 31.3% of cases — ranking 5th across the competition.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_comparison.png" width="100%" />
 
-Concentrate on playstile with closed middle coridor 
-- Barcelona is strong in defending throwins (winback rate 31,3% 5fth in league) <throwins_defense_comparison.png>
-- Barcelona tries to block the field including the middle coridor and create preassure near the throw in ; Middle coridor is clearly blocked in defending zone , in central and attacking zone there are still player (green dot) <throwins_defense_positioning.png>
-- Most lost sequences did not change the side in first 6 sec. showing Barcelona cuting of the middle <throwins_defense_lost_sequences>
-- throwins_defence_combined
-- Barcelona clearly can pressure more in defense -> higher winback rate ; helpfull? <throwins_defense_zone_stats.png>
-- USE NEW DISTANCES PLOT BUT CHECK CORRECTNESS (4-6m avg dist ? )
+This success is not accidental. A look at Barcelona's positioning during opponent throw-ins reveals a clear, consistent system built on two complementary principles.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_positioning.png" width="100%" />
 
-Will be finished, improved and corrected:
+**Pressing the ball and blocking the central corridor.** Barcelona applies immediate pressure close to the throw-in taker while simultaneously occupying the middle corridor of the pitch. Together, these two actions leave the opponent with only one viable option: playing the ball along the sideline. The consequence is visible in the data — Barcelona concedes the fewest side changes of any team when defending opponent throw-ins.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_side_change.png" width="100%" />
 
-Barcelona seems to be a strong team in defending against throw ins. They win nearly every third ball(31,3%) back and are 5th in the league according to this metric. <throwins_defense_comparison.png>
-Barcelona is known as a technical team and so it is natural to look at positioning of Barcelona's player during opponent's throw in.
-<throwins_defense_positioning.png>
-We now can clearly see the two main strategies. First, Barcelona is preasuring near the throw in and second, they block the middle coridor. By doing so, they force the opponent to play the ball near the sideline and do not switch the side. We can clearly see it  in <throwins_defense_side_change.png>, Barcelona has least % of side changes for lost throw ins by opponent. One also can see the effect of the middle coridor block in <throwins_defense_lost_sequences.png> where even in case when Barelona does not win the ball back the opponent rarely manage to switch the side and manage to quickly push through the middle coridor very few times. <throwins_defense_combined.png> also shows how Bacelona win the ball back when it goes into central zone especially in own defensive zone. (TODO: Maybe just left the defensive zone, as other do not support this thesis). 
-From <throwins_defense_distances.png> we observe, that Barcelona is rather compact to the opponent during throw ins. While in general the average distance to next opponent does not vary strong between teams, especially for defending and middle zone we can see that the avg over 5 smallest distances is 0.5m less then the league average while the distance of 5 biggest distances is nearly at league average. We can argue that Barcelona is doing man matching on specific opponents and does more wide zonal control with the rest (?!) .
+The system is effective even when Barcelona does not win the ball back directly. In those cases, opponents still rarely manage to switch the side of play or penetrate through the central channel.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_lost_sequences.png" width="100%" />
+
+The win-back pattern is most pronounced in Barcelona's own defensive third. When the opponent plays into a central area in that zone, Barcelona tends to recover the ball.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_combined_defensive.png" width="100%" />
+
+**Individual roles: man-marking meets zonal coverage.** The individual winback situations reveal a clear structure. Barcelona man-marks tightly close to the throw-in while maintaining zonal coverage further back. One detail stands out: at least one player positions himself directly beside the throw-in taker without marking a specific opponent. His role is to close down the thrower immediately after the ball is played, preventing a quick return pass and disrupting any continuation of the move.
+<img src="assets/upload/defensive/throw_ins/006_Defensive_min28_Newcastle_United_1-1_Barcelona.png" width="100%" />
+<img src="assets/upload/defensive/throw_ins/008_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
+<img src="assets/upload/defensive/throw_ins/009_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
+
+**Selective compactness.** Barcelona's proximity to opponents during throw-ins reflects this dual structure. While the average distance to the nearest opponent is broadly similar across teams, Barcelona stands out in its defensive and middle zones: the average of the five smallest distances per situation is 0.5 m below the league mean, while the five largest distances remain close to it. This is consistent with the system as a whole — tight man-marking on specific opponents, wider zonal coverage with the rest.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_distances_combined.png" width="100%" />
 
 
 ## Defensive penalties

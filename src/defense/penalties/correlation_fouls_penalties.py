@@ -75,23 +75,17 @@ def _last16_teams(data_dir: Path) -> frozenset[str]:
 
 # ── data collection ───────────────────────────────────────────────────
 
-<<<<<<< HEAD
 def _collect(data_dir: Path, allowed_teams: frozenset[str] | None = None) -> dict[str, dict]:
     """Single-pass collection of fouls committed and penalties conceded per team.
 
     If *allowed_teams* is None, all teams in the data are included.
     """
-=======
-def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
-    """Single-pass collection of fouls committed and penalties conceded per team."""
->>>>>>> e0d24997e232af28f29d7c564461ce1d4d8c8295
     records: dict[str, dict] = defaultdict(lambda: {
         "matches":           0,
         "fouls":             0,
         "penalties_against": 0,
     })
 
-<<<<<<< HEAD
     for row, events in iter_matches(data_dir):
         home_csv = row.get("home", "").strip()
         away_csv = row.get("away", "").strip()
@@ -130,41 +124,6 @@ def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
                 records[home_csv]["fouls"] += 1
             elif team_ev == away_ev and count_away:
                 records[away_csv]["fouls"] += 1
-=======
-    for _d in DATA_DIRS:
-        for row, events in iter_matches(_d):
-            home_csv = row.get("home", "").strip()
-            away_csv = row.get("away", "").strip()
-            if not home_csv or not away_csv:
-                continue
-            if home_csv not in allowed_teams and away_csv not in allowed_teams:
-                continue
-
-            home_ev = _team_in_match(home_csv, row, events) or home_csv
-            away_ev = _team_in_match(away_csv, row, events) or away_csv
-
-            if home_csv in allowed_teams:
-                records[home_csv]["matches"] += 1
-            if away_csv in allowed_teams:
-                records[away_csv]["matches"] += 1
-
-            for e in events:
-                if f.is_penalty_shot(e):
-                    shooter_ev = f.event_team(e)
-                    if shooter_ev == home_ev and away_csv in allowed_teams:
-                        records[away_csv]["penalties_against"] += 1
-                    elif shooter_ev == away_ev and home_csv in allowed_teams:
-                        records[home_csv]["penalties_against"] += 1
-                    continue
-
-                if not is_foul_committed(e):
-                    continue
-                team_ev = e.get("team", {}).get("name", "")
-                if team_ev == home_ev and home_csv in allowed_teams:
-                    records[home_csv]["fouls"] += 1
-                elif team_ev == away_ev and away_csv in allowed_teams:
-                    records[away_csv]["fouls"] += 1
->>>>>>> e0d24997e232af28f29d7c564461ce1d4d8c8295
 
     return dict(records)
 

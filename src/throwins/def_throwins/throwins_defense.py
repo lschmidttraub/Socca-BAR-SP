@@ -450,6 +450,242 @@ def plot_combined_defense_heatmap(
     plt.show()
 
 
+def plot_combined_defense_heatmap_zone(
+    df: pd.DataFrame,
+    positions: dict,
+    zone: str = "Defensive",
+    save: bool = True,
+) -> None:
+    """Single-panel version of plot_combined_defense_heatmap for one zone only."""
+    try:
+        from scipy.ndimage import gaussian_filter
+        _has_scipy = True
+    except ImportError:
+        _has_scipy = False
+
+    import numpy as np
+
+    _SB_X_TO_M = 105 / 120
+    _SB_Y_TO_M = 68  / 80
+    _DX    = (-50, 50)
+    _DY    = (-2,  70)
+    _BINS  = 40
+
+    def _heatmap(xs, ys):
+        if len(xs) < 3:
+            return np.zeros((_BINS, _BINS))
+        h, _, _ = np.histogram2d(
+            np.clip(xs, *_DX), np.clip(ys, *_DY),
+            bins=_BINS, range=[_DX, _DY],
+        )
+        if _has_scipy:
+            h = gaussian_filter(h, sigma=1.5)
+        h = h / h.max() if h.max() > 0 else h
+        return h.T
+
+    df = df.dropna(subset=["x", "y", "end_x", "end_y"]).copy()
+    df["dx_m"] = (df["end_x"] - df["x"]) * _SB_X_TO_M
+    df["dy_m"] = np.where(
+        df["y"] < 40,
+        (df["end_y"] - df["y"]) * _SB_Y_TO_M,
+        (df["y"] - df["end_y"]) * _SB_Y_TO_M,
+    )
+    zone_df   = df[df["zone"] == zone]
+    barca_pts = positions.get(zone, {}).get("barca", [])
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    fig.set_facecolor("white")
+
+    if barca_pts:
+        bx = np.array([p[0] for p in barca_pts])
+        by = np.array([p[1] for p in barca_pts])
+        ax.imshow(
+            _heatmap(bx, by),
+            origin="lower", extent=[*_DX, *_DY],
+            aspect="auto", cmap="Greens",
+            vmin=0, vmax=1, alpha=0.70, zorder=1,
+        )
+
+    for _, r in zone_df.iterrows():
+        color = POSSESSION_COLORS.get(r["barca_won"], "#adb5bd")
+        ax.annotate(
+            "",
+            xy=(r["dx_m"], r["dy_m"]),
+            xytext=(0, 0),
+            arrowprops=dict(
+                arrowstyle="-|>", color=color,
+                lw=0.8, alpha=0.50, mutation_scale=8,
+            ),
+            zorder=3,
+        )
+
+    for won, label in [(True, "Barça won ball"), (False, "Opp kept ball")]:
+        sub = zone_df[zone_df["barca_won"] == won]
+        if sub.empty:
+            continue
+        ax.scatter(
+            sub["dx_m"], sub["dy_m"],
+            color=POSSESSION_COLORS[won], edgecolors="white",
+            linewidths=0.4, s=30, label=label, zorder=4, alpha=0.85,
+        )
+
+    ax.plot(0, 0, "o", color="cyan", markersize=9, zorder=6)
+    ax.axhline(0, color="white", lw=1.5, alpha=0.7)
+    ax.axvline(0, color="white", lw=1.0, alpha=0.4, linestyle="--")
+
+    n_tot = len(zone_df)
+    n_won = int((zone_df["barca_won"] == True).sum())
+    n_sk  = positions.get(zone, {}).get("count", 0)
+    pct   = f"{n_won / n_tot * 100:.0f}%" if n_tot else "—"
+
+    ax.set_facecolor("#1a1a2e")
+    ax.set_xlim(*_DX)
+    ax.set_ylim(*_DY)
+    ax.set_xlabel(
+        "← toward Barça goal  |  toward Opp goal →\n(metres, relative to throw-in origin)",
+        fontsize=9,
+    )
+    ax.set_ylabel("Into pitch →  (metres)", fontsize=9)
+    ax.set_title(
+        f"{zone} zone  ·  StatsBomb N={n_tot}  ·  SkillCorner n={n_sk}  ·  {pct} win-back",
+        fontsize=10, pad=8, color="black",
+    )
+    ax.legend(loc="upper right", fontsize=9, framealpha=0.7)
+
+    fig.suptitle(
+        "Opponent throw-in landing points vs. Barcelona defensive shape — normalised to throw-in origin\n"
+        "Green = Barcelona player positions (SkillCorner)  ·  "
+        "Arrows = throw-in landing points (StatsBomb)  ·  Cyan dot = throw-in origin",
+        fontsize=11, y=1.02, color="black",
+    )
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / f"throwins_defense_combined_{zone.lower()}.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
+
+
+def plot_combined_defense_heatmap_single(
+    df: pd.DataFrame,
+    positions: dict,
+    save: bool = True,
+) -> None:
+    """All three zones merged into one panel — same content as plot_combined_defense_heatmap."""
+    try:
+        from scipy.ndimage import gaussian_filter
+        _has_scipy = True
+    except ImportError:
+        _has_scipy = False
+
+    import numpy as np
+
+    _SB_X_TO_M = 105 / 120
+    _SB_Y_TO_M = 68  / 80
+    _DX    = (-50, 50)
+    _DY    = (-2,  70)
+    _BINS  = 40
+
+    def _heatmap(xs, ys):
+        if len(xs) < 3:
+            return np.zeros((_BINS, _BINS))
+        h, _, _ = np.histogram2d(
+            np.clip(xs, *_DX), np.clip(ys, *_DY),
+            bins=_BINS, range=[_DX, _DY],
+        )
+        if _has_scipy:
+            h = gaussian_filter(h, sigma=1.5)
+        h = h / h.max() if h.max() > 0 else h
+        return h.T
+
+    df = df.dropna(subset=["x", "y", "end_x", "end_y"]).copy()
+    df["dx_m"] = (df["end_x"] - df["x"]) * _SB_X_TO_M
+    df["dy_m"] = np.where(
+        df["y"] < 40,
+        (df["end_y"] - df["y"]) * _SB_Y_TO_M,
+        (df["y"] - df["end_y"]) * _SB_Y_TO_M,
+    )
+
+    # Aggregate Barça positions across all zones
+    all_barca_pts = [p for zone in ZONE_ORDER for p in positions.get(zone, {}).get("barca", [])]
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    fig.set_facecolor("white")
+
+    if all_barca_pts:
+        bx = np.array([p[0] for p in all_barca_pts])
+        by = np.array([p[1] for p in all_barca_pts])
+        ax.imshow(
+            _heatmap(bx, by),
+            origin="lower", extent=[*_DX, *_DY],
+            aspect="auto", cmap="Greens",
+            vmin=0, vmax=1, alpha=0.70, zorder=1,
+        )
+
+    for _, r in df.iterrows():
+        color = POSSESSION_COLORS.get(r["barca_won"], "#adb5bd")
+        ax.annotate(
+            "",
+            xy=(r["dx_m"], r["dy_m"]),
+            xytext=(0, 0),
+            arrowprops=dict(
+                arrowstyle="-|>", color=color,
+                lw=0.8, alpha=0.50, mutation_scale=8,
+            ),
+            zorder=3,
+        )
+
+    for won, label in [(True, "Barça won ball"), (False, "Opp kept ball")]:
+        sub = df[df["barca_won"] == won]
+        if sub.empty:
+            continue
+        ax.scatter(
+            sub["dx_m"], sub["dy_m"],
+            color=POSSESSION_COLORS[won], edgecolors="white",
+            linewidths=0.4, s=30, label=label, zorder=4, alpha=0.85,
+        )
+
+    ax.plot(0, 0, "o", color="cyan", markersize=9, zorder=6)
+    ax.axhline(0, color="white", lw=1.5, alpha=0.7)
+    ax.axvline(0, color="white", lw=1.0, alpha=0.4, linestyle="--")
+
+    n_tot = len(df)
+    n_won = int((df["barca_won"] == True).sum())
+    n_sk  = sum(positions.get(z, {}).get("count", 0) for z in ZONE_ORDER)
+    pct   = f"{n_won / n_tot * 100:.0f}%" if n_tot else "—"
+
+    ax.set_facecolor("#1a1a2e")
+    ax.set_xlim(*_DX)
+    ax.set_ylim(*_DY)
+    ax.set_xlabel(
+        "← toward Barça goal  |  toward Opp goal →\n(metres, relative to throw-in origin)",
+        fontsize=9,
+    )
+    ax.set_ylabel("Into pitch →  (metres)", fontsize=9)
+    ax.set_title(
+        f"All zones  ·  StatsBomb N={n_tot}  ·  SkillCorner n={n_sk}  ·  {pct} win-back",
+        fontsize=10, pad=8, color="black",
+    )
+    ax.legend(loc="upper right", fontsize=9, framealpha=0.7)
+
+    fig.suptitle(
+        "Opponent throw-in landing points vs. Barcelona defensive shape — normalised to throw-in origin\n"
+        "Green = Barcelona player positions (SkillCorner)  ·  "
+        "Arrows = throw-in landing points (StatsBomb)  ·  Cyan dot = throw-in origin",
+        fontsize=11, y=1.02, color="black",
+    )
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_combined_single.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+    plt.show()
+
+
 def plot_zone_stats(df: pd.DataFrame, save: bool = True) -> None:
     """Bar chart of Barcelona's win-back rate per zone when defending throw-ins."""
     rows = []

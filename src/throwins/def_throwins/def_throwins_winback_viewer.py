@@ -293,6 +293,7 @@ def collect_winback_situations() -> list[dict]:
                 "zone":        _def_zone(x_b),
                 "arrow_dx_m":  dx_m,
                 "arrow_dy_m":  dy_m,
+                "ti_x_m":     round(x_b * _SB_X_TO_M, 1),
             })
 
         if not sb_winbacks:
@@ -476,14 +477,24 @@ def draw_situation(ax, sit: dict, idx: int, total: int) -> None:
         )
 
     ax.set_xlabel(
-        "← Barça goal  |  Opp goal →  (metres from throw-in)",
+        "← Barça goal  |  Opp goal →  (metres from Barça's end)",
         fontsize=9, color="black",
     )
     ax.set_ylabel("Into pitch (metres)", fontsize=9, color="black")
     ax.tick_params(labelsize=8)
+
+    # Replace only the 0 tick label with the actual pitch distance from Barça's end
+    ticks = ax.get_xticks()
+    labels = [
+        f"{sit['ti_x_m']:.0f}" if t == 0 else str(int(t))
+        for t in ticks
+    ]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels(labels)
+
     ax.set_title(
-        f"Situation {idx + 1}/{total}  ·  {sit['zone']} zone  ·  "
-        f"{sit['match_label']}  ·  Min {sit['minute']}",
+        f"Situation {idx + 1}/{total}  ·  {sit['zone']} zone  ·  {sit['match_label']}\n"
+        f"Min {sit['minute']}",
         fontsize=10, pad=8, color="black",
     )
 

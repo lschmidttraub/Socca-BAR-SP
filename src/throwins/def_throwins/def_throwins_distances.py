@@ -368,6 +368,79 @@ def plot_distances_by_zone(
     plt.show()
 
 
+def plot_distances_combined(
+    distances: dict[str, dict[str, dict[str, list[float]]]],
+    save: bool = True,
+) -> None:
+    """Two-panel plot combining all zones: left = all players, right = 5 most closely marked."""
+    metrics = [
+        ("all",  "All outfield players"),
+        ("top5", "5 most closely marked"),
+    ]
+
+    # Aggregate each team's values across all zones
+    rows: dict[str, dict[str, list[float]]] = {}
+    for team, zone_data in distances.items():
+        rows[team] = {m: [] for m, _ in metrics}
+        for zone in ZONE_ORDER:
+            for metric, _ in metrics:
+                rows[team][metric].extend(zone_data.get(zone, {}).get(metric, []))
+
+    n_teams = len(distances)
+    fig, axes = plt.subplots(1, 2, figsize=(16, max(8, n_teams * 0.45)))
+    fig.set_facecolor("white")
+
+    for ax, (metric, label) in zip(axes, metrics):
+        plot_rows = [
+            {"team": team, "avg_dist": sum(vals) / len(vals), "n": len(vals)}
+            for team, vals_by_metric in rows.items()
+            for vals in [vals_by_metric[metric]]
+            if vals
+        ]
+        if not plot_rows:
+            ax.set_title(label)
+            continue
+
+        df   = pd.DataFrame(plot_rows).sort_values("avg_dist")
+        bars = ax.barh(df["team"], df["avg_dist"], color="steelblue", edgecolor="white")
+
+        barca_mask = df["team"].str.contains(BARCELONA, case=False)
+        for bar, is_barca in zip(bars, barca_mask):
+            if is_barca:
+                bar.set_color("#e63946")
+
+        for bar, val, n in zip(bars, df["avg_dist"], df["n"]):
+            ax.text(
+                val + 0.05, bar.get_y() + bar.get_height() / 2,
+                f"{val:.2f} m  ({n})", va="center", fontsize=7.5,
+            )
+
+        league_avg = df["avg_dist"].mean()
+        ax.axvline(league_avg, color="black", linestyle="--", linewidth=1.2,
+                   label=f"Avg: {league_avg:.2f} m")
+
+        ax.set_title(label, fontsize=11)
+        ax.set_xlabel("Avg nearest-opponent distance (m)", fontsize=9)
+        ax.legend(fontsize=8)
+        ax.grid(axis="x", alpha=0.25)
+        ax.tick_params(labelsize=8)
+
+    fig.suptitle(
+        "Defensive compactness at throw-ins — avg distance to nearest opponent (all zones combined)\n"
+        "Red = Barcelona  ·  GKs excluded  ·  dashed = league avg",
+        fontsize=12, y=1.01,
+    )
+    plt.tight_layout()
+
+    if save:
+        THROWINS_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        out = THROWINS_ASSETS_DIR / "throwins_defense_distances_combined.png"
+        fig.savefig(out, dpi=150, bbox_inches="tight")
+        print(f"Saved {out}")
+
+    plt.show()
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -392,3 +465,4 @@ if __name__ == "__main__":
             print(f"  {team:30s}  {' | '.join(parts)}")
 
     plot_distances_by_zone(distances)
+    plot_distances_combined(distances)
