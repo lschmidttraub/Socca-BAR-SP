@@ -93,73 +93,69 @@ def _collect(allowed_teams: frozenset[str] | None = None) -> dict[str, dict]:
         "opp_touches":       0,
     })
 
-    phases = ("league_phase", "last16", "playoffs", "quarterfinals")
-    data_dirs = [DATA / p for p in phases if (DATA / p).is_dir()]
-
-    for data_dir in data_dirs:
-        for row, events in iter_matches(data_dir):
-            home_csv = row.get("home", "").strip()
-            away_csv = row.get("away", "").strip()
-            if not home_csv or not away_csv:
+    for row, events in iter_matches(DATA):
+        home_csv = row.get("home", "").strip()
+        away_csv = row.get("away", "").strip()
+        if not home_csv or not away_csv:
+            continue
+        if allowed_teams is not None:
+            if home_csv not in allowed_teams and away_csv not in allowed_teams:
                 continue
-            if allowed_teams is not None:
-                if home_csv not in allowed_teams and away_csv not in allowed_teams:
-                    continue
 
-            home_ev = _team_in_match(home_csv, row, events) or home_csv
-            away_ev = _team_in_match(away_csv, row, events) or away_csv
+        home_ev = _team_in_match(home_csv, row, events) or home_csv
+        away_ev = _team_in_match(away_csv, row, events) or away_csv
 
-            count_home = allowed_teams is None or home_csv in allowed_teams
-            count_away = allowed_teams is None or away_csv in allowed_teams
+        count_home = allowed_teams is None or home_csv in allowed_teams
+        count_away = allowed_teams is None or away_csv in allowed_teams
 
-            if count_home:
-                records[home_csv]["matches"] += 1
-            if count_away:
-                records[away_csv]["matches"] += 1
+        if count_home:
+            records[home_csv]["matches"] += 1
+        if count_away:
+            records[away_csv]["matches"] += 1
 
-            for e in events:
-                loc = e.get("location")
-                type_id = e.get("type", {}).get("id")
-                team_ev = e.get("team", {}).get("name", "")
+        for e in events:
+            loc = e.get("location")
+            type_id = e.get("type", {}).get("id")
+            team_ev = e.get("team", {}).get("name", "")
 
-                # Penalties — attribute to defending team
-                if f.is_penalty_shot(e):
-                    if team_ev == home_ev and count_away:
-                        records[away_csv]["penalties_against"] += 1
-                    elif team_ev == away_ev and count_home:
-                        records[home_csv]["penalties_against"] += 1
-                    continue
+            # Penalties — attribute to defending team
+            if f.is_penalty_shot(e):
+                if team_ev == home_ev and count_away:
+                    records[away_csv]["penalties_against"] += 1
+                elif team_ev == away_ev and count_home:
+                    records[home_csv]["penalties_against"] += 1
+                continue
 
-                if not loc or type_id == TYPE_PRESSURE:
-                    continue
+            if not loc or type_id == TYPE_PRESSURE:
+                continue
 
-                x = float(loc[0])
+            x = float(loc[0])
 
-                if team_ev == home_ev:
-                    team_csv, opp_csv = home_csv, away_csv
-                    count_team, count_opp = count_home, count_away
-                elif team_ev == away_ev:
-                    team_csv, opp_csv = away_csv, home_csv
-                    count_team, count_opp = count_away, count_home
-                else:
-                    continue
+            if team_ev == home_ev:
+                team_csv, opp_csv = home_csv, away_csv
+                count_team, count_opp = count_home, count_away
+            elif team_ev == away_ev:
+                team_csv, opp_csv = away_csv, home_csv
+                count_team, count_opp = count_away, count_home
+            else:
+                continue
 
-                # Touch-based possession (acting team's own third = x < 40)
-                if count_team and x < DEFENSIVE_THIRD_X:
-                    records[team_csv]["own_touches"] += 1
-                if count_opp and x > ATTACKING_THIRD_X:
-                    records[opp_csv]["opp_touches"] += 1
+            # Touch-based possession (acting team's own third = x < 40)
+            if count_team and x < DEFENSIVE_THIRD_X:
+                records[team_csv]["own_touches"] += 1
+            if count_opp and x > ATTACKING_THIRD_X:
+                records[opp_csv]["opp_touches"] += 1
 
-                # Defensive-zone events (own third only)
-                if x < DEFENSIVE_THIRD_X and count_team:
-                    if type_id == TYPE_PASS:
-                        records[team_csv]["passes"] += 1
-                        if e.get("pass", {}).get("outcome") is None:
-                            records[team_csv]["passes_complete"] += 1
-                    elif type_id in (TYPE_DISPOSSESSED, TYPE_MISCONTROL):
-                        records[team_csv]["ball_losses"] += 1
-                    elif type_id == TYPE_CLEARANCE:
-                        records[team_csv]["clearances"] += 1
+            # Defensive-zone events (own third only)
+            if x < DEFENSIVE_THIRD_X and count_team:
+                if type_id == TYPE_PASS:
+                    records[team_csv]["passes"] += 1
+                    if e.get("pass", {}).get("outcome") is None:
+                        records[team_csv]["passes_complete"] += 1
+                elif type_id in (TYPE_DISPOSSESSED, TYPE_MISCONTROL):
+                    records[team_csv]["ball_losses"] += 1
+                elif type_id == TYPE_CLEARANCE:
+                    records[team_csv]["clearances"] += 1
 
     return dict(records)
 

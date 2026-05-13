@@ -103,16 +103,15 @@ The win-back pattern is most pronounced in Barcelona's own defensive third. When
 <img src="assets/upload/defensive/throw_ins/throwins_defense_distances_combined.png" width="100%" />
 
 
-## Defensive penalties
+## Defensive Penalties
 
-TODO: same as for throw ins
+Barcelona conceded only one penalty across the entire Champions League campaign — making goalkeeper analysis largely redundant. The more interesting question is why: what about Barcelona's style keeps them out of penalty-conceding situations in the first place?
+<img src="assets/upload/defensive/penalties/def_penalties_per_game.png" width="100%" />
 
-- very high possesion and save gamestile in own third leads to very few opportunities for the opponent to get a penalty (only one). 
-(Concentrate on high possession rather on penalty itself)
+**Technical play reduces exposure.** The core explanation is that Barcelona's style avoids the situations that lead to penalties. A team that controls the ball cleanly in its own third rarely needs to commit the kind of desperate, contact-heavy challenges that referees punish. This shows up in pass completion: Barcelona ranks among the highest in the Champions League for pass completion in their own defensive third, and teams with higher completion rates tend to concede fewer penalties.
+<img src="assets/upload/defensive/penalties/pass_completion_own_third.png" width="100%" />
+<img src="assets/upload/defensive/penalties/correlation_pass_completion_penalties.png" width="100%" />
 
-Will be finished, improved and corrected:
-When looking at Barcelona's defence against penalties, one notice that only one penaltie was shot against Barcelona. Hence, it does not really make sence to analyze goalkeeper behaviour. It is rather interesting to understand why Barcelona gets so few penalties conceded in comparison to other teams in the Champions League <def_penalties_per_game.png>. 
-First, more ball possession in own defensive zone leads to less ball possession for opponent and hence less moments when Barcelona's player can foul an oponent leading to a penalty against Barcelona. Indeed, as one can see in <def_possession_pct.png> Barcelona has the third highest possession procentage in the league. 
-Correlation between this two factors can be seen in <correlation_possession_penalties.png> (Of course, there are some outliers since penalties are rare and so n is pretty low for this few games; It is also the cause why only last16-teams are in the plot, the rest played less games). 
-Second, more fouls made by a team in general speak for a more agressive playstile which causes more penalties. Again, if we look at <fouls_per_game.png>, Barcelona does rather less fouls then other teams. 
-Correlation between this two factors can be seen in <correlation_fouls_penalties.png>. 
+**Fewer fouls, fewer penalties.** The same logic applies to foul counts: a more aggressive playing style leads to more fouls overall, and more fouls create more opportunities for a penalty to be awarded. Barcelona commits fewer fouls per game than most of their Round of 16 peers, which is consistent with their possession-oriented, low-contact approach.
+<img src="assets/upload/defensive/penalties/fouls_per_game.png" width="100%" />
+<img src="assets/upload/defensive/penalties/correlation_fouls_penalties.png" width="100%" />
