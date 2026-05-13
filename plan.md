@@ -11,7 +11,7 @@ Preliminary structure to reformat and transfer to gitlab cleanly in the end.
 - Ergebnisse aus "Desk Research" (=Spiele anschauen)
   - Qualitative Impression; reference to knowledge gain from overview already
 - Beschreibung der Methodik
-  - how did we end up with the factor analyzed?
+  - how did we end up with the factor analyzed? 
 
 ## 2. Overview
 - general facts / numbers, comparison to avg/top 8/top 24
@@ -56,7 +56,8 @@ physical disadvantage in player height.
 - heat map of shots in goal / taker ? 
 ### 3e. Throw-ins
 - offensive throw-ins heat map
-- defensive throw-ins turnover rate
+- throw ins change of side in own half - include Arsenal analysis of C.Kramer
+- throw-ins turnover rate in own half
 ## 4. Defensive Analysis
 
 ### 4a. Overview

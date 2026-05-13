@@ -48,7 +48,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import FOCUS_COLOR, AVG_COLOR, NEUTRAL_COLOR, POSITIVE_COLOR, apply_theme, save_fig
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "penalties"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT   = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA       = _SB_ROOT
 TEAM = "Barcelona"
 
 # Goal dimensions (StatsBomb shot end_location coordinates)
@@ -83,40 +85,30 @@ def _on_goal_frame(event: dict) -> bool:
     return GOAL_Y_MIN <= y <= GOAL_Y_MAX and 0.0 <= z <= GOAL_HEIGHT
 
 
-def _collect(data_dir: Path) -> tuple[list[dict], list[dict]]:
-    """Return (barcelona_faced_3d, all_on_frame).
-
-    barcelona_faced_3d: every opponent penalty shot against Barcelona with a
-        3D end_location (used for the scatter panel).
-    all_on_frame: all CL penalty shots on frame — goals + saves on frame —
-        used for the KDE reference heatmap.
-    """
+def _collect(data_dir: Path = DATA) -> tuple[list[dict], list[dict]]:
+    """Return (barcelona_faced_3d, all_on_frame)."""
     barca_faced: list[dict] = []
     all_on_frame: list[dict] = []
 
-    for row, events in iter_matches(data_dir):
-        sb_name = _team_in_match(TEAM, row, events)
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            sb_name = _team_in_match(TEAM, row, events)
 
-        for e in events:
-            if not f.is_penalty_shot(e) or not _has_3d_end(e):
-                continue
-            if _on_goal_frame(e):
-                all_on_frame.append(e)
-            # Opponent penalty: has a 3D end_location and is NOT by Barcelona
-            if sb_name and not f.by_team(e, sb_name):
-                barca_faced.append(e)
+            for e in events:
+                if not f.is_penalty_shot(e) or not _has_3d_end(e):
+                    continue
+                if _on_goal_frame(e):
+                    all_on_frame.append(e)
+                if sb_name and not f.by_team(e, sb_name):
+                    barca_faced.append(e)
 
     return barca_faced, all_on_frame
 
 
 # ── per-team penalty concession stats ────────────────────────────────
 
-def _collect_per_team(data_dir: Path) -> dict[str, dict]:
-    """Return per-team {matches, goals_conceded, saved, other} across all CL matches.
-
-    Uses _team_in_match to resolve event-level team names, which may differ from
-    the CSV names (e.g. "FC Barcelona" vs "Barcelona").
-    """
+def _collect_per_team(data_dir: Path = DATA) -> dict[str, dict]:
+    """Return per-team {matches, goals_conceded, saved, other} across all CL matches."""
     records: dict[str, dict] = defaultdict(lambda: {
         "matches": 0,
         "goals_conceded": 0,
@@ -124,30 +116,30 @@ def _collect_per_team(data_dir: Path) -> dict[str, dict]:
         "other": 0,
     })
 
-    for row, events in iter_matches(data_dir):
-        home_csv = row.get("home", "").strip()
-        away_csv = row.get("away", "").strip()
-        if not home_csv or not away_csv:
-            continue
-
-        # Resolve the event-level names — these may differ from CSV names
-        home_ev = _team_in_match(home_csv, row, events) or home_csv
-        away_ev = _team_in_match(away_csv, row, events) or away_csv
-
-        records[home_csv]["matches"] += 1
-        records[away_csv]["matches"] += 1
-
-        for e in events:
-            if not f.is_penalty_shot(e):
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            home_csv = row.get("home", "").strip()
+            away_csv = row.get("away", "").strip()
+            if not home_csv or not away_csv:
                 continue
-            shooter_ev = f.event_team(e)
-            outcome = _outcome(e)
-            key = "goals_conceded" if outcome == "Goal" else ("saved" if outcome == "Saved" else "other")
 
-            if shooter_ev == home_ev:
-                records[away_csv][key] += 1
-            elif shooter_ev == away_ev:
-                records[home_csv][key] += 1
+            home_ev = _team_in_match(home_csv, row, events) or home_csv
+            away_ev = _team_in_match(away_csv, row, events) or away_csv
+
+            records[home_csv]["matches"] += 1
+            records[away_csv]["matches"] += 1
+
+            for e in events:
+                if not f.is_penalty_shot(e):
+                    continue
+                shooter_ev = f.event_team(e)
+                outcome = _outcome(e)
+                key = "goals_conceded" if outcome == "Goal" else ("saved" if outcome == "Saved" else "other")
+
+                if shooter_ev == home_ev:
+                    records[away_csv][key] += 1
+                elif shooter_ev == away_ev:
+                    records[home_csv][key] += 1
 
     return dict(records)
 

@@ -201,11 +201,17 @@ def main() -> None:
     if probs:
         subtitle += f"  |  avg model probability: {sum(probs) / len(probs):.2f}"
 
-    ax.set_title(
-        f"{TEAM} Throw-ins by Success Probability\n"
-        f"Play direction normalised left to right ({subtitle})",
-        fontsize=16,
+    fig.suptitle(f"{TEAM} Throw-ins by Success Probability", fontsize=20, fontweight="bold", y=0.98)
+    fig.text(
+        0.5,
+        0.935,
+        f"Play direction normalised left to right  |  {subtitle}",
+        ha="center",
+        va="center",
+        fontsize=11,
+        color="#444444",
     )
+    fig.subplots_adjust(top=0.88)
     ax.set_xlim(-5, 125)
     ax.set_ylim(85, -5)
     ax.axis("off")

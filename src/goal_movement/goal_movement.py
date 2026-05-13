@@ -33,7 +33,8 @@ DATA_DIR = Path("data")
 MATCHES_CSV = DATA_DIR / "matches.csv"
 STATSBOMB_DIR = DATA_DIR / "statsbomb"
 SKILLCORNER_DIR = DATA_DIR / "skillcorner"
-STATSBOMB_ZIPS = ("league_phase.zip", "last16.zip", "playoffs.zip")
+STATSBOMB_ZIPS = ("league_phase.zip", "last16.zip", "playoffs.zip", "quarterfinals.zip")
+_SB_PHASES = [d for d in (STATSBOMB_DIR / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
 OUTPUT_DIR = Path("assets") / "throwins"
 
 
@@ -193,6 +194,13 @@ def _find_match_rows(opponent: str) -> list[dict]:
 
 def _load_statsbomb_events(match_id: str) -> list[dict] | None:
     target = f"{match_id}.json"
+    # Check extracted directories first
+    for d in _SB_PHASES:
+        p = d / target
+        if p.exists():
+            with open(p, encoding="utf-8") as fh:
+                return json.load(fh)
+    # Fall back to ZIPs
     for zname in STATSBOMB_ZIPS:
         zp = STATSBOMB_DIR / zname
         if not zp.is_file():

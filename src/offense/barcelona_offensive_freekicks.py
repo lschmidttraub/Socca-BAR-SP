@@ -48,7 +48,9 @@ from stats.viz.style import AVG_COLOR, FOCUS_COLOR, NEUTRAL_COLOR, POSITIVE_COLO
 from stats.analyses.setpiece_maps import _team_in_match
 
 ASSETS_ROOT = PROJECT_ROOT / "assets" / "offensive_freekicks"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT    = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS   = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA        = _SB_ROOT
 
 TEAM = "Barcelona"
 SHORT_FK_MAX_LEN = 12.0
@@ -491,42 +493,44 @@ def _build_sequence(event: dict, idx: int, events: list[dict],
     }
 
 
-def _collect(team: str, data_dir: Path) -> list[dict[str, Any]]:
+def _collect(team: str, data_dir: Path = DATA) -> list[dict[str, Any]]:
     sequences: list[dict[str, Any]] = []
-    for row, events in iter_matches(data_dir):
-        team_sb = _team_in_match(team, row, events)
-        if team_sb is None:
-            continue
-        opponent = _team_label(row, team)
-        for idx, event in enumerate(events):
-            if not (_is_fk_event(event) and f.by_team(event, team_sb)):
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            team_sb = _team_in_match(team, row, events)
+            if team_sb is None:
                 continue
-            loc = event.get("location")
-            if not loc or loc[0] < ATTACKING_HALF_X:
-                continue
-            sequences.append(_build_sequence(event, idx, events, team_sb, opponent, row))
-    return sequences
-
-
-def _collect_all(data_dir: Path) -> list[dict[str, Any]]:
-    """Single-pass collection of FK sequences for every team in the dataset."""
-    sequences: list[dict[str, Any]] = []
-    for row, events in iter_matches(data_dir):
-        team_names = list({ev.get("team", {}).get("name", "")
-                           for ev in events if ev.get("team", {}).get("name")})
-        for team_sb in team_names:
-            opponent = next((t for t in team_names if t != team_sb), "Unknown")
+            opponent = _team_label(row, team)
             for idx, event in enumerate(events):
-                if not _is_fk_event(event):
-                    continue
-                if event.get("team", {}).get("name") != team_sb:
+                if not (_is_fk_event(event) and f.by_team(event, team_sb)):
                     continue
                 loc = event.get("location")
                 if not loc or loc[0] < ATTACKING_HALF_X:
                     continue
-                seq = _build_sequence(event, idx, events, team_sb, opponent, row)
-                seq["team"] = team_sb
-                sequences.append(seq)
+                sequences.append(_build_sequence(event, idx, events, team_sb, opponent, row))
+    return sequences
+
+
+def _collect_all(data_dir: Path = DATA) -> list[dict[str, Any]]:
+    """Single-pass collection of FK sequences for every team in the dataset."""
+    sequences: list[dict[str, Any]] = []
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            team_names = list({ev.get("team", {}).get("name", "")
+                               for ev in events if ev.get("team", {}).get("name")})
+            for team_sb in team_names:
+                opponent = next((t for t in team_names if t != team_sb), "Unknown")
+                for idx, event in enumerate(events):
+                    if not _is_fk_event(event):
+                        continue
+                    if event.get("team", {}).get("name") != team_sb:
+                        continue
+                    loc = event.get("location")
+                    if not loc or loc[0] < ATTACKING_HALF_X:
+                        continue
+                    seq = _build_sequence(event, idx, events, team_sb, opponent, row)
+                    seq["team"] = team_sb
+                    sequences.append(seq)
     return sequences
 
 
@@ -1208,8 +1212,8 @@ def run(team: str = TEAM, data_dir: Path = DATA, output_dir: Path | None = None)
     output_dir.mkdir(parents=True, exist_ok=True)
     apply_theme()
 
-    print(f"Collecting {team} attacking FK sequences from {data_dir} …")
-    sequences = _collect(team, data_dir)
+    print(f"Collecting {team} attacking FK sequences …")
+    sequences = _collect(team)
     print(f"  Found {len(sequences)} FK sequences")
 
     if not sequences:

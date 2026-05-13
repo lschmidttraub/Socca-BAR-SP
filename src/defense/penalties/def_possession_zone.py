@@ -48,7 +48,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import FOCUS_COLOR, AVG_COLOR, NEUTRAL_COLOR, apply_theme, save_fig
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "penalties"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT   = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA       = _SB_ROOT
 TEAM = "Barcelona"
 
 # StatsBomb type IDs
@@ -64,78 +66,64 @@ ATTACKING_THIRD_X      = 80.0   # x >  80 in team's frame = opponent's defensive
 
 # ── data collection ───────────────────────────────────────────────────
 
-def _collect(data_dir: Path) -> dict[str, dict]:
-    """Return per-team possession stats in their own defensive third.
-
-    Possession % logic
-    ------------------
-    Events are stored in the acting team's attacking frame (they attack
-    toward x = 120).  So:
-      - team acts at x < 40  → team has the ball in their OWN defensive zone
-      - team acts at x > 80  → team is in the OPPONENT's defensive zone
-                               (same physical area, opposite frame)
-
-    Pressure events (type 17) are off-ball and excluded from possession counts.
-    """
+def _collect(data_dir: Path = DATA) -> dict[str, dict]:
+    """Return per-team possession stats in their own defensive third."""
     records: dict[str, dict] = defaultdict(lambda: {
         "matches":          0,
         "passes":           0,
         "passes_complete":  0,
         "ball_losses":      0,
         "clearances":       0,
-        "def_own_touches":  0,   # acting team touches in own defensive zone
-        "def_opp_touches":  0,   # opponent touches in this team's defensive zone
+        "def_own_touches":  0,
+        "def_opp_touches":  0,
     })
 
-    for row, events in iter_matches(data_dir):
-        home_csv = row.get("home", "").strip()
-        away_csv = row.get("away", "").strip()
-        if not home_csv or not away_csv:
-            continue
-
-        home_ev = _team_in_match(home_csv, row, events) or home_csv
-        away_ev = _team_in_match(away_csv, row, events) or away_csv
-
-        records[home_csv]["matches"] += 1
-        records[away_csv]["matches"] += 1
-
-        for e in events:
-            loc = e.get("location")
-            if not loc:
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            home_csv = row.get("home", "").strip()
+            away_csv = row.get("away", "").strip()
+            if not home_csv or not away_csv:
                 continue
 
-            type_id = e.get("type", {}).get("id")
-            if type_id == TYPE_PRESSURE:
-                continue  # off-ball event, skip for possession
+            home_ev = _team_in_match(home_csv, row, events) or home_csv
+            away_ev = _team_in_match(away_csv, row, events) or away_csv
 
-            x = float(loc[0])
-            team_ev = f.event_team(e)
+            records[home_csv]["matches"] += 1
+            records[away_csv]["matches"] += 1
 
-            if team_ev == home_ev:
-                team_csv, opp_csv = home_csv, away_csv
-            elif team_ev == away_ev:
-                team_csv, opp_csv = away_csv, home_csv
-            else:
-                continue
+            for e in events:
+                loc = e.get("location")
+                if not loc:
+                    continue
 
-            # Possession zone counts
-            if x < DEFENSIVE_THIRD_X:
-                # Team has ball in their own defensive zone
-                records[team_csv]["def_own_touches"] += 1
-            elif x > ATTACKING_THIRD_X:
-                # Team is in the opponent's defensive zone → attribute to opponent
-                records[opp_csv]["def_opp_touches"] += 1
+                type_id = e.get("type", {}).get("id")
+                if type_id == TYPE_PRESSURE:
+                    continue
 
-            # Per-zone detailed stats (only for own defensive third)
-            if x < DEFENSIVE_THIRD_X:
-                if type_id == TYPE_PASS:
-                    records[team_csv]["passes"] += 1
-                    if e.get("pass", {}).get("outcome") is None:
-                        records[team_csv]["passes_complete"] += 1
-                elif type_id in (TYPE_DISPOSSESSED, TYPE_MISCONTROL):
-                    records[team_csv]["ball_losses"] += 1
-                elif type_id == TYPE_CLEARANCE:
-                    records[team_csv]["clearances"] += 1
+                x = float(loc[0])
+                team_ev = f.event_team(e)
+
+                if team_ev == home_ev:
+                    team_csv, opp_csv = home_csv, away_csv
+                elif team_ev == away_ev:
+                    team_csv, opp_csv = away_csv, home_csv
+                else:
+                    continue
+
+                if x < DEFENSIVE_THIRD_X:
+                    records[team_csv]["def_own_touches"] += 1
+                elif x > ATTACKING_THIRD_X:
+                    records[opp_csv]["def_opp_touches"] += 1
+
+                if x < DEFENSIVE_THIRD_X:
+                    if type_id == TYPE_PASS:
+                        records[team_csv]["passes"] += 1
+                        if e.get("pass", {}).get("outcome") is None:
+                            records[team_csv]["passes_complete"] += 1
+                    elif type_id in (TYPE_DISPOSSESSED, TYPE_MISCONTROL):
+                        records[team_csv]["ball_losses"] += 1
+                    elif type_id == TYPE_CLEARANCE:
+                        records[team_csv]["clearances"] += 1
 
     return dict(records)
 

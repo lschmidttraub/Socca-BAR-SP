@@ -57,7 +57,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 ASSETS_ROOT = (
     PROJECT_ROOT / "assets" / "offensive_corners"
 )
-DATA = PROJECT_ROOT / "data" / "all_data"
+_SB_ROOT = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA = DATA_DIRS[0] if DATA_DIRS else _SB_ROOT  # kept for backward compat
 
 TEAM = "Barcelona"
 SHORT_CORNER_MAX_LEN = 15.0
@@ -141,11 +143,12 @@ def _team_label(row: dict, team: str) -> str:
 
 
 def _load_lineup(data_dir: Path, match_id: str) -> list[dict] | None:
-    path = data_dir / f"{match_id}_lineups.json"
-    if not path.is_file():
-        return None
-    with open(path, encoding="utf-8") as fh:
-        return json.load(fh)
+    for d in DATA_DIRS:
+        path = d / f"{match_id}_lineups.json"
+        if path.is_file():
+            with open(path, encoding="utf-8") as fh:
+                return json.load(fh)
+    return None
 
 
 def _match_lineup_to_csv(
@@ -552,10 +555,11 @@ def _abbr(label: str) -> str:
     return "".join(tok[0] for tok in tokens[:3]).upper()
 
 
-def _collect(team: str, data_dir: Path) -> list[dict[str, Any]]:
+def _collect(team: str, data_dir: Path = DATA) -> list[dict[str, Any]]:
     sequences: list[dict[str, Any]] = []
 
-    for row, events in iter_matches(data_dir):
+    all_matches = (pair for d in DATA_DIRS for pair in iter_matches(d))
+    for row, events in all_matches:
         team_sb = _team_in_match(team, row, events)
         if team_sb is None:
             continue
@@ -1965,9 +1969,9 @@ def run(
     apply_theme()
 
     print("Collecting Barcelona attacking corner sequences...")
-    sequences = _collect(team, data_dir)
+    sequences = _collect(team)
     if not sequences:
-        print(f"No offensive corners found for {team} in {data_dir}")
+        print(f"No offensive corners found for {team}")
         return
 
     output_dir.mkdir(parents=True, exist_ok=True)

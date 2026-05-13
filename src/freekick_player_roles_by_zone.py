@@ -40,7 +40,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import FOCUS_COLOR, AVG_COLOR, apply_theme, save_fig
 
 ASSETS_ROOT = PROJECT_ROOT / "assets"
-DATA        = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT    = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS   = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA        = _SB_ROOT
 TEAM        = "Barcelona"
 
 SEQUENCE_MAX_SECONDS = 20.0
@@ -80,36 +82,36 @@ def _collect(data_dir: Path) -> list[dict]:
     """Return one dict per Barcelona FK event with taker, receiver, third."""
     results: list[dict] = []
 
-    for row, events in iter_matches(data_dir):
-        sb_name = _team_in_match(TEAM, row, events)
-        if sb_name is None:
-            continue
-
-        for idx, event in enumerate(events):
-            if not (_is_fk_event(event) and f.by_team(event, sb_name)):
-                continue
-            loc = event.get("location")
-            if not loc:
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            sb_name = _team_in_match(TEAM, row, events)
+            if sb_name is None:
                 continue
 
-            nx, _ = _normalise(loc)
+            for idx, event in enumerate(events):
+                if not (_is_fk_event(event) and f.by_team(event, sb_name)):
+                    continue
+                loc = event.get("location")
+                if not loc:
+                    continue
 
-            taker = f.event_player(event) or "Unknown"
+                nx, _ = _normalise(loc)
 
-            # First receiver: pass recipient for FK passes, taker for direct shots
-            if f.is_fk_pass(event):
-                receiver = (event.get("pass", {})
-                                 .get("recipient", {})
-                                 .get("name") or "Unknown")
-            else:
-                receiver = taker   # direct shot — taker is shooter
+                taker = f.event_player(event) or "Unknown"
 
-            results.append({
-                "fk_x":     nx,
-                "third":    _pitch_third(nx),
-                "taker":    taker,
-                "receiver": receiver,
-            })
+                if f.is_fk_pass(event):
+                    receiver = (event.get("pass", {})
+                                     .get("recipient", {})
+                                     .get("name") or "Unknown")
+                else:
+                    receiver = taker
+
+                results.append({
+                    "fk_x":     nx,
+                    "third":    _pitch_third(nx),
+                    "taker":    taker,
+                    "receiver": receiver,
+                })
 
     return results
 

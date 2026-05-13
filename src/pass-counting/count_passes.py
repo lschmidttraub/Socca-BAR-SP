@@ -18,20 +18,32 @@ import zipfile
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
-STATSBOMB_ZIP = DATA_DIR / "statsbomb" / "league_phase.zip"
+_SB_ROOT = DATA_DIR / "statsbomb"
+_SB_PHASES = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+STATSBOMB_ZIP = _SB_ROOT / "league_phase.zip"  # kept for compat
 MATCHES_CSV = DATA_DIR / "matches.csv"
 TEAM_NAME = "Barcelona"
 
 
-def load_events(zf: zipfile.ZipFile, game_id: str) -> list[dict]:
-    """Load Statsbomb events for a match from an open zip file."""
+def load_events(game_id: str) -> list[dict]:
+    """Load StatsBomb events for a match from extracted dirs or zip files."""
     filename = f"{game_id}.json"
-    matches = [n for n in zf.namelist() if n.endswith(filename)]
-    if not matches:
-        print(f"  Warning: No event file found for game ID {game_id}, skipping.")
-        return []
-    with zf.open(matches[0]) as f:
-        return json.load(f)
+    for d in _SB_PHASES:
+        p = d / filename
+        if p.exists():
+            with open(p, encoding="utf-8") as fh:
+                return json.load(fh)
+    for zip_name in ("league_phase.zip", "last16.zip", "playoffs.zip", "quarterfinals.zip"):
+        zp = _SB_ROOT / zip_name
+        if not zp.is_file():
+            continue
+        with zipfile.ZipFile(zp) as zf:
+            matches = [n for n in zf.namelist() if n.endswith(filename)]
+            if matches:
+                with zf.open(matches[0]) as f:
+                    return json.load(f)
+    print(f"  Warning: No event file found for game ID {game_id}, skipping.")
+    return []
 
 
 def get_barcelona_game_ids() -> list[dict]:
@@ -137,23 +149,22 @@ def main():
     # Collect aggregate Barcelona player stats: {game_id: {player: stats}}
     all_barca_players: dict[str, dict[str, dict]] = {}
 
-    with zipfile.ZipFile(STATSBOMB_ZIP) as zf:
-        for row in game_rows:
-            game_id = row["statsbomb"]
-            label = f"{row['home']} {row['score']} {row['away']}"
+    for row in game_rows:
+        game_id = row["statsbomb"]
+        label = f"{row['home']} {row['score']} {row['away']}"
 
-            events = load_events(zf, game_id)
-            if not events:
-                continue
+        events = load_events(game_id)
+        if not events:
+            continue
 
-            team_stats = count_passes_in_events(events)
-            if single_game:
-                print_match_stats(label, team_stats)
+        team_stats = count_passes_in_events(events)
+        if single_game:
+            print_match_stats(label, team_stats)
 
-            # Collect Barcelona's player-level stats for aggregate
-            for team, stats in team_stats.items():
-                if TEAM_NAME in team:
-                    all_barca_players[game_id] = stats["players"]
+        # Collect Barcelona's player-level stats for aggregate
+        for team, stats in team_stats.items():
+            if TEAM_NAME in team:
+                all_barca_players[game_id] = stats["players"]
 
     if not single_game and len(all_barca_players) > 1:
         print_aggregate(all_barca_players)
