@@ -57,6 +57,8 @@ from stats import filters as f
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "fouls"
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+_SB_ROOT  = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
 
 # Binning resolution — roughly 10-yard cells on a 120 × 80 pitch
 BINS = (12, 8)
@@ -151,49 +153,44 @@ def _load_all_opponent_fks(
     obvs: list[float] = []
     vals: list[float] = []
 
-    for row, events in iter_matches(data_dir):
-        barca_sb = _team_in_match("Barcelona", row, events)
-        if barca_sb is None:
-            continue
-
-        for idx, ev in enumerate(events):
-            team = ev.get("team", {}).get("name", "")
-            if team == barca_sb:
-                continue
-            if not (f.is_fk_pass(ev) or f.is_fk_shot(ev)):
-                continue
-            if f.is_penalty_shot(ev):
-                continue
-            loc = ev.get("location")
-            if not loc:
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            barca_sb = _team_in_match("Barcelona", row, events)
+            if barca_sb is None:
                 continue
 
-            # Rotate 180° into Barcelona's attacking frame (own goal at x=0).
-            # Both axes flip because StatsBomb stores each team's events in
-            # *that team's* attacking frame — Barca's right wing is the
-            # opponent's left wing in their data, so y must flip too for
-            # the panels to align with the foul panel.
-            opp_x, opp_y = float(loc[0]), float(loc[1])
-            barca_x = 120.0 - opp_x
-            barca_y = 80.0  - opp_y
+            for idx, ev in enumerate(events):
+                team = ev.get("team", {}).get("name", "")
+                if team == barca_sb:
+                    continue
+                if not (f.is_fk_pass(ev) or f.is_fk_shot(ev)):
+                    continue
+                if f.is_penalty_shot(ev):
+                    continue
+                loc = ev.get("location")
+                if not loc:
+                    continue
 
-            # Restrict to FKs in Barcelona's defending half (own goal at x = 0)
-            if barca_x >= 60.0:
-                continue
+                opp_x, opp_y = float(loc[0]), float(loc[1])
+                barca_x = 120.0 - opp_x
+                barca_y = 80.0  - opp_y
 
-            xg = sum(
-                float(e.get("shot", {}).get("statsbomb_xg", 0.0) or 0.0)
-                for e in setpiece_sequence(ev, events)
-                if e.get("type", {}).get("id") == 16
-            )
-            obv = _sequence_obv(events, idx, team)
-            v   = _sequence_value(events, idx, team)
+                if barca_x >= 60.0:
+                    continue
 
-            xs.append(barca_x)
-            ys.append(barca_y)
-            xgs.append(xg)
-            obvs.append(obv)
-            vals.append(v)
+                xg = sum(
+                    float(e.get("shot", {}).get("statsbomb_xg", 0.0) or 0.0)
+                    for e in setpiece_sequence(ev, events)
+                    if e.get("type", {}).get("id") == 16
+                )
+                obv = _sequence_obv(events, idx, team)
+                v   = _sequence_value(events, idx, team)
+
+                xs.append(barca_x)
+                ys.append(barca_y)
+                xgs.append(xg)
+                obvs.append(obv)
+                vals.append(v)
 
     return xs, ys, xgs, obvs, vals
 
@@ -207,49 +204,48 @@ def _all_foul_coords(data_dir: Path) -> tuple[list[float], list[float]]:
     xs: list[float] = []
     ys: list[float] = []
 
-    for row, events in iter_matches(data_dir):
-        barca_sb = _team_in_match("Barcelona", row, events)
-        if barca_sb is None:
-            continue
-        # Resolve opponent team name for setpiece_after_foul
-        opp_sb = next(
-            (e.get("team", {}).get("name", "") for e in events
-             if e.get("team", {}).get("name") and e["team"]["name"] != barca_sb),
-            "",
-        )
-        if not opp_sb:
-            continue
-
-        for ev in events:
-            if ev.get("type", {}).get("id") != 22:  # Foul Committed
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            barca_sb = _team_in_match("Barcelona", row, events)
+            if barca_sb is None:
                 continue
-            if ev.get("team", {}).get("name", "") != barca_sb:
-                continue
-            loc = ev.get("location")
-            if not loc:
-                continue
-            x, y = float(loc[0]), float(loc[1])
-            if x >= 60.0:
+            opp_sb = next(
+                (e.get("team", {}).get("name", "") for e in events
+                 if e.get("team", {}).get("name") and e["team"]["name"] != barca_sb),
+                "",
+            )
+            if not opp_sb:
                 continue
 
-            restart = setpiece_after_foul(ev, events, opp_sb)
-            if restart is None:
-                continue
-            # Keep only free-kick restarts; drop penalties.
-            if not (f.is_fk_pass(restart) or f.is_fk_shot(restart)):
-                continue
+            for ev in events:
+                if ev.get("type", {}).get("id") != 22:
+                    continue
+                if ev.get("team", {}).get("name", "") != barca_sb:
+                    continue
+                loc = ev.get("location")
+                if not loc:
+                    continue
+                x, y = float(loc[0]), float(loc[1])
+                if x >= 60.0:
+                    continue
 
-            xs.append(x)
-            ys.append(y)
+                restart = setpiece_after_foul(ev, events, opp_sb)
+                if restart is None:
+                    continue
+                if not (f.is_fk_pass(restart) or f.is_fk_shot(restart)):
+                    continue
+
+                xs.append(x)
+                ys.append(y)
 
     return xs, ys
 
 
 # ── Shared data loader ────────────────────────────────────────────────────────
 
-def load_data(data_dir: Path) -> tuple[
-    list[float], list[float],                                          # all foul xs, ys
-    list[float], list[float], list[float], list[float], list[float],   # fk xs, ys, xgs, obvs, vals
+def load_data(data_dir: Path = None) -> tuple[
+    list[float], list[float],
+    list[float], list[float], list[float], list[float], list[float],
 ]:
     """Load all data once so multiple plot functions can share it."""
     print("Loading foul data …")
@@ -484,7 +480,7 @@ def plot_foul_xg_heatmaps(
 
     out_path = output_dir / "foul_freekick_xg_heatmap.png"
     fig.savefig(out_path, dpi=150, bbox_inches="tight", facecolor="white")
-    print(f"Saved → {out_path}")
+    print(f"Saved -> {out_path}")
     plt.show()
     return out_path
 
@@ -492,8 +488,7 @@ def plot_foul_xg_heatmaps(
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    DATA = PROJECT_ROOT / "data" / "statsbomb"
-    all_xs, all_ys, fk_xs, fk_ys, xgs, obvs, fk_vals = load_data(DATA)
+    all_xs, all_ys, fk_xs, fk_ys, xgs, obvs, fk_vals = load_data()
     plot_foul_xg_heatmaps(
         all_xs, all_ys, fk_xs, fk_ys, xgs, obvs, fk_vals, ASSETS_DIR,
     )

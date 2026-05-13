@@ -15,16 +15,25 @@ BARCELONA = "Barcelona"
 
 _STATSBOMB_ZIPS = ["league_phase.zip", "last16.zip", "playoffs.zip", "quarterfinals.zip"]
 
-# Built once: maps each filename inside any ZIP to the ZIP path that contains it.
+# Built once: maps each filename to either a directory Path (JSON file) or a ZIP path.
 def _build_statsbomb_index() -> dict[str, Path]:
     index: dict[str, Path] = {}
+    # Check extracted directories first
+    for phase in ("league_phase", "last16", "playoffs", "quarterfinals"):
+        phase_dir = STATSBOMB_DIR / phase
+        if phase_dir.is_dir():
+            for p in phase_dir.glob("*.json"):
+                index[p.name] = p
+    # Also check ZIPs (for backward compat)
     for zip_name in _STATSBOMB_ZIPS:
         zip_path = STATSBOMB_DIR / zip_name
         if not zip_path.exists():
             continue
         with zipfile.ZipFile(zip_path) as zf:
             for name in zf.namelist():
-                index[name] = zip_path
+                bare = name.rsplit("/", 1)[-1]
+                if bare not in index:
+                    index[bare] = zip_path
     return index
 
 _STATSBOMB_INDEX: dict[str, Path] = _build_statsbomb_index()
@@ -32,11 +41,14 @@ _STATSBOMB_INDEX: dict[str, Path] = _build_statsbomb_index()
 
 def _read_statsbomb_bytes(filename: str) -> bytes | None:
     """Look up filename in the pre-built index and return its raw bytes, or None."""
-    zip_path = _STATSBOMB_INDEX.get(filename)
-    if zip_path is None:
+    path = _STATSBOMB_INDEX.get(filename)
+    if path is None:
         return None
-    with zipfile.ZipFile(zip_path) as zf:
-        return zf.read(filename)
+    if path.suffix == ".zip":
+        with zipfile.ZipFile(path) as zf:
+            return zf.read(filename)
+    with open(path, "rb") as fh:
+        return fh.read()
 
 
 # ── Match / team helpers ──────────────────────────────────────────────────────

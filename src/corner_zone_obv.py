@@ -19,12 +19,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
-from mplsoccer import VerticalPitch
+from mplsoccer import Pitch
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 ROOT     = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data" / "all_data"
-_csv_candidates = [ROOT / "matches.csv", ROOT / "data" / "matches.csv"]
+_SB_ROOT  = ROOT / "data" / "statsbomb"
+DATA_DIRS = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+_csv_candidates = [ROOT / "data" / "matches.csv", ROOT / "matches.csv"]
 MATCHES_CSV = next((p for p in _csv_candidates if p.exists()), _csv_candidates[0])
 OUT_DIR = ROOT / "assets" / "corner_analysis"
 
@@ -51,11 +52,12 @@ ZONES = {
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _load_events(match_id: str) -> list[dict] | None:
-    path = DATA_DIR / f"{match_id}.json"
-    if not path.exists():
-        return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    for data_dir in DATA_DIRS:
+        path = data_dir / f"{match_id}.json"
+        if path.exists():
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+    return None
 
 
 def _collect(player_substr: str) -> tuple[str, pd.DataFrame]:
@@ -122,7 +124,7 @@ def _collect(player_substr: str) -> tuple[str, pd.DataFrame]:
 
 
 def _normalize(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalize all corners so the attack goes toward the top of the pitch."""
+    """Normalize all corners so the attack goes left to right (toward x=120)."""
     records = []
     for _, row in df.iterrows():
         loc = row.get("location")
@@ -158,14 +160,14 @@ def _plot(player_substr: str) -> None:
     df = _normalize(df_raw)
     print(f"  {full_name}: {len(df)} corners")
 
-    pitch = VerticalPitch(
+    pitch = Pitch(
         pitch_type="statsbomb",
         line_color="#777777",
         half=True,
         goal_type="box",
         pitch_color="white",
     )
-    fig, ax = pitch.draw(figsize=(10, 13))
+    fig, ax = pitch.draw(figsize=(13, 10))
     fig.patch.set_facecolor("white")
 
     # Scatter: shape = aerial vs ground, color = shot outcome
@@ -176,7 +178,7 @@ def _plot(player_substr: str) -> None:
         dot_colors = sub["ended_in_shot"].map({True: SHOT_COLOR, False: NO_SHOT_COLOR})
         dot_sizes  = (sub["obv"].abs() * 5000) + 25
         ax.scatter(
-            sub["t_y"], sub["t_x"],
+            sub["t_x"], sub["t_y"],
             s=dot_sizes, c=dot_colors, marker=marker,
             alpha=0.82, edgecolors="white", linewidth=0.6, zorder=4,
         )
@@ -188,9 +190,9 @@ def _plot(player_substr: str) -> None:
             (df["t_y"] >= bounds["y"][0]) & (df["t_y"] <= bounds["y"][1])
         ]
         rect = plt.Rectangle(
-            (bounds["y"][0], bounds["x"][0]),
-            bounds["y"][1] - bounds["y"][0],
+            (bounds["x"][0], bounds["y"][0]),
             bounds["x"][1] - bounds["x"][0],
+            bounds["y"][1] - bounds["y"][0],
             facecolor="#f0f0f0", alpha=0.15,
             edgecolor="#444444", lw=0.8, linestyle="--", zorder=1,
         )
@@ -202,11 +204,10 @@ def _plot(player_substr: str) -> None:
                 f"{len(in_zone)} deliveries\n"
                 f"Avg OBV: {in_zone['obv'].mean():.4f}"
             )
-            # Place labels in the lower third of the pitch (x≈72),
-            # horizontally centred on each zone's y-midpoint
+            # Labels in the open midfield area to the left of the zones
             ax.text(
+                75,
                 (bounds["y"][0] + bounds["y"][1]) / 2,
-                85,
                 label,
                 ha="center", va="center", fontsize=9, fontweight="bold",
                 color=TEXT_COLOR, zorder=5,
@@ -215,7 +216,7 @@ def _plot(player_substr: str) -> None:
             )
 
     # Corner origin star
-    ax.scatter(0, 120, color="gold", s=300, marker="*", zorder=6, edgecolor="black")
+    ax.scatter(120, 0, color="gold", s=300, marker="*", zorder=6, edgecolor="black")
 
     # Legend
     legend_elements = [

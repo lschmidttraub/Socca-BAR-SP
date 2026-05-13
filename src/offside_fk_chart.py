@@ -20,7 +20,9 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "statsbomb" / "league_phase"
+_SB_ROOT   = Path(__file__).parent.parent / "data" / "statsbomb"
+LEAGUE_DIR = _SB_ROOT / "league_phase"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
 BUCKET = 10  # metres
 
@@ -35,10 +37,10 @@ def compute_standings():
     points = defaultdict(int)
     gd = defaultdict(int)
 
-    for lineup_path in sorted(DATA_DIR.glob("*_lineups.json")):
+    for lineup_path in sorted(LEAGUE_DIR.glob("*_lineups.json")):
         match_id = lineup_path.stem.replace("_lineups", "")
         lineup = load_json(lineup_path)
-        events = load_json(DATA_DIR / f"{match_id}.json")
+        events = load_json(LEAGUE_DIR / f"{match_id}.json")
         team_names = [t["team_name"] for t in lineup]
         if len(team_names) != 2:
             continue
@@ -103,10 +105,10 @@ def main(top_n):
     barca_buckets = defaultdict(int)
     grp_buckets = defaultdict(int)
 
-    for lineup_path in sorted(DATA_DIR.glob("*_lineups.json")):
+    for lineup_path in sorted(p for d in DATA_DIRS for p in d.glob("*_lineups.json")):
         match_id = lineup_path.stem.replace("_lineups", "")
         lineup = load_json(lineup_path)
-        events = load_json(DATA_DIR / f"{match_id}.json")
+        events = load_json(lineup_path.parent / f"{match_id}.json")
 
         for team in lineup:
             name = team["team_name"]

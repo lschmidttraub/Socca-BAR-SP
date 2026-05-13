@@ -41,7 +41,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import apply_theme, save_fig
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "penalties"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT   = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA       = _SB_ROOT
 TEAM = "Barcelona"
 
 TYPE_PRESSURE     = 17
@@ -87,53 +89,51 @@ def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
         "penalties_against": 0,
     })
 
-    for row, events in iter_matches(data_dir):
-        home_csv = row.get("home", "").strip()
-        away_csv = row.get("away", "").strip()
-        if not home_csv or not away_csv:
-            continue
-        if home_csv not in allowed_teams and away_csv not in allowed_teams:
-            continue
-
-        home_ev = _team_in_match(home_csv, row, events) or home_csv
-        away_ev = _team_in_match(away_csv, row, events) or away_csv
-
-        if home_csv in allowed_teams:
-            records[home_csv]["matches"] += 1
-        if away_csv in allowed_teams:
-            records[away_csv]["matches"] += 1
-
-        for e in events:
-            # Penalty shots — attribute to the defending team
-            if f.is_penalty_shot(e):
-                shooter_ev = f.event_team(e)
-                if shooter_ev == home_ev and away_csv in allowed_teams:
-                    records[away_csv]["penalties_against"] += 1
-                elif shooter_ev == away_ev and home_csv in allowed_teams:
-                    records[home_csv]["penalties_against"] += 1
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            home_csv = row.get("home", "").strip()
+            away_csv = row.get("away", "").strip()
+            if not home_csv or not away_csv:
+                continue
+            if home_csv not in allowed_teams and away_csv not in allowed_teams:
                 continue
 
-            loc = e.get("location")
-            type_id = e.get("type", {}).get("id")
-            if not loc or type_id == TYPE_PRESSURE:
-                continue
+            home_ev = _team_in_match(home_csv, row, events) or home_csv
+            away_ev = _team_in_match(away_csv, row, events) or away_csv
 
-            x = float(loc[0])
-            team_ev = f.event_team(e)
+            if home_csv in allowed_teams:
+                records[home_csv]["matches"] += 1
+            if away_csv in allowed_teams:
+                records[away_csv]["matches"] += 1
 
-            if team_ev == home_ev:
-                team_csv, opp_csv = home_csv, away_csv
-            elif team_ev == away_ev:
-                team_csv, opp_csv = away_csv, home_csv
-            else:
-                continue
+            for e in events:
+                if f.is_penalty_shot(e):
+                    shooter_ev = f.event_team(e)
+                    if shooter_ev == home_ev and away_csv in allowed_teams:
+                        records[away_csv]["penalties_against"] += 1
+                    elif shooter_ev == away_ev and home_csv in allowed_teams:
+                        records[home_csv]["penalties_against"] += 1
+                    continue
 
-            # x < 40 → team touches in their own defensive third
-            # x > 80 → team is in the opponent's defensive third (attribute to opponent)
-            if x < DEFENSIVE_THIRD_X and team_csv in allowed_teams:
-                records[team_csv]["def_own_touches"] += 1
-            elif x > ATTACKING_THIRD_X and opp_csv in allowed_teams:
-                records[opp_csv]["def_opp_touches"] += 1
+                loc = e.get("location")
+                type_id = e.get("type", {}).get("id")
+                if not loc or type_id == TYPE_PRESSURE:
+                    continue
+
+                x = float(loc[0])
+                team_ev = f.event_team(e)
+
+                if team_ev == home_ev:
+                    team_csv, opp_csv = home_csv, away_csv
+                elif team_ev == away_ev:
+                    team_csv, opp_csv = away_csv, home_csv
+                else:
+                    continue
+
+                if x < DEFENSIVE_THIRD_X and team_csv in allowed_teams:
+                    records[team_csv]["def_own_touches"] += 1
+                elif x > ATTACKING_THIRD_X and opp_csv in allowed_teams:
+                    records[opp_csv]["def_opp_touches"] += 1
 
     return dict(records)
 

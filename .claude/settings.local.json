@@ -15,7 +15,8 @@
       "Bash(python snippets/corner_run_maps/corner_runs.py Barcelona \"assets/upload/offensive/corners\")",
       "Bash(python src/freekick_zone_obv.py)",
       "Bash(python src/fk_deadzone_heatmap.py)",
-      "Bash(python -c ':*)"
+      "Bash(python src/offense/barcelona_penalty_goal_map.py)",
+      "Bash(python *)"
     ],
     "deny": [
       "Read(./data/**)"
