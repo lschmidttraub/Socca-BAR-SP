@@ -73,10 +73,10 @@ def _last16_teams(data_dir: Path) -> frozenset[str]:
 
 # ── data collection ───────────────────────────────────────────────────
 
-def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
+def _collect(data_dir: Path, allowed_teams: frozenset[str] | None = None) -> dict[str, dict]:
     """Single-pass collection of fouls committed and penalties conceded per team.
 
-    Only teams in *allowed_teams* are counted.
+    If *allowed_teams* is None, all teams in the data are included.
     """
     records: dict[str, dict] = defaultdict(lambda: {
         "matches":           0,
@@ -89,24 +89,28 @@ def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
         away_csv = row.get("away", "").strip()
         if not home_csv or not away_csv:
             continue
-        if home_csv not in allowed_teams and away_csv not in allowed_teams:
-            continue
+        if allowed_teams is not None:
+            if home_csv not in allowed_teams and away_csv not in allowed_teams:
+                continue
 
         home_ev = _team_in_match(home_csv, row, events) or home_csv
         away_ev = _team_in_match(away_csv, row, events) or away_csv
 
-        if home_csv in allowed_teams:
+        count_home = allowed_teams is None or home_csv in allowed_teams
+        count_away = allowed_teams is None or away_csv in allowed_teams
+
+        if count_home:
             records[home_csv]["matches"] += 1
-        if away_csv in allowed_teams:
+        if count_away:
             records[away_csv]["matches"] += 1
 
         for e in events:
             # Penalty shots — attribute to the defending team
             if f.is_penalty_shot(e):
                 shooter_ev = f.event_team(e)
-                if shooter_ev == home_ev and away_csv in allowed_teams:
+                if shooter_ev == home_ev and count_away:
                     records[away_csv]["penalties_against"] += 1
-                elif shooter_ev == away_ev and home_csv in allowed_teams:
+                elif shooter_ev == away_ev and count_home:
                     records[home_csv]["penalties_against"] += 1
                 continue
 
@@ -114,9 +118,9 @@ def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
             if not is_foul_committed(e):
                 continue
             team_ev = e.get("team", {}).get("name", "")
-            if team_ev == home_ev and home_csv in allowed_teams:
+            if team_ev == home_ev and count_home:
                 records[home_csv]["fouls"] += 1
-            elif team_ev == away_ev and away_csv in allowed_teams:
+            elif team_ev == away_ev and count_away:
                 records[away_csv]["fouls"] += 1
 
     return dict(records)
@@ -131,7 +135,7 @@ def _penalties_per_game(d: dict) -> float:
 
 # ── plot ──────────────────────────────────────────────────────────────
 
-def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
+def plot_correlation(records: dict[str, dict], save: bool = True, filename: str = "correlation_fouls_penalties.png", subtitle: str = "Round of 16 teams") -> None:
     points = [
         (team, _fouls_per_game(d), _penalties_per_game(d))
         for team, d in records.items()
@@ -180,7 +184,7 @@ def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
         fontsize=11,
     )
     ax.set_title(
-        "Fouls committed vs penalties conceded — Round of 16 teams\n"
+        f"Fouls committed vs penalties conceded — {subtitle}\n"
         "Red = Barcelona  ·  dashed = linear trend  ·  Pearson r shown in legend",
         fontsize=13, fontweight="bold",
     )
@@ -192,7 +196,7 @@ def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
 
     if save:
         ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        out = ASSETS_DIR / "correlation_fouls_penalties.png"
+        out = ASSETS_DIR / filename
         fig.savefig(out, dpi=150, bbox_inches="tight")
         print(f"Saved {out}")
 
@@ -204,14 +208,24 @@ if __name__ == "__main__":
     last16 = _last16_teams(DATA)
     print(f"Round of 16 teams ({len(last16)}): {', '.join(sorted(last16))}")
 
-    print("\nCollecting data ...")
-    records = _collect(DATA, last16)
+    print("\nCollecting R16 data ...")
+    records_r16 = _collect(DATA, last16)
 
     print(f"\n{'Team':30s}  {'Matches':>7}  {'F/game':>7}  {'Pen/game':>9}")
-    for team, d in sorted(records.items()):
+    for team, d in sorted(records_r16.items()):
         print(
             f"  {team:30s}  {d['matches']:7d}  "
             f"{_fouls_per_game(d):7.2f}  {_penalties_per_game(d):9.3f}"
         )
+    plot_correlation(records_r16, filename="correlation_fouls_penalties.png", subtitle="Round of 16 teams")
 
-    plot_correlation(records)
+    print("\nCollecting all-teams data ...")
+    records_all = _collect(DATA)
+
+    print(f"\n{'Team':30s}  {'Matches':>7}  {'F/game':>7}  {'Pen/game':>9}")
+    for team, d in sorted(records_all.items()):
+        print(
+            f"  {team:30s}  {d['matches']:7d}  "
+            f"{_fouls_per_game(d):7.2f}  {_penalties_per_game(d):9.3f}"
+        )
+    plot_correlation(records_all, filename="correlation_fouls_penalties_all_teams.png", subtitle="all teams")
