@@ -348,12 +348,12 @@ def plot_foul_xg_heatmaps(
         fontsize=12, fontweight="bold", pad=10, color="#111111",
     )
 
-    # ── Left panel: per-FK mean OBV/xG by FK origin (red) ─────────────────────
+    # ── Left panel: per-FK mean xG by FK origin (red) ─────────────────────────
     ax_right = axes[0]  # variable kept for the rest of the function
 
     val_stats = pitch.bin_statistic(
         fk_xs, fk_ys,
-        values=fk_vals,
+        values=xgs,
         statistic="mean",
         bins=BINS,
     )
@@ -374,10 +374,10 @@ def plot_foul_xg_heatmaps(
         alpha=0.85,
     )
 
-    # Overlay each FK at its origin, sized by per-FK OBV/xG
+    # Overlay each FK at its origin, sized by per-FK xG
     if fk_xs:
-        max_v     = max((abs(v) for v in fk_vals), default=1.0) or 1.0
-        dot_sizes = [max(15, abs(v) / max_v * 180) for v in fk_vals]
+        max_v     = max((abs(v) for v in xgs), default=1.0) or 1.0
+        dot_sizes = [max(15, abs(v) / max_v * 180) for v in xgs]
         pitch.scatter(
             fk_xs, fk_ys,
             ax=ax_right,
@@ -395,12 +395,12 @@ def plot_foul_xg_heatmaps(
         fraction=0.025, pad=0.02,
         shrink=0.75,
     )
-    cb_right.set_label("Mean OBV/xG per FK", fontsize=9)
+    cb_right.set_label("Mean xG per FK", fontsize=9)
     cb_right.ax.tick_params(labelsize=8)
 
-    mean_v = sum(fk_vals) / len(fk_vals) if fk_vals else 0.0
+    mean_xg = sum(xgs) / len(xgs) if xgs else 0.0
     ax_right.set_title(
-        f"Opp FKs — mean OBV/xG by origin  (n = {len(fk_xs)} FKs, mean = {mean_v:.3f})",
+        f"Opp FKs — mean xG by origin  (n = {len(fk_xs)} FKs, mean xG = {mean_xg:.3f})",
         fontsize=11, fontweight="bold", pad=10, color="#111111",
     )
 
@@ -477,7 +477,7 @@ def plot_foul_xg_heatmaps(
     )
     fig.text(
         0.5, 0.91,
-        "Defending half only (Barcelona goal on LEFT)  ·  left: mean OBV/xG per opponent FK (by origin)  ·  centre: opponent FK-possession OBV  ·  right: Barca fouls that gave away a FK  ·  penalties excluded",
+        "Defending half only (Barcelona goal on LEFT)  ·  left: mean xG per opponent FK (by origin)  ·  centre: opponent FK-possession OBV  ·  right: Barca fouls that gave away a FK  ·  penalties excluded",
         ha="center", va="top",
         fontsize=9.5, color="#555555",
     )
