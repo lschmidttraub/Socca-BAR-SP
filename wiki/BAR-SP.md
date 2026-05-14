@@ -29,7 +29,7 @@ You are also welcome to design the team page together with the other three group
 The analyses should not merely be a "tick-box" exercise of bullet points. Instead, identify any anomalies in the team's playing style and, if you find anything interesting, feel free to examine it in more detail with further analysis. Remember Ben Shneiderman's data visualization mantra: “Overview first, zoom and filter, then details-on-demand.”
 All graphics should follow a consistent style so that readers can immediately identify the most important information. Ensure the report remains cohesive by using a unified background, consistent formatting, and appropriate colors for your team versus the opponent. Please also maintain a consistent pitch orientation (e.g., defense at the bottom/left and attack at the top/right).
 Now, regarding your second assignment:
-Very good approach. I really like that you looked at existing analysis and articles and create a story how the tactics has changed under Flick. Your analysis is very clean, you compared your values with other teams to get context to the numbers and the interpretation is also very good.  Keep up the good work! I don't have much to criticize here. Be consistent with your plots, for example: keep all pitches white. Also be careful when you make a final conclusion based on only few examples. I know that you don't have much data, but if you have time, definitely take the knockout games into account too, to increase the sample size and make your conclusion more robust. 
+Very good approach. I really like that you looked at existing analysis and articles and create a story how the tactics has changed under Flick. Your analysis is very clean, you compared your values with other teams to get context to the numbers and the interpretation is also very good.  Keep up the good work! I don't have much to criticize here. Be consistent with your plots, for example: keep all pitches white. Also be careful when you make a final conclusion based on only few examples. I know that you don't have much data, but if you have time, definitely take the knockout games into account too, to increase the sample size and make your conclusion more robust.
 
 **(16.03.2026)**
 
@@ -60,7 +60,7 @@ If you have any more questions, don't hesitate to contact me or stop by at the o
 ### Introduction, Hypotheses and Approach
 
 This introductory section motivates the analysis of FC Barcelona's set pieces by linking the club's traditional possession identity with the more direct and vertical style associated with Hansi Flick.
-It reviews previous tactical analyses that describe Barcelona's set pieces as structured tools for defensive manipulation, while also identifying recurring defensive vulnerabilities around hybrid marking. 
+It reviews previous tactical analyses that describe Barcelona's set pieces as structured tools for defensive manipulation, while also identifying recurring defensive vulnerabilities around hybrid marking.
 From these reports, we derive the main offensive and defensive expectations that guide the later data analysis and define the analytical scope.
 
 | Section                                                                                                     | Description                                                                                                                                                                                                         |
@@ -72,8 +72,8 @@ From these reports, we derive the main offensive and defensive expectations that
 
 ### Overview of Set-Piece Statistics
 
-This examination of Barcelona's set-piece statistics reveal a clear contrast between above-average attacking free-kick production and more moderate attacking corner output. 
-Defensively, the numbers point to strong suppression of shots and xG from both free kicks and corners, challenging the expectation of an obvious set-piece vulnerability. 
+This examination of Barcelona's set-piece statistics reveal a clear contrast between above-average attacking free-kick production and more moderate attacking corner output.
+Defensively, the numbers point to strong suppression of shots and xG from both free kicks and corners, challenging the expectation of an obvious set-piece vulnerability.
 Match-level variation and physicality comparisons add context, indicating that Barcelona's set-piece performance depends strongly on opponent and game state rather than on aerial dominance alone.
 
 | Section                                                                                                            | Description                                                                                                                                                                                                 |
@@ -85,8 +85,8 @@ Match-level variation and physicality comparisons add context, indicating that B
 
 ### Analysis of Offensive Set-Pieces
 
-This section analyses FC Barcelona's offensive set-piece behaviour across corners, free kicks, throw-ins and penalties. 
-The main focus lies on whether Barcelona use these situations as structured attacking tools, especially through short-corner manipulation, far-post access and positional improvement after restarts. 
+This section analyses FC Barcelona's offensive set-piece behaviour across corners, free kicks, throw-ins and penalties.
+The main focus lies on whether Barcelona use these situations as structured attacking tools, especially through short-corner manipulation, far-post access and positional improvement after restarts.
 The findings suggest that Barcelona's offensive set-piece value often comes less from direct first-contact dominance and more from controlled continuation and role-specific execution.
 
 | Section                                                                                                                         | Description                                                                                                                                                                                                                                      |

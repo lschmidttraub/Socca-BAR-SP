@@ -47,9 +47,17 @@ from defending_corners import (  # noqa: E402
     read_statsbomb,
 )
 from def_corner_positioning import (  # noqa: E402
-    _zip_path, read_dynamic_events, read_match_meta,
+    _zip_path, _read_member, read_match_meta,
     iter_tracking_frames, teams_from_meta,
 )
+
+
+def read_dynamic_events(skillcorner_id: int):
+    """Read the SC dynamic_events CSV — the upstream helper was dropped in the
+    animations refactor, so inline it here."""
+    import io as _io
+    raw = _read_member(skillcorner_id, f"{skillcorner_id}_dynamic_events.csv")
+    return pd.read_csv(_io.BytesIO(raw)) if raw else None
 
 # ── Config ───────────────────────────────────────────────────────────────────
 TEAM       = BARCELONA
@@ -366,6 +374,8 @@ def collect_marking_rows() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                 "date":       date,
                 "period":     period,
                 "sc_t":       sc_t,
+                "recv_frame": recv_f,
+                "shot_frame": shot_f,
             })
             for r in per_def_rows:
                 per_def.append({"system": system, "nearest_distance_m": r["recv_d"]})
@@ -758,9 +768,10 @@ def plot_per_match(match_df: pd.DataFrame, out: Path) -> None:
     ax.tick_params(left=False)
     ax.grid(axis="x", alpha=0.25, linewidth=0.6)
     ax.set_axisbelow(True)
-    ax.set_title(f"{TEAM} marking system per match")
-    ax.legend(loc="lower right", frameon=False, ncol=3, fontsize=8.5,
-              bbox_to_anchor=(1.0, -0.16))
+    ax.set_title(f"{TEAM} marking system per match", pad=30)
+    # Legend above the bars (clears the x-axis label at the bottom).
+    ax.legend(loc="lower center", frameon=False, ncol=3, fontsize=8.5,
+              bbox_to_anchor=(0.5, 1.0))
 
     _caption(fig, "Sorted by mean man-marking fraction (top = most zonal, bottom = most man-marking)")
     plt.tight_layout()
