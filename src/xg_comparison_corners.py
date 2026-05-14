@@ -25,7 +25,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "all_data"
+_SB_ROOT = Path(__file__).parent.parent / "data" / "statsbomb"
+DATA_DIRS = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
 out = ASSETS_DIR / "corner_analysis" / "xg_per_corner_bars.png"
 
@@ -104,7 +105,7 @@ def classify_corner(ev, short_threshold=15.0):
 
 corner_rows = []
 
-for event_path in sorted(DATA_DIR.glob("*.json")):
+for event_path in sorted(p for data_dir in DATA_DIRS for p in data_dir.glob("*.json")):
     if event_path.stem.endswith("_lineups"):
         continue
 

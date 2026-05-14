@@ -14,6 +14,8 @@ from throwins_defense import (
     plot_defense_scatter,
     plot_normalized_landing_heatmap,
     plot_combined_defense_heatmap,
+    plot_combined_defense_heatmap_single,
+    plot_combined_defense_heatmap_zone,
 )
 from def_throwins_positioning import collect_positions
 
@@ -37,3 +39,5 @@ if __name__ == "__main__":
     print("\nCollecting SkillCorner positioning data ...")
     positions = collect_positions()
     plot_combined_defense_heatmap(barca_df, positions)
+    plot_combined_defense_heatmap_single(barca_df, positions)
+    plot_combined_defense_heatmap_zone(barca_df, positions, zone="Defensive")

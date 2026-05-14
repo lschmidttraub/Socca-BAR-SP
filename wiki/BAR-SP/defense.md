@@ -7,7 +7,7 @@
 As already mentioned in the [statistics section](BAR-SP/statistics#defensive-free-kick-sequences), Barcelona conceded 1 goal from free-kicks, which is less than the competition average of 1.94.
 This finding is also reflected in their average xG conceded from free-kick sequences per game which is only 0.091, far below the mean of 0.183 [(stat-df2)](BAR-SP/statistics_plot#average-conceded-xg-from-free-kicks-per-game---barcelona-below-average).
 
-In light of this information, defensive free-kicks are one of Barcelona’s clearest strengths.
+In light of this information, defending free-kicks is one of Barcelona’s clearest strengths.
 
 ### Added Value of Defensive Free-kicks
 
@@ -16,10 +16,9 @@ In the plot below, we show, from left to right, heatmaps of xG, opponent OBV gai
 <img src="assets/upload/defensive/free-kicks/foul_freekick_xg_heatmap.png" width="100%" />
 
 TO BE IMPROVED/MADE INTO A CONTINUOUS TEXT
-These pictures paint an interesting picture:
-
+These pictures paint an interesting picture: (Achtung obv/xG meaningless)
 1. The xG/OBV doesn't tell the whole story: if the opponent was previously in a more dangerous position, a free-kick can represent a net gain for the defending team. A better way of analyzing this is to look at the change in opponent's OBV from the play leading up to the free-kick to the moment following the free-kick.
-2. This perspective helps us see how free-kicks are used in Barcelona's defensive strategy: they allow the team to mitigate dangerous situations.
+2. This perspective helps us see how free-kicks are used in Barcelona's defensive strategy: they allow the team to mitigate dangerous situations. (Plottest du nicht xG durch freekicks?)
 3. The new picture flips the left-right asymmetry: though free-kicks on the left side of the field are more dangerous, their net effect on the OBV is more positive than right-side free-kicks.
 4. This tradeoff is further emphasized by the foul heatmap: more fouls are committed on the right side, and are committed further away from the goal. Thus, a more aggressive defensive strategy leads to more premature fouls, which decreaseys the absolute danger, but represents a more worse OBV trade.  
 5. The card record confirms the asymmetry: Barcelona's right-side centre-backs (Cubarsí, Araújo, Eric García) absorb all 3 red cards plus 3 yellows, while the left-side group (Cancelo, Balde, Gerard Martín) takes 5 yellows and zero reds.
@@ -77,37 +76,41 @@ The code is a very slightly modified version of Leverkusen's snippet $3206.
 - Look at how Barcelona can leverages defensive free-kicks to create counter-attacks
 - Look at how free-kick tactics vary in different match phases/when Barcelona is in the lead
 
-## Defensive throw ins
+## Defensive Throw-ins
 
-TODO: polish, correct and decide on some points
+Barcelona is one of the best teams in the Champions League at winning the ball back from opponent throw-ins, reclaiming possession in 31.3% of cases — ranking 5th across the competition.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_comparison.png" width="100%" />
 
-Concentrate on playstile with closed middle coridor 
-- Barcelona is strong in defending throwins (winback rate 31,3% 5fth in league) <throwins_defense_comparison.png>
-- Barcelona tries to block the field including the middle coridor and create preassure near the throw in ; Middle coridor is clearly blocked in defending zone , in central and attacking zone there are still player (green dot) <throwins_defense_positioning.png>
-- Most lost sequences did not change the side in first 6 sec. showing Barcelona cuting of the middle <throwins_defense_lost_sequences>
-- throwins_defence_combined
-- Barcelona clearly can pressure more in defense -> higher winback rate ; helpfull? <throwins_defense_zone_stats.png>
-- USE NEW DISTANCES PLOT BUT CHECK CORRECTNESS (4-6m avg dist ? )
+This success is not accidental. A look at Barcelona's positioning during opponent throw-ins reveals a clear, consistent system built on two complementary principles.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_positioning.png" width="100%" />
 
-Will be finished, improved and corrected:
+**Pressing the ball and blocking the central corridor.** Barcelona applies immediate pressure close to the throw-in taker while simultaneously occupying the middle corridor of the pitch. Together, these two actions leave the opponent with only one viable option: playing the ball along the sideline. The consequence is visible in the data — Barcelona concedes the fewest side changes of any team when defending opponent throw-ins.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_side_change.png" width="100%" />
 
-Barcelona seems to be a strong team in defending against throw ins. They win nearly every third ball(31,3%) back and are 5th in the league according to this metric. <throwins_defense_comparison.png>
-Barcelona is known as a technical team and so it is natural to look at positioning of Barcelona's player during opponent's throw in.
-<throwins_defense_positioning.png>
-We now can clearly see the two main strategies. First, Barcelona is preasuring near the throw in and second, they block the middle coridor. By doing so, they force the opponent to play the ball near the sideline and do not switch the side. We can clearly see it  in <throwins_defense_side_change.png>, Barcelona has least % of side changes for lost throw ins by opponent. One also can see the effect of the middle coridor block in <throwins_defense_lost_sequences.png> where even in case when Barelona does not win the ball back the opponent rarely manage to switch the side and manage to quickly push through the middle coridor very few times. <throwins_defense_combined.png> also shows how Bacelona win the ball back when it goes into central zone especially in own defensive zone. (TODO: Maybe just left the defensive zone, as other do not support this thesis). 
-From <throwins_defense_distances.png> we observe, that Barcelona is rather compact to the opponent during throw ins. While in general the average distance to next opponent does not vary strong between teams, especially for defending and middle zone we can see that the avg over 5 smallest distances is 0.5m less then the league average while the distance of 5 biggest distances is nearly at league average. We can argue that Barcelona is doing man matching on specific opponents and does more wide zonal control with the rest (?!) .
+The system is effective even when Barcelona does not win the ball back directly. In those cases, opponents still rarely manage to switch the side of play or penetrate through the central channel.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_lost_sequences.png" width="100%" />
+
+The win-back pattern is most pronounced in Barcelona's own defensive third. When the opponent plays into a central area in that zone, Barcelona tends to recover the ball.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_combined_defensive.png" width="100%" />
+
+**Individual roles: man-marking meets zonal coverage.** The individual winback situations reveal a clear structure. Barcelona man-marks tightly close to the throw-in while maintaining zonal coverage further back. One detail stands out: at least one player positions himself directly beside the throw-in taker without marking a specific opponent. His role is to close down the thrower immediately after the ball is played, preventing a quick return pass and disrupting any continuation of the move.
+<img src="assets/upload/defensive/throw_ins/006_Defensive_min28_Newcastle_United_1-1_Barcelona.png" width="100%" />
+<img src="assets/upload/defensive/throw_ins/008_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
+<img src="assets/upload/defensive/throw_ins/009_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
+
+**Selective compactness.** Barcelona's proximity to opponents during throw-ins reflects this dual structure. While the average distance to the nearest opponent is broadly similar across teams, Barcelona stands out in its defensive and middle zones: the average of the five smallest distances per situation is 0.5 m below the league mean, while the five largest distances remain close to it. This is consistent with the system as a whole — tight man-marking on specific opponents, wider zonal coverage with the rest.
+<img src="assets/upload/defensive/throw_ins/throwins_defense_distances_combined.png" width="100%" />
 
 
-## Defensive penalties
+## Defensive Penalties
 
-TODO: same as for throw ins
+Barcelona conceded only one penalty across the entire Champions League campaign — making goalkeeper analysis largely redundant. The more interesting question is why: what about Barcelona's style keeps them out of penalty-conceding situations in the first place?
+<img src="assets/upload/defensive/penalties/def_penalties_per_game.png" width="100%" />
 
-- very high possesion and save gamestile in own third leads to very few opportunities for the opponent to get a penalty (only one). 
-(Concentrate on high possession rather on penalty itself)
+**Technical play reduces exposure.** The core explanation is that Barcelona's style avoids the situations that lead to penalties. A team that controls the ball cleanly in its own third rarely needs to commit the kind of desperate, contact-heavy challenges that referees punish. This shows up in pass completion: Barcelona ranks among the highest in the Champions League for pass completion in their own defensive third, and teams with higher completion rates tend to concede fewer penalties.
+<img src="assets/upload/defensive/penalties/pass_completion_own_third.png" width="100%" />
+<img src="assets/upload/defensive/penalties/correlation_pass_completion_penalties.png" width="100%" />
 
-Will be finished, improved and corrected:
-When looking at Barcelona's defence against penalties, one notice that only one penaltie was shot against Barcelona. Hence, it does not really make sence to analyze goalkeeper behaviour. It is rather interesting to understand why Barcelona gets so few penalties conceded in comparison to other teams in the Champions League <def_penalties_per_game.png>. 
-First, more ball possession in own defensive zone leads to less ball possession for opponent and hence less moments when Barcelona's player can foul an oponent leading to a penalty against Barcelona. Indeed, as one can see in <def_possession_pct.png> Barcelona has the third highest possession procentage in the league. 
-Correlation between this two factors can be seen in <correlation_possession_penalties.png> (Of course, there are some outliers since penalties are rare and so n is pretty low for this few games; It is also the cause why only last16-teams are in the plot, the rest played less games). 
-Second, more fouls made by a team in general speak for a more agressive playstile which causes more penalties. Again, if we look at <fouls_per_game.png>, Barcelona does rather less fouls then other teams. 
-Correlation between this two factors can be seen in <correlation_fouls_penalties.png>. 
+**Fewer fouls, fewer penalties.** The same logic applies to foul counts: a more aggressive playing style leads to more fouls overall, and more fouls create more opportunities for a penalty to be awarded. Barcelona commits fewer fouls per game than most of their Round of 16 peers, which is consistent with their possession-oriented, low-contact approach.
+<img src="assets/upload/defensive/penalties/fouls_per_game.png" width="100%" />
+<img src="assets/upload/defensive/penalties/correlation_fouls_penalties.png" width="100%" />

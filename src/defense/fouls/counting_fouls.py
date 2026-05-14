@@ -43,46 +43,49 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import apply_theme, save_fig
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "fouls"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT   = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA       = _SB_ROOT
 TEAM = "Barcelona"
 
 
 # ── data collection ───────────────────────────────────────────────────
 
-def _collect(data_dir: Path) -> dict[str, dict]:
+def _collect(data_dir: Path = DATA) -> dict[str, dict]:
     """Count fouls and yellow cards per team across all matches."""
     records: dict[str, dict] = defaultdict(lambda: {
         "matches": 0,
         "fouls":   0,
-        "yellows": 0,   # Yellow Card only (not second yellow or straight red)
+        "yellows": 0,
     })
 
-    for row, events in iter_matches(data_dir):
-        home_csv = row.get("home", "").strip()
-        away_csv = row.get("away", "").strip()
-        if not home_csv or not away_csv:
-            continue
-
-        home_ev = _team_in_match(home_csv, row, events) or home_csv
-        away_ev = _team_in_match(away_csv, row, events) or away_csv
-
-        records[home_csv]["matches"] += 1
-        records[away_csv]["matches"] += 1
-
-        for e in events:
-            if not is_foul_committed(e):
-                continue
-            team_ev = e.get("team", {}).get("name", "")
-            if team_ev == home_ev:
-                team_csv = home_csv
-            elif team_ev == away_ev:
-                team_csv = away_csv
-            else:
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            home_csv = row.get("home", "").strip()
+            away_csv = row.get("away", "").strip()
+            if not home_csv or not away_csv:
                 continue
 
-            records[team_csv]["fouls"] += 1
-            if foul_card(e) == "Yellow Card":
-                records[team_csv]["yellows"] += 1
+            home_ev = _team_in_match(home_csv, row, events) or home_csv
+            away_ev = _team_in_match(away_csv, row, events) or away_csv
+
+            records[home_csv]["matches"] += 1
+            records[away_csv]["matches"] += 1
+
+            for e in events:
+                if not is_foul_committed(e):
+                    continue
+                team_ev = e.get("team", {}).get("name", "")
+                if team_ev == home_ev:
+                    team_csv = home_csv
+                elif team_ev == away_ev:
+                    team_csv = away_csv
+                else:
+                    continue
+
+                records[team_csv]["fouls"] += 1
+                if foul_card(e) == "Yellow Card":
+                    records[team_csv]["yellows"] += 1
 
     return dict(records)
 

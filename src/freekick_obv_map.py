@@ -44,7 +44,9 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import POSITIVE_COLOR, NEGATIVE_COLOR, apply_theme, save_fig
 
 ASSETS_ROOT = PROJECT_ROOT / "assets"
-DATA        = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT    = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS   = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA        = _SB_ROOT
 TEAM        = "Barcelona"
 
 GOAL_COLOR = POSITIVE_COLOR   # green — OBV gained
@@ -59,9 +61,9 @@ MIN_N  = 2                        # min FKs per cell to show colour
 
 
 # ── normalisation ─────────────────────────────────────────────────────
-# StatsBomb already orients every event so the team in possession attacks
-# toward x=120. No y-flip needed — show raw positions so FKs appear on
-# both sides of the pitch as they actually occurred.
+# StatsBomb event locations in this dataset are already expressed in the
+# event team's attacking frame: x=0 is the team's own goal and x=120 is the
+# opponent goal. Keep x/y raw so the map stays left-to-right attacking.
 
 def _normalise(loc: list) -> tuple[float, float]:
     return float(loc[0]), float(loc[1])
@@ -99,33 +101,13 @@ def _is_fk_event(e: dict) -> bool:
 
 # ── data collection ───────────────────────────────────────────────────
 
-def _collect_barca(data_dir: Path) -> list[dict]:
+def _collect_barca(data_dir: Path = DATA) -> list[dict]:
     results: list[dict] = []
-    for row, events in iter_matches(data_dir):
-        sb_name = _team_in_match(TEAM, row, events)
-        if sb_name is None:
-            continue
-        for idx, event in enumerate(events):
-            if not (_is_fk_event(event) and f.by_team(event, sb_name)):
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            sb_name = _team_in_match(TEAM, row, events)
+            if sb_name is None:
                 continue
-            loc = event.get("location")
-            if not loc:
-                continue
-            nx, ny = _normalise(loc)
-            results.append({
-                "fk_x":      nx,
-                "fk_y":      ny,
-                "total_obv": _sequence_obv(events, idx, sb_name),
-            })
-    return results
-
-
-def _collect_all(data_dir: Path) -> list[dict]:
-    results: list[dict] = []
-    for row, events in iter_matches(data_dir):
-        team_names = {e.get("team", {}).get("name", "")
-                      for e in events if e.get("team", {}).get("name")}
-        for sb_name in team_names:
             for idx, event in enumerate(events):
                 if not (_is_fk_event(event) and f.by_team(event, sb_name)):
                     continue
@@ -137,8 +119,30 @@ def _collect_all(data_dir: Path) -> list[dict]:
                     "fk_x":      nx,
                     "fk_y":      ny,
                     "total_obv": _sequence_obv(events, idx, sb_name),
-                    "team":      sb_name,
                 })
+    return results
+
+
+def _collect_all(data_dir: Path = DATA) -> list[dict]:
+    results: list[dict] = []
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            team_names = {e.get("team", {}).get("name", "")
+                          for e in events if e.get("team", {}).get("name")}
+            for sb_name in team_names:
+                for idx, event in enumerate(events):
+                    if not (_is_fk_event(event) and f.by_team(event, sb_name)):
+                        continue
+                    loc = event.get("location")
+                    if not loc:
+                        continue
+                    nx, ny = _normalise(loc)
+                    results.append({
+                        "fk_x":      nx,
+                        "fk_y":      ny,
+                        "total_obv": _sequence_obv(events, idx, sb_name),
+                        "team":      sb_name,
+                    })
     return results
 
 
@@ -268,11 +272,11 @@ def run(data_dir: Path = DATA, output_dir: Path = ASSETS_ROOT) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print("Collecting Barcelona FK sequences ...")
-    barca = _collect_barca(data_dir)
+    barca = _collect_barca()
     print(f"  {len(barca)} FK events")
 
     print("Collecting all-team FK sequences ...")
-    all_seqs = _collect_all(data_dir)
+    all_seqs = _collect_all()
     print(f"  {len(all_seqs)} FK events")
 
     print("Building figure ...")

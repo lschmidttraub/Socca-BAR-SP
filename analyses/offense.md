@@ -107,6 +107,11 @@ This interpretation fits the broader findings of the report. Barcelona’s corne
 Instead, their attacking value appears to come from the way they use local overloads, selective movement, and continuation after the first contact to create opportunities.
 
 ### Offensive Free-kicks
+![](../assets/upload/offensive/freekicks/freekicks_by_origin.png)
+Similar to corners, Barcelona's relative height disadvantage shapes their approach to freekicks as well. Compared to the Champions League average, Hansi Flick's team strongly prefers short variations over crosses, using the players world-class technical abilities to their advantage.
+![](../assets/upload/offensive/freekicks/fk_player_roles.png)
+This 
+
 
 Planned Analysis:
   - Mirror the delivery and route analysis of corners (trajectory, target zones)
@@ -125,3 +130,6 @@ Planned Analysis:
 Planned Analysis:
   - throw-ins as offensive (delivery) instrument (heat map, OBV improvement analysis)
   - throw-ins as position instrument (turnover rate; improvement potential)
+
+# Snippets to Link
+Probability of possesion after throw in (RM): https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/snippets/3025

@@ -41,12 +41,19 @@ from stats.analyses.setpiece_maps import _team_in_match
 from stats.viz.style import apply_theme, save_fig
 
 ASSETS_DIR = PROJECT_ROOT / "assets" / "defense" / "penalties"
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT   = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS  = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA       = _SB_ROOT
 TEAM = "Barcelona"
 
-TYPE_PRESSURE     = 17
 DEFENSIVE_THIRD_X = 40.0
 ATTACKING_THIRD_X = 80.0
+_MAX_DT = 15.0  # seconds — cap gaps to exclude stoppages / VAR / half-time
+
+
+def _parse_ts(ts: str) -> float:
+    h, m, s = ts.split(":")
+    return int(h) * 3600 + int(m) * 60 + float(s)
 
 # Round of 16 first and second legs (Mar 10-11 and Mar 17-18, 2026)
 _R16_DATES = {"2026-03-10", "2026-03-11", "2026-03-17", "2026-03-18"}
@@ -74,17 +81,24 @@ def _last16_teams(data_dir: Path) -> frozenset[str]:
 
 # ── data collection ───────────────────────────────────────────────────
 
-def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
-    """Single-pass collection of defensive-third possession and penalty concessions per team.
+def _collect(data_dir: Path, allowed_teams: frozenset[str] | None = None) -> dict[str, dict]:
+    """Single-pass collection using time intervals between consecutive events.
 
-    Only teams in *allowed_teams* are counted; matches where neither team is in the
-    set are skipped entirely.
+    For each interval (event_i → event_{i+1}), dt seconds are added to
+    "opp_poss_own_third_s" when the opponent has possession AND the ball is
+    in the team's defensive third.  Intervals longer than _MAX_DT are skipped
+    to avoid attributing stoppages / VAR / half-time to the last known state.
+
+    Coordinate convention (StatsBomb): each event's x is in the frame of the
+    team performing the event, with that team always attacking toward x=120.
+      • ball in T's defensive third when T performs: x < DEFENSIVE_THIRD_X
+      • ball in T's defensive third when opponent performs: x > ATTACKING_THIRD_X
     """
     records: dict[str, dict] = defaultdict(lambda: {
-        "matches":           0,
-        "def_own_touches":   0,
-        "def_opp_touches":   0,
-        "penalties_against": 0,
+        "matches":               0,
+        "opp_poss_own_third_s":  0.0,
+        "total_s":               0.0,
+        "penalties_against":     0,
     })
 
     for row, events in iter_matches(data_dir):
@@ -92,55 +106,91 @@ def _collect(data_dir: Path, allowed_teams: frozenset[str]) -> dict[str, dict]:
         away_csv = row.get("away", "").strip()
         if not home_csv or not away_csv:
             continue
-        if home_csv not in allowed_teams and away_csv not in allowed_teams:
-            continue
+        if allowed_teams is not None:
+            if home_csv not in allowed_teams and away_csv not in allowed_teams:
+                continue
 
         home_ev = _team_in_match(home_csv, row, events) or home_csv
         away_ev = _team_in_match(away_csv, row, events) or away_csv
 
-        if home_csv in allowed_teams:
+        count_home = allowed_teams is None or home_csv in allowed_teams
+        count_away = allowed_teams is None or away_csv in allowed_teams
+
+        if count_home:
             records[home_csv]["matches"] += 1
-        if away_csv in allowed_teams:
+        if count_away:
             records[away_csv]["matches"] += 1
 
+        # Sort by period then timestamp; group by period so dt never spans halves
+        timed = [
+            e for e in events
+            if e.get("timestamp") and e.get("period")
+        ]
+        timed.sort(key=lambda e: (e["period"], e["timestamp"]))
+
+        current_period: int | None = None
+        period_buf: list[dict] = []
+
+        def _flush(buf: list[dict]) -> None:
+            for i in range(len(buf) - 1):
+                ev  = buf[i]
+                nxt = buf[i + 1]
+                t0  = _parse_ts(ev["timestamp"])
+                t1  = _parse_ts(nxt["timestamp"])
+                dt  = t1 - t0
+                if dt <= 0 or dt > _MAX_DT:
+                    continue
+
+                # Accumulate total time (same cap — keeps ratio consistent)
+                if count_home:
+                    records[home_csv]["total_s"] += dt
+                if count_away:
+                    records[away_csv]["total_s"] += dt
+
+                loc = ev.get("location")
+                if not loc:
+                    continue
+                x        = float(loc[0])
+                ev_team  = ev.get("team", {}).get("name", "")
+                poss     = ev.get("possession_team", {}).get("name", "")
+
+                # home team T: is the away team (opponent) in possession in home's defensive third?
+                if count_home and poss == away_ev:
+                    if (ev_team == away_ev and x > ATTACKING_THIRD_X) or \
+                       (ev_team == home_ev and x < DEFENSIVE_THIRD_X):
+                        records[home_csv]["opp_poss_own_third_s"] += dt
+
+                # away team T: is the home team (opponent) in possession in away's defensive third?
+                if count_away and poss == home_ev:
+                    if (ev_team == home_ev and x > ATTACKING_THIRD_X) or \
+                       (ev_team == away_ev and x < DEFENSIVE_THIRD_X):
+                        records[away_csv]["opp_poss_own_third_s"] += dt
+
+        for ev in timed:
+            p = ev["period"]
+            if p != current_period:
+                _flush(period_buf)
+                current_period = p
+                period_buf = [ev]
+            else:
+                period_buf.append(ev)
+        _flush(period_buf)
+
+        # Penalties — attribute to defending team
         for e in events:
-            # Penalty shots — attribute to the defending team
             if f.is_penalty_shot(e):
                 shooter_ev = f.event_team(e)
-                if shooter_ev == home_ev and away_csv in allowed_teams:
+                if shooter_ev == home_ev and count_away:
                     records[away_csv]["penalties_against"] += 1
-                elif shooter_ev == away_ev and home_csv in allowed_teams:
+                elif shooter_ev == away_ev and count_home:
                     records[home_csv]["penalties_against"] += 1
-                continue
-
-            loc = e.get("location")
-            type_id = e.get("type", {}).get("id")
-            if not loc or type_id == TYPE_PRESSURE:
-                continue
-
-            x = float(loc[0])
-            team_ev = f.event_team(e)
-
-            if team_ev == home_ev:
-                team_csv, opp_csv = home_csv, away_csv
-            elif team_ev == away_ev:
-                team_csv, opp_csv = away_csv, home_csv
-            else:
-                continue
-
-            # x < 40 → team touches in their own defensive third
-            # x > 80 → team is in the opponent's defensive third (attribute to opponent)
-            if x < DEFENSIVE_THIRD_X and team_csv in allowed_teams:
-                records[team_csv]["def_own_touches"] += 1
-            elif x > ATTACKING_THIRD_X and opp_csv in allowed_teams:
-                records[opp_csv]["def_opp_touches"] += 1
 
     return dict(records)
 
 
 def _possession_pct(d: dict) -> float:
-    total = d["def_own_touches"] + d["def_opp_touches"]
-    return 100.0 * d["def_own_touches"] / total if total else 0.0
+    """Fraction of match time the opponent had the ball in T's defensive third (%)."""
+    return 100.0 * d["opp_poss_own_third_s"] / d["total_s"] if d["total_s"] else 0.0
 
 
 def _penalties_per_game(d: dict) -> float:
@@ -149,7 +199,7 @@ def _penalties_per_game(d: dict) -> float:
 
 # ── plot ──────────────────────────────────────────────────────────────
 
-def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
+def plot_correlation(records: dict[str, dict], save: bool = True, filename: str = "correlation_possession_penalties.png", subtitle: str = "Round of 16 teams") -> None:
     points = [
         (team, _possession_pct(d), _penalties_per_game(d))
         for team, d in records.items()
@@ -190,7 +240,7 @@ def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
         )
 
     ax.set_xlabel(
-        "Possession % in own defensive third  →  higher = more possession",
+        "Opponent poss. in own third (% of match time)  →  higher = more exposure",
         fontsize=11,
     )
     ax.set_ylabel(
@@ -198,7 +248,7 @@ def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
         fontsize=11,
     )
     ax.set_title(
-        "Defensive-third possession vs penalties conceded — Round of 16 teams\n"
+        f"Opponent possession in own defensive third vs penalties conceded — {subtitle}\n"
         "Red = Barcelona  ·  dashed = linear trend  ·  Pearson r shown in legend",
         fontsize=13, fontweight="bold",
     )
@@ -210,7 +260,7 @@ def plot_correlation(records: dict[str, dict], save: bool = True) -> None:
 
     if save:
         ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        out = ASSETS_DIR / "correlation_possession_penalties.png"
+        out = ASSETS_DIR / filename
         fig.savefig(out, dpi=150, bbox_inches="tight")
         print(f"Saved {out}")
 
@@ -222,14 +272,24 @@ if __name__ == "__main__":
     last16 = _last16_teams(DATA)
     print(f"Round of 16 teams ({len(last16)}): {', '.join(sorted(last16))}")
 
-    print("\nCollecting data ...")
-    records = _collect(DATA, last16)
+    print("\nCollecting R16 data ...")
+    records_r16 = _collect(DATA, last16)
 
-    print(f"\n{'Team':30s}  {'Poss%':>6}  {'Pen/game':>9}  {'Matches':>7}")
-    for team, d in sorted(records.items()):
+    print(f"\n{'Team':30s}  {'OppPoss%':>9}  {'Pen/game':>9}  {'Matches':>7}")
+    for team, d in sorted(records_r16.items()):
         print(
-            f"  {team:30s}  {_possession_pct(d):6.1f}%  "
+            f"  {team:30s}  {_possession_pct(d):8.1f}%  "
             f"{_penalties_per_game(d):9.3f}  {d['matches']:7d}"
         )
+    plot_correlation(records_r16, filename="correlation_possession_penalties.png", subtitle="Round of 16 teams")
 
-    plot_correlation(records)
+    print("\nCollecting all-teams data ...")
+    records_all = _collect(DATA)
+
+    print(f"\n{'Team':30s}  {'OppPoss%':>9}  {'Pen/game':>9}  {'Matches':>7}")
+    for team, d in sorted(records_all.items()):
+        print(
+            f"  {team:30s}  {_possession_pct(d):8.1f}%  "
+            f"{_penalties_per_game(d):9.3f}  {d['matches']:7d}"
+        )
+    plot_correlation(records_all, filename="correlation_possession_penalties_all_teams.png", subtitle="all teams")

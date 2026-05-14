@@ -53,7 +53,9 @@ if str(SRC_ROOT) not in sys.path:
 from stats.data import iter_matches
 from stats.analyses.setpiece_maps import _team_in_match
 
-DATA = PROJECT_ROOT / "data" / "statsbomb"
+_SB_ROOT  = PROJECT_ROOT / "data" / "statsbomb"
+DATA_DIRS = [d for d in (_SB_ROOT / phase for phase in ("league_phase", "last16", "playoffs", "quarterfinals")) if d.is_dir()]
+DATA      = _SB_ROOT
 TEAM = "Barcelona"
 
 # ── StatsBomb type IDs ────────────────────────────────────────────────────────
@@ -337,22 +339,17 @@ def _opponent_label(row: dict, team: str) -> str:
 
 
 def all_barca_fouls(data_dir: Path = DATA) -> list[dict]:
-    """Collect all foul records for Barcelona across every match in the dataset.
-
-    Returns a flat list of records ready for use with pandas or direct iteration.
-    """
+    """Collect all foul records for Barcelona across every match in the dataset."""
     records: list[dict] = []
-    for row, events in iter_matches(data_dir):
-        barca_sb = _team_in_match(TEAM, row, events)
-        if barca_sb is None:
-            continue
-        game_id  = row.get("statsbomb", "").strip()
-        opponent = _opponent_label(row, TEAM)
-
-        # Resolve opponent's in-event team name
-        opp_sb = _team_in_match(opponent, row, events) or opponent
-
-        records.extend(collect_barca_fouls(game_id, events, barca_sb, opp_sb))
+    for _d in DATA_DIRS:
+        for row, events in iter_matches(_d):
+            barca_sb = _team_in_match(TEAM, row, events)
+            if barca_sb is None:
+                continue
+            game_id  = row.get("statsbomb", "").strip()
+            opponent = _opponent_label(row, TEAM)
+            opp_sb = _team_in_match(opponent, row, events) or opponent
+            records.extend(collect_barca_fouls(game_id, events, barca_sb, opp_sb))
     return records
 
 

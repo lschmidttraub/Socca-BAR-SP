@@ -285,6 +285,32 @@ Planned Analysis:
   - Game-changing potential
 
 ### Throw-ins
+Unsurprisingly, Barcelona's throw-in profile reflects their broader possession-oriented identity rather than a distinct set-piece weapon. Across all throw-ins in the competition, the team retains the ball substantially more often than the league average, but the more granular views suggest that this advantage is best understood as a positional and structural one rather than as a direct attacking mechanism.
+Figure 20 illustrates this clearly. When the first five passes after a throw-in are evaluated, Barcelona lose possession in only 38.1% of cases, compared with a league average of 53.2%. The remaining throw-ins are roughly evenly split between possession kept on the same side (31.4%) and possession kept after a side change (30.4%), whereas the league average distributes only 21.9% and 24.9% to these two retention categories. Barcelona therefore not only retain possession more reliably, but also use throw-ins as a flexible restart that can either consolidate the side of attack or actively shift the point of play. This dual profile is consistent with the idea that throw-ins, like free kicks in the dead zone, function as positional tools designed to improve the attacking state rather than to generate immediate chances.
+![](assets/upload/offensive/throwins/throw_in_outcomes_5pass_comparison.png)
+_Figure 20: Throw-in outcomes within the first five passes — Barcelona vs. all-team average_
+
+The defensive-half retention view (Figure 21) refines this reading. With a five-second retention window, Barcelona retain possession on 82.4% of own-half throw-ins (n=101), which is above the competition-wide average of 79.7% but clearly below the leading group around Bayern Munich, Manchester City and Napoli, all close to 90%. This contrast is interesting because it suggests that Barcelona's strong overall throw-in profile is not primarily explained by exceptional ball security under pressure in their own half. Instead, it seems to emerge from how they continue and structure possession after the initial retention, rather than from elite first-action robustness against high-pressing opponents. In other words, Barcelona are solid but not outstanding at simply surviving a throw-in deep in their own half; the larger gap to the league average in Figure 20 appears to be driven by what happens in the passes that follow.
+![](assets/upload/offensive/throwins/throw_in_retention_bars.png)
+_Figure 21: Defensive-half throw-in retention rate within a five-second window_
+
+This interpretation is supported by the trajectory map of Barcelona's own-half throw-ins (Figure 22). When Barcelona retain possession within the six-second window, they switch the side of attack in 43.9% of cases. The visualisation shows that many of the green trajectories travel diagonally across the pitch, often through deeper central or back-line zones, before reappearing on the opposite flank. The blue same-side trajectories, by contrast, tend to stay more locally within the corridor of the original throw-in. Lost-possession sequences (red) are concentrated, but not exclusively located, in the more advanced zones of the own half, where the throw-in is taken closer to halfway and ball circulation is more likely to face organised pressure.
+![](assets/upload/offensive/throwins/throw_in_side_change_trajectories_barca.png)
+_Figure 22: Barcelona own-half throw-in trajectories within a six-second window, coloured by outcome_
+
+The xG comparison in Figure 23 gives the headline finding. In their own half, Barcelona slightly outperform the league average (0.003 vs. 0.002 xG per throw-in), consistent with their stronger retention. In the opponent's half, however, the league average jumps to 0.005 while Barcelona's value stays flat at 0.003, despite a comparable volume of attacking-half throw-ins (n=95 vs. an average of 86). Where the typical team converts an advanced throw-in into measurably more chance creation, Barcelona's xG output remains tied to possession continuation regardless of pitch zone.
+![](assets/upload/offensive/throwins/throw_in_xG_after.png)
+_Figure 23: Comparison of Barcelona's xG earned in the five passes after the throw-in - compared to competition average_
+
+
+![](assets/upload/offensive/throwins/throwins_routine_share.png)
+_Figure 24: Attacking throw-in routine mix — Barcelona vs. league average_
+
+The routine-mix breakdown (Figure 24) explains why. 78.9% of Barcelona's attacking-half throw-ins are short throws to feet for build-up, compared with a league average of 64.2%. Throws down the line are taken about half as often as average (7.4% vs. 16.7%), and long throws into the box are practically absent (one occurrence across the competition, against a league average of seven per team). Barcelona therefore concentrate even more heavily on the possession-oriented routine than the typical Champions League team and almost completely avoid the routines most directly associated with attacking deliveries.
+
+
+Taken together, these views suggest that Barcelona's throw-ins follow the same logic that already emerged from the dead-zone free-kick analysis. The team does not treat own-half throw-ins as direct attacking restarts but as opportunities to circulate, reset the structure and frequently switch the side of attack. The retention advantage compared with the league average is substantial, while the comparison with the strongest pressing-resistant teams shows that the underlying mechanism is less about surviving the first contact and more about Barcelona's ability to convert a retained throw-in into a meaningful change of position. This is consistent with the broader interpretation of the report: across corners, free kicks and now throw-ins, Barcelona's set-piece value tends to arise from controlled second-phase construction and positional manipulation rather than from physically dominant first-action solutions.
+
 
 Planned Analysis:
   - throw-ins as offensive (delivery) instrument (heat map, OBV improvement analysis)
