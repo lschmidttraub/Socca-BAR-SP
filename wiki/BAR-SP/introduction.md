@@ -1,7 +1,3 @@
-**TODO:** 
- - AI disclaimer and reference to GitHub Repo, correct anchoring of snippets
- - add explanation that due to data quality/joining issues only selected attack/defending paths are shown and explained
-
 ## Introduction, Review of Existing Analyses and Plan of Analysis
 
 FC Barcelona have traditionally been associated with a highly technical style of play, based on positional structure and collective ball control. 
@@ -90,10 +86,13 @@ It should be noted that the observations described also apply to comparable indi
 The plan for our data analysis, based on data from the current UEFA Champions League season, was developed from both the review of existing analyses and our own subjective impressions from observing FC Barcelona matches. 
 During the qualitative review of these matches, corners appeared to be of particular importance, as they repeatedly led to attempts and goals in Barcelona’s games, putting them in both, attacking and defending positions. 
 This observation is supported by the literature review. 
-Therefore, our analysis places special, though not exclusive, emphasis on corners.
+Therefore, our analysis places special, though not exclusive as the scope of the course is broader, emphasis on corners and free-kicks with a spacial approach.
 
-The aim of the analysis is to identify FC Barcelona’s current attacking and defensive strategies in corners and free-kick deliveries into the box. 
+The aim of the analysis is to identify FC Barcelona’s current attacking and defensive strategies in corners and free-kick deliveries into the box, supplemented by additional analyses of other set-piece categories. 
 To do so, appropriate analytical methods are applied, based on both statistical measures and visualisations. 
 The results are interpreted in context, compared with prior expectations (e.g. based on the analyses review) and used to derive potential tactical conclusions.
-Other set-piece categories are also considered. 
 The overall analysis is supported by descriptive statistics generated at the outset, as well as by comparisons between FC Barcelona and other teams or competition-wide average values.
+
+By making use of mean values and balancing statistical analyses with qualitative reviews of individual matches and plays we also address the scarcity of the available data.
+The analyses are based on data starting from the league phase and up to the quarterfinals of the current UEFA Champions League season.
+Given the limited sample size, our conclusions should be understood as tournament-specific patterns and do not claim full external validity.

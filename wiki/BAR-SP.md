@@ -14,23 +14,31 @@
 </details>
 
 <details>
-<summary>TA Comments(Last edited: 16.03.2026)</summary>
+<summary>TA Comments(Last edited: 21.04.2026)</summary>
 
 Your teaching assistant is Luca Schnyder ( @schnyderl ) and can be reached at <schnyderl@student.ethz.ch>
 
 - [ ] when saving, please indicate what you have changed in a meaningful commit message
 - [x] first assignment due: **March 12**
-- [ ] second assignment due: **April 12**
+- [x] second assignment due: **April 12**
 - [ ] report and poster due: **May 24**
+
+**(21.04.2026)**
+Congratulations! You have reached the second milestone. For the final report, you should write a well-structured, coherent document. Ideally, this should include an introduction, various hypotheses, your analyses, and conclusions or recommendations regarding the team.
+You are also welcome to design the team page together with the other three groups. For the final report, the hints should be removed, as well as any elements from the first two assignments in case they are no longer needed. Furthermore, there should be no code or documentation about the code in the report. Put it in a code snippet for example.
+The analyses should not merely be a "tick-box" exercise of bullet points. Instead, identify any anomalies in the team's playing style and, if you find anything interesting, feel free to examine it in more detail with further analysis. Remember Ben Shneiderman's data visualization mantra: “Overview first, zoom and filter, then details-on-demand.”
+All graphics should follow a consistent style so that readers can immediately identify the most important information. Ensure the report remains cohesive by using a unified background, consistent formatting, and appropriate colors for your team versus the opponent. Please also maintain a consistent pitch orientation (e.g., defense at the bottom/left and attack at the top/right).
+Now, regarding your second assignment:
+Very good approach. I really like that you looked at existing analysis and articles and create a story how the tactics has changed under Flick. Your analysis is very clean, you compared your values with other teams to get context to the numbers and the interpretation is also very good.  Keep up the good work! I don't have much to criticize here. Be consistent with your plots, for example: keep all pitches white. Also be careful when you make a final conclusion based on only few examples. I know that you don't have much data, but if you have time, definitely take the knockout games into account too, to increase the sample size and make your conclusion more robust. 
 
 **(16.03.2026)**
 
 Congratulations, you have successfully completed your first assignment! It's great that you went beyond the minimum, keep it up!
-The first assignment was designed to familiarize you with GitLab, encourage you to make use of the data and document the steps you took to reach your result, and perhaps visit other groups’ pages. As this was a rather elementary analysis, note that the results of this first assignment can but do not have to stay on your page.
+The first assignment was designed to familiarize you with GitLab, encourage you to make use of the data and document the steps you took to reach your result, and perhaps visit other groups' pages. As this was a rather elementary analysis, note that the results of this first assignment can but do not have to stay on your page.
 Looking forward to the second assignment: The core intention will be to practice the documentation and interpretation analysis. This serves as an opportunity to meet the requirements of documenting analyses for replication and interpreting your results meaningfully. Please approach this round of analysis with high quality, such that you may find it suitable to include directly in your final report later. Interpretation means providing contextualized meaning rather than simply pointing out which numbers are larger/smaller than others. It involves explaining results and translating those findings into meaningful conclusions. (That's also where GenAI often fails).
 If you gather general informations or conduct analyses about the team that aren't directly related to your assignment, add them to the team page and collaborate with the other groups to create this page. This is highly encouraged and will also be considered.
 
-Additionally, I’d also like to point out the following:
+Additionally, I'd also like to point out the following:
 
 1) If you choose to create subpages, please make it easier for us to find them by always 1) link them in your group's main page and 2) ensuring that they appear as subpages of your main page in the wiki structure. This can be done by specifying the path of your subpage. Eg, if you are team AJX AD (with page path AJX-AD) and want to create a passing subpage, your subpage should have the path AJX-AD/passing.
 2) All code snippets should be entered into the snippet repository [here](https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/snippets). Please ensure you follow all the guidelines [here]( https://gitlab.ethz.ch/socceranalytics/uefa-cl-2025-2026/-/wikis/snippet-overview) when detailing your code. Refer to the provided $2642 or $2643 snippets for examples of what is expected. If your snippet is something new and helpful for other teams, feel free to add it to the [snippet overview page](/snippet-overview) so that other teams can find it more easily.
@@ -39,7 +47,7 @@ Additionally, I’d also like to point out the following:
 
 5) As a reminder, please be extremely careful when using AI tools with the dataset. The data has been shared with us under the strict condition that it must not be leaked or distributed outside the ETH Zurich environment. You may keep a local copy on your machine for analysis, but the dataset must not be uploaded to external platforms or third-party cloud services (e.g., Google Colab, Google Drive). If you would still like to use AI tools, ETH provides access to certain options within a protected environment. Please refer to: <https://ethz.ch/en/the-eth-zurich/education/ai-in-education/tools.html>. In particular, ETH offers Microsoft Copilot in this protected setup (note that this is not the same as GitHub Copilot).
 
-If you have any more questions, don’t hesitate to contact me or stop by at the open lab hours (Q&A session) on Wednesday from 12-14h at LEE D101.
+If you have any more questions, don't hesitate to contact me or stop by at the open lab hours (Q&A session) on Wednesday from 12-14h at LEE D101.
 
 </details>
 
@@ -47,40 +55,52 @@ If you have any more questions, don’t hesitate to contact me or stop by at the
 
 **Current status:** This report is not final, and will be updated as we progress. It does however outline the planned structure of the final report, and the example analyses included already reflect, to a large extent, the level of depth targeted in the final version. To keep a clean commit history, we do most of our work in a public repository, which can be found [here](https://github.com/lschmidttraub/Socca-BAR-SP).
 
-## Introduction
+## FC Barcelona's Set-Piece Identity in the UEFA Champions League 2025/26
 
-FC Barcelona have traditionally been associated with a highly technical style of play, based on positional structure and collective ball control. 
-For many years, analyses of Barcelona focused primarily on their behaviour in open play rather than on set-pieces (apart from Alexander-Arnold's infamous corner in Liverpool's 2019 4-0 comeback).
-However, this framing has become less adequate since Hansi Flick’s appointment as manager in July 2024. 
-Analyses show that Barcelona’s game has become more direct, more vertical and more aggressive in attacking dangerous spaces across all phases of play, including set-piece situations. (See [Coaches' Voice 2025](https://learning.coachesvoice.com/cv/hansi-flick-tactics-barcelona/))
+### Introduction, Hypotheses and Approach
 
-Reports from the Flick era already suggest that dead-ball situations, and corners in partiular, have represented both a competitive strength and a vulnerability for Barcelona.
-Existing analyses repeatedly identify corners as the phase in which Barcelona’s tactical ideas are most clearly visible &mdash; both offensively, through coordinated and vertical routines, and defensively, through recurring issues in marking and far-post protection.
-Analysing corners of the CL 25/26 thus provides a strong entry point for understanding how Barcelona currently use set pieces and how their usage has evolved since last season.
-We further review the prominent findings of previous analyses [here](BAR-SP/previous-analyses).
+This introductory section motivates the analysis of FC Barcelona's set pieces by linking the club's traditional possession identity with the more direct and vertical style associated with Hansi Flick.
+It reviews previous tactical analyses that describe Barcelona's set pieces as structured tools for defensive manipulation, while also identifying recurring defensive vulnerabilities around hybrid marking. 
+From these reports, we derive the main offensive and defensive expectations that guide the later data analysis and define the analytical scope.
 
-## Plan of the Report
+| Section                                                                                                     | Description                                                                                                                                                                                                         |
+|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Motivation and Context](BAR-SP/introduction#introduction-review-of-existing-analyses-and-plan-of-analysis) | Introduces why Barcelona's set pieces are relevant under Hansi Flick and explains why corners and free kicks provide a useful entry point for analysing their current tactical development.                         |
+| [Review Findings on Offensive Set-Pieces](BAR-SP/introduction#review-findings-on-offensive-set-pieces)      | Summarises previous analyses of Barcelona's attacking set pieces and derives the main hypotheses around short-corner manipulation, far-post access, coordinated runs, knockdowns, and second-ball structures.       |
+| [Review Findings on Defensive Set-Pieces](BAR-SP/introduction#review-findings-on-defensive-set-pieces)      | Reviews reported weaknesses in Barcelona's defensive set-piece structure, especially hybrid marking, orientation loss, runner-marker separation, and vulnerability to far-post, near-post, and edge-of-box attacks. |
+| [Plan of the Analysis](BAR-SP/introduction#plan-of-the-analysis)                                            | Defines the analytical scope, data basis, and methodological approach, combining statistical comparisons with qualitative sequence analysis while stressing the tournament-specific nature of the conclusions.      |
 
-To address the scarcity of the data available to us, we balance statistical analyses with qualitative reviews of indivual matches and plays: we start our report with a statistical overview of Barcelona's set piece performance, comparing it to other clubs, followed by more in-depth analyses specific to Barcelona's strategy.
-Our subsequent analyses can be broadly divided into offensive and defensive categories. As mentioned in the introduction, we place particular emphasis on corners, as our qualitative review of Barcelona's game suggests that they are especially crucial to Barcelona’s offensive and defensive set-piece strategy.
+### Overview of Set-Piece Statistics
 
-The data used throughout these analyses is drawn from the league phase and round of 16 of the current UEFA Champions League season.
-We stress that due to the small sample size, the conclusions we draw only apply to this tournament and do not necessarily support more general conclusions.
+This examination of Barcelona's set-piece statistics reveal a clear contrast between above-average attacking free-kick production and more moderate attacking corner output. 
+Defensively, the numbers point to strong suppression of shots and xG from both free kicks and corners, challenging the expectation of an obvious set-piece vulnerability. 
+Match-level variation and physicality comparisons add context, indicating that Barcelona's set-piece performance depends strongly on opponent and game state rather than on aerial dominance alone.
 
+| Section                                                                                                            | Description                                                                                                                                                                                                 |
+|--------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Offensive Set-Piece Statistics](BAR-SP/statistics#offensive-set-pieces)                                           | Summarises Barcelona's attacking set-piece baseline, showing a clear contrast between above-average free-kick production and more moderate corner output.                                                   |
+| [Defensive Set-Piece Statistics](BAR-SP/statistics#defensive-set-pieces)                                           | Reviews Barcelona's defensive set-piece numbers, where low conceded goals, xG, and shot rates suggest strong suppression from both free kicks and corners.                                                  |
+| [Set-Piece Performance over FC Barcelona Matches](BAR-SP/statistics#set-piece-performance-in-fc-barcelona-matches) | Examines match-level variation, showing that Barcelona's corner threat depends strongly on context, while free-kick sequences provide more consistent attacking value.                                      |
+| [Player Physicality](BAR-SP/statistics#player-physicality)                                                         | Places the set-piece findings in physical context, showing that Barcelona are below average in height and therefore depend more on structure, organisation, and spatial manipulation than aerial dominance. |
 
-### [Overview of Set Piece Statistics](BAR-SP/statistics)
+### Analysis of Offensive Set-Pieces
 
-In this section, we provide an overview of FC Barcelona’s performance in the current UEFA Champions League season, identify broader tendencies in their use of set pieces within their tactical approach, and compare these patterns with those of their competitors.
-We generate the charts and tables in this section with the snippet $2765.
-The analysis is divided into [offensive](BAR-SP/statistics#offensive-set-pieces) and [defensive](BAR-SP/statistics#defensive-set-pieces) set-pieces.
+This section analyses FC Barcelona's offensive set-piece behaviour across corners, free kicks, throw-ins and penalties. 
+The main focus lies on whether Barcelona use these situations as structured attacking tools, especially through short-corner manipulation, far-post access and positional improvement after restarts. 
+The findings suggest that Barcelona's offensive set-piece value often comes less from direct first-contact dominance and more from controlled continuation and role-specific execution.
 
+| Section                                                                                                                         | Description                                                                                                                                                                                                                                      |
+|---------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Corner Routine Profile and Output](BAR-SP/offense#offensive-corners)                                                           | Analyses Barcelona's attacking corner profile, showing a structured but not elite-output approach based on direct inswingers, short-corner alternatives, compact occupation, and second-phase value.                                             |
+| [Individual Players involved in Corner Action](BAR-SP/offense#individual-players-involved-in-corner-action)                     | Examines corner takers, receivers, and OBV profiles, highlighting Raphinha's delivery dominance, Yamal's continuation-oriented value, and the flexible distribution of first-contact targets.                                                    |
+| [Spatial Profile of Corner Delivery](BAR-SP/offense#spatial-profile-of-corner-delivery)                                         | Studies delivery zones, first-touch locations, far-post usage, and matchup effects, showing how Barcelona combine central danger with selected far-post and recycle options.                                                                     |
+| [Attacking Players Movements on Corners](BAR-SP/offense#attacking-players-movements)                                            | Uses selected movement maps to interpret Barcelona's corner routines as compact, controlled, and sequence-oriented rather than based on large-scale choreography or pure aerial superiority.                                                     |
+| [Free-kick Routine Profile and Output](BAR-SP/offense#offensive-free-kicks)                                                     | Evaluates Barcelona's attacking free-kick profile, where above-average goals, shot rate, and xG suggest stronger production than from corners, supported by a mixed and zone-dependent routine selection.                                        |
+| [Individual Players involved in Free-kick Action](BAR-SP/offense#individual-players-involved-in-free-kick-action)               | Compares free-kick takers, receivers, OBV distributions, and player-specific delivery maps, showing a more situational responsibility structure than for corners.                                                                                |
+| [Spatial Profile of attempt-oriented Free-kick Delivery](BAR-SP/offense#spatial-profile-of-attempt-oriented-free-kick-delivery) | Separates crossed and direct free kicks, linking crossed deliveries to the corner hypotheses around second actions while treating direct shots as a more individual execution-based threat.                                                      |
+| [Free-kicks From the "Dead Zone"](BAR-SP/offense#free-kicks-from-the-dead-zone)                                                 | Analyses OBV changes after deeper free-kick restarts, showing how Barcelona use these situations to reset structure, switch play, and improve possession rather than attack goal directly.                                                       |
+| [Throw-ins](BAR-SP/offense#throw-ins)                                                                                           | Interprets Barcelona's throw-ins as positional tools, with strong possession retention and side-changing behaviour but limited direct xG creation from advanced throw-ins.                                                                       |
+| [Penalties](BAR-SP/offense#penalties)                                                                                           | Reviews Barcelona's four penalties through taker routines, shot placement, keeper behaviour, and rebound positioning, while stressing that the sample is too small for general performance claims.                                               |
+| [Conclusion and Recommendations](BAR-SP/offense#conclusion-and-recommendations)                                                 | Connects the offensive findings back to the hypotheses from previous analyses and derives recommendations around short corners, second-phase routines, far-post usage, crossed free kicks, dead-zone progression, and penalty rebound structure. |
 
-### [Offensive Set-Pieces](BAR-SP/offense)
-
-This section presents the offensive set-piece analysis of FC Barcelona, with a particular focus on corners and free-kicks. 
-It combines descriptive metrics, delivery characteristics, spatial patterns, and selected movement visualisations to identify the main principles of Barcelona’s attacking set-piece strategy.
-
-#### [Offensive Corners](BAR-SP/offense#offensive-corners)
-We start by investigating  [Offensive Corner Delivery Patterns](BAR-SP/offense#offensive-corners), followed by a discussion of [Player Movement in Offensive Corners](BAR-SP/offense#movement-of-attacking-players).
-
-### [Defensive Set-Pieces](BAR-SP/defense)
+### Analysis of Defensive Set-Pieces
