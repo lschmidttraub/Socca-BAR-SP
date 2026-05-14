@@ -61,9 +61,9 @@ MIN_N  = 2                        # min FKs per cell to show colour
 
 
 # ── normalisation ─────────────────────────────────────────────────────
-# StatsBomb already orients every event so the team in possession attacks
-# toward x=120. No y-flip needed — show raw positions so FKs appear on
-# both sides of the pitch as they actually occurred.
+# StatsBomb event locations in this dataset are already expressed in the
+# event team's attacking frame: x=0 is the team's own goal and x=120 is the
+# opponent goal. Keep x/y raw so the map stays left-to-right attacking.
 
 def _normalise(loc: list) -> tuple[float, float]:
     return float(loc[0]), float(loc[1])
