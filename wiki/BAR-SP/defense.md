@@ -91,7 +91,7 @@ The card pitch plot coincides with this characterization: whilst the right side 
 <img src="assets/upload/defensive/free-kicks/defensive_cards_pitch.png" width="49%" />
 _Pitch plot of cards for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
 
-1. TODO: tie this back to Flick's overarching strategy — is the right-side aggression a deliberate trigger (force errors on Yamal/Koundé's flank) or a personnel artefact of Araújo/Cubarsí's duelling profile?
+**TODO:** tie this back to Flick's overarching strategy — is the right-side aggression a deliberate trigger (force errors on Yamal/Koundé's flank) or a personnel artefact of Araújo/Cubarsí's duelling profile?
 
 ### Zonal vs man-marking defense
 
@@ -152,12 +152,12 @@ Only 5/11 trajectories have more than 2 arrows, illustrating the two categories 
 **TODO:** Find a more substantive interpretation
 
 
-### Additional Free-kick analyses
+<!-- ### Additional Free-kick analyses
 
 - Find some way to tie height narrative into free-kicks
 - Some kind of convex hull/voronoi pitch control
 - Look at how Barcelona can leverages defensive free-kicks to create counter-attacks
-- Look at how free-kick tactics vary in different match phases/when Barcelona is in the lead
+- Look at how free-kick tactics vary in different match phases/when Barcelona is in the lead -->
 
 ## Defensive Throw-ins
 
@@ -197,3 +197,26 @@ Barcelona conceded only one penalty across the entire Champions League campaign 
 **Fewer fouls, fewer penalties.** The same logic applies to foul counts: a more aggressive playing style leads to more fouls overall, and more fouls create more opportunities for a penalty to be awarded. Barcelona commits fewer fouls per game than most of their Round of 16 peers, which is consistent with their possession-oriented, low-contact approach.
 <img src="assets/upload/defensive/penalties/fouls_per_game.png" width="100%" />
 <img src="assets/upload/defensive/penalties/correlation_fouls_penalties.png" width="100%" />
+
+## Conclusion
+
+Across all analyzed defensive set-piece categories, Barcelona outperforms the Champions League average, and they do so despite a squad that is, on paper, physically outmatched by most of their elite peers. The recurring theme is that structure and ball control compensate for size.
+
+The same principles surface in each phase. On corners, a hybrid zonal + man-marking block keeps the shot-concession rate at 26.8% against a league average of 38.2%, and the goal rate at just 2.4% against an average of 5.3%. 
+On free-kicks, the marking strategy varies between players and opponents, leaning more man-marking against taller sides, and more zonal against smaller ones. 
+The team concedes only 0.091 xG per game from free-kick sequences, half the competition mean. 
+On throw-ins, the same dual logic of tight pressure on the ball and zonal cover behind makes Barcelona the 5th best win-back team in the competition, and the very best at suppressing side-switches. 
+On penalties, the broader stylistic choice to keep the ball in their own third, rather than committing reckless challenges, limits them to a single penalty conceded across the campaign.
+
+A more uncomfortable pattern, however, is the recurring imbalance between the two flanks. 
+The right side leaks more shots from corners, yet pushes opponent first actions further from goal on average. 
+The left side concedes fewer corner shots, but is responsible for the two most dangerous free-kick fouls of the campaign, leading to the Atlético free-kick goal and two direct red cards. 
+Read together, the right side looks like a more aggressive flank that mitigates threats early at the cost of more frequent fouls, whilst the left side is more conservative, but occasionally caught making desperate, late challenges in dangerous zones. 
+
+Although the framework is structural, certain players carry disproportionate weight. 
+Lewandowski and Araujo dominate the aerial clearance numbers on corners, with Araújo single-handedly absorbing the left-sided workload. 
+Gerard Martín, Cubarsí, Bernal and Araujo are regular man-markers on free-kicks. 
+Pedri sits at the zonal extreme on free-kicks despite his man-marking role on corners, a reminder that the choice of marking system is a per-set-piece decision rather than a player trait.
+
+Taken as a whole, Barcelona's defensive set-piece performance is not the product of physical dominance, but opponent-specific adjustments, and a possession-first style that denies the opposition the volume of set-pieces other teams concede. 
+The remaining vulnerabilities are the central 6-yard goalkeeper line on corners, right-sided corner deliveries that bypass the near-post block, and left-flank free-kicks in the final third.
