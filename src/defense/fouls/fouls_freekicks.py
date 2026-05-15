@@ -106,6 +106,50 @@ def _event_value(e: dict) -> float:
     return float(v)
 
 
+# How far back (in events) to look for the foul that produced a FK.
+_FOUL_LOOKBACK = 15
+
+
+def _foul_to_fk_state_delta(
+    events: list[dict], fk_idx: int, barca_sb: str,
+) -> float | None:
+    """Genuine opponent-OBV delta: state value at the FK start minus state
+    value just before the Barca foul that produced it.
+
+    Uses the absolute state fields:
+      Δ = fk.obv_for_before − foul.obv_against_before
+
+    `fk.obv_for_before` is the opponent's (FK-taker's) attacking-state value
+    immediately before the FK action; `foul.obv_against_before` is the
+    opponent's attacking-state value (= Barca's conceding-state value)
+    immediately before Barca's foul disrupted play. Both are in the
+    opponent's offensive perspective, so Δ > 0 means the foul/stoppage
+    raised the opponent's expected goal probability for the next ~N events.
+
+    Scans up to `_FOUL_LOOKBACK` events back for the matching Barca Foul
+    Committed event; returns None if none is found in that window.
+    """
+    fk_ev = events[fk_idx]
+    fk_for_before = float(fk_ev.get("obv_for_before") or 0.0)
+
+    period = fk_ev.get("period")
+    scanned = 0
+    for j in range(fk_idx - 1, -1, -1):
+        ev = events[j]
+        if ev.get("period") != period:
+            return None
+        scanned += 1
+        if scanned > _FOUL_LOOKBACK:
+            return None
+        if ev.get("type", {}).get("id") != 22:  # Foul Committed
+            continue
+        if ev.get("team", {}).get("name", "") != barca_sb:
+            continue
+        foul_against_before = float(ev.get("obv_against_before") or 0.0)
+        return fk_for_before - foul_against_before
+    return None
+
+
 def _sequence_value(events: list[dict], start_idx: int, team_sb: str) -> float:
     """Sum opponent OBV/xG (with fallback) over the FK possession, capped at
     SEQUENCE_MAX_SECONDS. Follows the action — every opp event in the
@@ -138,14 +182,17 @@ def _load_all_opponent_fks(
     Penalties are excluded; only FKs in Barcelona's defending half are kept.
 
     `xgs`  : sum of `shot.statsbomb_xg` over shots in the FK's possession.
-    `obvs` : opponent's summed `obv_total_net` over the FK possession,
-             capped at SEQUENCE_MAX_SECONDS.
-    `vals` : per-FK summed OBV/xG over the opponent's FK possession
-             (capped at SEQUENCE_MAX_SECONDS). Per-event fallback chain
-             is `statsbomb_obv.value` → `shot.statsbomb_xg` → 0, matching
-             src/defense/barcelona_fk_defense_analysis.py — but here the
-             value is followed through the whole sequence, not just the
-             first touch.
+    `obvs` : opponent-perspective state-value delta from the foul to the
+             FK — `fk.obv_for_before − foul.obv_against_before`. The
+             genuine "(opponent OBV at FK start) − (opponent OBV before
+             the foul)", computed from absolute state fields rather than
+             the foul action's net OBV. FKs without a preceding Barca
+             foul (handballs, restarts, etc.) get 0.
+    `vals` : opponent OBV at the FK start — `obv_for_before` of the FK
+             event. This is the absolute state value: P(opp scores in
+             the next ~N events) given the game state right before the
+             FK is taken. Not a delta — the value of the *position*, not
+             of the restart action itself.
     """
     xs: list[float] = []
     ys: list[float] = []
@@ -183,8 +230,11 @@ def _load_all_opponent_fks(
                     for e in setpiece_sequence(ev, events)
                     if e.get("type", {}).get("id") == 16
                 )
-                obv = _sequence_obv(events, idx, team)
-                v   = _sequence_value(events, idx, team)
+                # Genuine state-value delta from foul to FK (opp perspective).
+                delta = _foul_to_fk_state_delta(events, idx, barca_sb)
+                obv = delta if delta is not None else 0.0
+                # Absolute state value: P(opp scores next | state at FK start).
+                v   = float(ev.get("obv_for_before") or 0.0)
 
                 xs.append(barca_x)
                 ys.append(barca_y)
@@ -256,9 +306,11 @@ def load_data(data_dir: Path = None) -> tuple[
     fk_xs, fk_ys, xgs, obvs, vals = _load_all_opponent_fks(data_dir)
     print(f"  Opponent FKs (non-penalty): {len(fk_xs)}")
     print(f"  Total xG from opponent FKs:  {sum(xgs):.3f}")
-    print(f"  Total OBV from opponent FKs: {sum(obvs):+.3f}")
+    n_with_foul = sum(1 for o in obvs if o != 0.0)
+    print(f"  FKs with a preceding Barca foul: {n_with_foul} / {len(obvs)}")
+    print(f"  Total Δ-OBV (opp gain from foul): {sum(obvs):+.3f}")
     if vals:
-        print(f"  Mean per-FK OBV/xG: {sum(vals) / len(vals):.4f}")
+        print(f"  Mean P(opp scores next) at FK start (obv_for_before): {sum(vals) / len(vals):.4f}")
 
     return all_xs, all_ys, fk_xs, fk_ys, xgs, obvs, vals
 
@@ -344,12 +396,12 @@ def plot_foul_xg_heatmaps(
         fontsize=12, fontweight="bold", pad=10, color="#111111",
     )
 
-    # ── Left panel: per-FK mean xG by FK origin (red) ─────────────────────────
+    # ── Left panel: per-FK opponent OBV at FK start (red) ─────────────────────
     ax_right = axes[0]  # variable kept for the rest of the function
 
     val_stats = pitch.bin_statistic(
         fk_xs, fk_ys,
-        values=xgs,
+        values=fk_vals,
         statistic="mean",
         bins=BINS,
     )
@@ -370,10 +422,10 @@ def plot_foul_xg_heatmaps(
         alpha=0.85,
     )
 
-    # Overlay each FK at its origin, sized by per-FK xG
+    # Overlay each FK at its origin, sized by per-FK OBV at start
     if fk_xs:
-        max_v     = max((abs(v) for v in xgs), default=1.0) or 1.0
-        dot_sizes = [max(15, abs(v) / max_v * 180) for v in xgs]
+        max_v     = max((abs(v) for v in fk_vals), default=1.0) or 1.0
+        dot_sizes = [max(15, abs(v) / max_v * 180) for v in fk_vals]
         pitch.scatter(
             fk_xs, fk_ys,
             ax=ax_right,
@@ -391,12 +443,13 @@ def plot_foul_xg_heatmaps(
         fraction=0.025, pad=0.02,
         shrink=0.75,
     )
-    cb_right.set_label("Mean xG per FK", fontsize=9)
+    cb_right.set_label("Mean P(opp scores next) at FK start", fontsize=9)
     cb_right.ax.tick_params(labelsize=8)
 
-    mean_xg = sum(xgs) / len(xgs) if xgs else 0.0
+    mean_v = sum(fk_vals) / len(fk_vals) if fk_vals else 0.0
     ax_right.set_title(
-        f"Opp FKs — mean xG by origin  (n = {len(fk_xs)} FKs, mean xG = {mean_xg:.3f})",
+        f"Opp FKs — mean P(opp scores next) at FK start  "
+        f"(n = {len(fk_xs)} FKs, mean = {mean_v:.4f})",
         fontsize=11, fontweight="bold", pad=10, color="#111111",
     )
 
@@ -422,7 +475,11 @@ def plot_foul_xg_heatmaps(
 
     cmap_obv = plt.get_cmap("RdYlGn_r").copy()
     cmap_obv.set_bad(color="white", alpha=0)
-    norm_obv = mcolors.TwoSlopeNorm(vmin=-vmax_obv, vcenter=0, vmax=vmax_obv)
+    # Symmetric log so a couple of high-Δ-OBV cells don't crush the rest.
+    lt_obv   = max(vmax_obv / 50, 1e-5)
+    norm_obv = mcolors.SymLogNorm(
+        linthresh=lt_obv, vmin=-vmax_obv, vmax=vmax_obv, base=10,
+    )
 
     pcm_obv = pitch.heatmap(
         {**obv_stats, "statistic": obv_grid},
@@ -455,12 +512,13 @@ def plot_foul_xg_heatmaps(
         fraction=0.025, pad=0.02,
         shrink=0.75,
     )
-    cb_obv.set_label("Opponent OBV (sum, red = gained / green = lost)", fontsize=9)
+    cb_obv.set_label("Δ OBV from foul (sum, symlog: red = gained / green = lost)", fontsize=9)
     cb_obv.ax.tick_params(labelsize=8)
 
-    total_obv = sum(obvs)
+    total_delta = sum(obvs)
+    n_with_foul = sum(1 for o in obvs if o != 0.0)
     ax_obv.set_title(
-        f"Opponent FKs — OBV by origin  (n = {len(fk_xs)}, total OBV = {total_obv:+.2f})",
+        f"Foul → FK Δ OBV by origin  (n = {n_with_foul}/{len(fk_xs)} FKs, total = {total_delta:+.2f})",
         fontsize=12, fontweight="bold", pad=10, color="#111111",
     )
 
@@ -473,7 +531,7 @@ def plot_foul_xg_heatmaps(
     )
     fig.text(
         0.5, 0.91,
-        "Defending half only (Barcelona goal on LEFT)  ·  left: mean xG per opponent FK (by origin)  ·  centre: opponent FK-possession OBV  ·  right: Barca fouls that gave away a FK  ·  penalties excluded",
+        "Defending half only (Barcelona goal on LEFT)  ·  left: mean P(opp scores next) at FK start = obv_for_before  ·  centre: Δ OBV from foul (opp value at FK start − opp value before foul)  ·  right: Barca fouls that gave away a FK  ·  penalties excluded",
         ha="center", va="top",
         fontsize=9.5, color="#555555",
     )

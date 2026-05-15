@@ -72,18 +72,24 @@ In light of this information, defending free-kicks appear to be one of Barcelona
 So the overview seems positive, but let us take a more granular look at the added value of defensive free-kicks.
 In the plot below, we show, from left to right, heatmaps of xG, opponent OBV gain, and fouls for all free-kicks in Barcelona’s defensive half.
 <img src="assets/upload/defensive/free-kicks/foul_freekick_xg_heatmap.png" width="100%" />
-_Free-kick heatmaps for every opponent free-kick in Barcelona's defensive half. **1) Mean OBV/xG per free-kick**. For each opponent FK, the per-event value (StatsBomb `obv`, falling back to shot xG where `obv` is absent) is summed over the opponent's possession for up to 10 s after the restart, then averaged across all FKs in each cell **2) Net opponent OBV.** The same possession value summed (not averaged) per cell on a diverging scale: red cells are zones where free-kicks gain the opponent value, green cells are zones where the free-kick possession on average costs them value relative to open play. **3) Barcelona fouls that conceded a free-kick.** Dots mark individual free-kicks (panels 1–2, sized by magnitude) and individual fouls (panel 3). The code for the foul/xG/OBV plot can be found in snippet UNKNOWN. The first plot was inspired by the RMA-SP group's snippet $3111._
+_Free-kick heatmaps for every opponent free-kick in Barcelona's defensive half. **1) Mean OBV/xG per free-kick**. We measure the opponent OBV before each free kick action (`obv_for_before`) **2) Net opponent OBV.** We take the difference between the opponent OBV before the free kick is taken and the opponent OBV of the last action taken before the free kick **3) Barcelona fouls that conceded a free-kick.** Dots mark individual free-kicks (panels 1–2, sized by magnitude) and individual fouls (panel 3). The code for the foul/xG/OBV plot can be found in snippet UNKNOWN. The first plot was inspired by the RMA-SP group's snippet $3111._
 
-These pitch plots paint an interesting picture. First, despite it being a valuable indicator, the xG/OBV only tells one side of the story. 
+These pitch plots paint an interesting picture. 
+First, we see that free-kicks are unsurprisingly more dangerous when they are closer to the goal.
+This serves as a justification for the team's tendency to commit fouls higher up the pitch.
+However, despite it being a valuable indicator, the xG/OBV only tells one side of the story. 
 For example, if the opponent was previously in a more dangerous position, a free-kick can represent a net gain for the defending team. 
 A better way of analyzing this is to look at the change in opponent's OBV from the play leading up to the free-kick to the moment following the free-kick.
 This perspective helps us see how free-kicks are used in Barcelona's defensive strategy: they allow the team to transform dangerous situations into (hopefully) more controlled, less risky sequences. 
-The second plot flips the left-right asymmetry we see in the first: though free-kicks on the left side of the field are more dangerous (higher xG/OBV), their net effect on the OBV is more positive than right-side free-kicks.
-This tradeoff is further emphasized by the foul heatmap: more fouls are committed on the right side, and are committed further away from the goal.
-Thus, a more aggressive defensive strategy leads to more premature fouls, which decreases the absolute danger, but represents a more worse OBV trade.  
-The card record confirms the defensive asymmetry: Barcelona's right-side centre-backs (Cubarsí, Araújo, Eric García) absorb all 3 red cards plus 3 yellows, while the left-side group (Cancelo, Balde, Gerard Martín) takes 5 yellows and zero reds.
-<img src="assets/upload/defensive/free-kicks/defensive_cards_by_side.png" width="50%" />
-_Cards-by-side plot for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
+Indeed, certain free-kicks near the half-way line even represent a net gain for Barcelona, yet most free kicks remain bad trades for the defending team.
+The OBV gains also decrease as the free-kick moves closer to the goal: when the opponent is already in a more dangerous position, Barcelona's fouls seem more like mistakes than tactical decisions.
+We notice asymmetries between the left and right sides. Left side fouls/free kicks fall into two categories: more controlled fouls that occur at a safe distance from the goal, and the two fouls committed just outside the box, one of which led to a goal against Atletico Madrid. 
+The right side doesn't showcase such a stark separation: one can still draw a line past which less fouls occur, yet those that do occur have lower OBV and are further away from the goal.
+Though our observations rest on two single events, we tentatively conclude that the left side does a worse job handling dangerous situations, letting players get closer to the goal and committing more reckless fouls.
+More fouls are committed on the right side, indicating a defensive strategy that is more aggressive from the get-go, mitigating defensive threats more effectively, but conceding a higher number of free-kicks.
+The card pitch plot coincides with this characterization: whilst the right side has more frequent yellow cards, the left side has two direct red cards from reckless fouls close to the goal.
+<img src="assets/upload/defensive/free-kicks/defensive_cards_pitch.png" width="49%" />
+_Pitch plot of cards for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
 
 1. TODO: tie this back to Flick's overarching strategy — is the right-side aggression a deliberate trigger (force errors on Yamal/Koundé's flank) or a personnel artefact of Araújo/Cubarsí's duelling profile?
 
