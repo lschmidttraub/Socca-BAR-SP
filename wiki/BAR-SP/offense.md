@@ -353,6 +353,8 @@ To analyse Barcelona's behaviour during goal kicks more formally, we use the pit
 
 $$I_i(p, t) = \frac{f_i(p, t)}{f_i(p_i(t), t)}$$
 
+where $f_i(p, t)$ is the pdf of a bivariate normal distribution that takes both direction and speed of the player into account.
+
 The team-level pitch control then aggregates these individual influences across both teams, normalised through a logistic function:
 
 $$PC(p, t) = \sigma\left( \sum_i I_i(p, t) - \sum_j I_j(p, t) \right)$$
