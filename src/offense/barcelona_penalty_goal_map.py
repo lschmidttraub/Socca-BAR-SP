@@ -81,6 +81,10 @@ KICK_VEL_THRESH_MS = 6.5    # m/s — velocity threshold to identify actual kick
 GOAL_COLOR = POSITIVE_COLOR
 SAVED_COLOR = "#e6821e"
 MISSED_COLOR = NEUTRAL_COLOR
+DIVE_LATERAL_THRESHOLD_SB = 0.55
+DIVE_LATERAL_SPEED_THRESHOLD_SB = 2.2
+DIVE_SCAN_PRE = 0.45
+DIVE_SCAN_POST = 1.20
 
 
 # ── data structures ──────────────────────────────────────────────────
@@ -96,6 +100,8 @@ class PenaltyShot:
     second: int
     period: int
     speed_kmh: float | None = None
+    keeper_dive_direction: str | None = None
+    keeper_dive_t_rel: float | None = None
 
 
 # ── SkillCorner helpers ──────────────────────────────────────────────
@@ -122,6 +128,27 @@ def _barca_team_id(meta: dict) -> int:
     if "Barcelona" in meta["home_team"]["name"]:
         return int(meta["home_team"]["id"])
     return int(meta["away_team"]["id"])
+
+
+def _opponent_team_id(meta: dict) -> int:
+    home_id = int(meta["home_team"]["id"])
+    away_id = int(meta["away_team"]["id"])
+    barca_id = _barca_team_id(meta)
+    return away_id if barca_id == home_id else home_id
+
+
+def _player_index(meta: dict) -> dict[int, dict[str, Any]]:
+    players: dict[int, dict[str, Any]] = {}
+    for player in meta.get("players", []):
+        pid = player.get("id") or player.get("player_id")
+        if pid is None:
+            continue
+        role = player.get("player_role", {}) or {}
+        players[int(pid)] = {
+            "team_id": int(player["team_id"]),
+            "is_goalkeeper": role.get("name") == "Goalkeeper" or role.get("acronym") == "GK",
+        }
+    return players
 
 
 def _attack_right(meta: dict, team_id: int, period: int) -> bool:
@@ -248,6 +275,151 @@ def _estimate_speed(zip_path: Path, match_id: str, shot: PenaltyShot) -> float |
     return round(speed, 1) if 20.0 <= speed <= 200.0 else None
 
 
+def _detect_keeper_dive(
+    keeper_samples: list[tuple[float, float, float]],
+    *,
+    kick_time: float,
+) -> tuple[str | None, float | None]:
+    """Return keeper dive direction and first dive time relative to the kick."""
+    if len(keeper_samples) < 3:
+        return None, None
+
+    keeper_samples = sorted(keeper_samples, key=lambda sample: sample[0])
+    pre = [sample for sample in keeper_samples if kick_time - DIVE_SCAN_PRE <= sample[0] <= kick_time]
+    if not pre:
+        pre = [min(keeper_samples, key=lambda sample: abs(sample[0] - kick_time))]
+    baseline_y = sum(sample[2] for sample in pre) / len(pre)
+
+    previous: tuple[float, float, float] | None = None
+    for sample in keeper_samples:
+        t, _x, y = sample
+        if t < kick_time - DIVE_SCAN_PRE or t > kick_time + DIVE_SCAN_POST:
+            continue
+        lateral = y - baseline_y
+        lateral_speed = 0.0
+        if previous is not None:
+            prev_t, _prev_x, prev_y = previous
+            dt = t - prev_t
+            if dt > 0:
+                lateral_speed = (y - prev_y) / dt
+        previous = sample
+        if t < kick_time:
+            continue
+        if abs(lateral) >= DIVE_LATERAL_THRESHOLD_SB or abs(lateral_speed) >= DIVE_LATERAL_SPEED_THRESHOLD_SB:
+            return ("R" if lateral > 0 or lateral_speed > 0 else "L"), round(t - kick_time, 2)
+
+    post = [sample for sample in keeper_samples if kick_time <= sample[0] <= kick_time + DIVE_SCAN_POST]
+    if not post:
+        return None, None
+    final_lateral = post[-1][2] - baseline_y
+    if abs(final_lateral) < 0.35:
+        return "C", None
+    return ("R" if final_lateral > 0 else "L"), None
+
+
+def _tracking_metrics(zip_path: Path, match_id: str, shot: PenaltyShot) -> tuple[float | None, str | None, float | None]:
+    """Estimate ball speed plus keeper dive direction/timing from SkillCorner."""
+    try:
+        meta = _load_sc_meta(zip_path, match_id)
+    except Exception:
+        return None, None, None
+
+    barca_id = _barca_team_id(meta)
+    opponent_id = _opponent_team_id(meta)
+    players = _player_index(meta)
+    right = _attack_right(meta, barca_id, shot.period)
+    length = float(meta["pitch_length"])
+    width = float(meta["pitch_width"])
+    goal_x_sc = (length / 2.0 - 0.5) if right else -(length / 2.0 - 0.5)
+
+    t_event = shot.minute * 60 + shot.second
+    t_lo = t_event - SPEED_WINDOW_PRE
+    t_hi = t_event + SPEED_WINDOW_POST
+
+    ball_samples: list[tuple[float, float, float]] = []
+    keeper_samples: list[tuple[float, float, float]] = []
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            fname = f"{match_id}_tracking_extrapolated.jsonl"
+            if fname not in zf.namelist():
+                return None, None, None
+            with zf.open(fname) as fh:
+                for raw in io.TextIOWrapper(fh, encoding="utf-8"):
+                    frame = json.loads(raw)
+                    if frame.get("period") != shot.period:
+                        continue
+                    ts = frame.get("timestamp")
+                    if ts is None:
+                        continue
+                    t = _parse_ts(ts)
+                    if t > t_hi:
+                        break
+                    if t < t_lo:
+                        continue
+
+                    ball = frame.get("ball_data") or {}
+                    bx, by = _safe_float(ball.get("x")), _safe_float(ball.get("y"))
+                    if bx is not None and by is not None:
+                        ball_samples.append((t, bx, by))
+
+                    for player in frame.get("player_data", []):
+                        pid = player.get("player_id")
+                        if pid is None:
+                            continue
+                        info = players.get(int(pid))
+                        if not info or info["team_id"] != opponent_id or not info["is_goalkeeper"]:
+                            continue
+                        px, py = _safe_float(player.get("x")), _safe_float(player.get("y"))
+                        if px is None or py is None:
+                            continue
+                        sx, sy = _sc_to_sb(px, py, length=length, width=width, right=right)
+                        keeper_samples.append((t, sx, sy))
+    except Exception:
+        return None, None, None
+
+    if len(ball_samples) < 4:
+        return None, None, None
+
+    ball_samples.sort(key=lambda sample: sample[0])
+    t_kick: float | None = None
+    for i in range(1, len(ball_samples)):
+        t0, x0, y0 = ball_samples[i - 1]
+        t1, x1, y1 = ball_samples[i]
+        dt = t1 - t0
+        if dt <= 0:
+            continue
+        if math.hypot(x1 - x0, y1 - y0) / dt > KICK_VEL_THRESH_MS:
+            t_kick = t1
+            break
+
+    if t_kick is None:
+        return None, None, None
+
+    t_arrive: float | None = None
+    for t, x, _y in ball_samples:
+        if t <= t_kick:
+            continue
+        reached = (x >= goal_x_sc) if right else (x <= goal_x_sc)
+        if reached:
+            t_arrive = t
+            break
+
+    speed_kmh: float | None = None
+    if t_arrive is not None:
+        dt = t_arrive - t_kick
+        if dt >= 0.05:
+            dx = (shot.end_x - PENALTY_SPOT_X) * SB_X_TO_M
+            dy = (shot.end_y - PENALTY_SPOT_Y) * SB_Y_TO_M
+            dz = shot.end_z * SB_Z_TO_M
+            dist_m = math.sqrt(dx * dx + dy * dy + dz * dz)
+            speed = dist_m / dt * 3.6
+            if 20.0 <= speed <= 200.0:
+                speed_kmh = round(speed, 1)
+
+    dive_direction, dive_t_rel = _detect_keeper_dive(keeper_samples, kick_time=t_kick)
+    return speed_kmh, dive_direction, dive_t_rel
+
+
 # ── StatsBomb collection ─────────────────────────────────────────────
 
 def _outcome(e: dict) -> str:
@@ -297,7 +469,11 @@ def _collect(data_dir: Path) -> list[PenaltyShot]:
                 period=int(e.get("period", 1)),
             )
             if zip_path and sc_id:
-                shot.speed_kmh = _estimate_speed(zip_path, sc_id, shot)
+                (
+                    shot.speed_kmh,
+                    shot.keeper_dive_direction,
+                    shot.keeper_dive_t_rel,
+                ) = _tracking_metrics(zip_path, sc_id, shot)
             shots.append(shot)
 
     return shots
@@ -339,6 +515,36 @@ def _marker(outcome: str) -> str:
     return "o" if outcome == "Goal" else "X"
 
 
+def _keeper_dive_text(direction: str | None, timing: float | None) -> str | None:
+    if direction is None:
+        return None
+    direction_text = {
+        "L": "taker's left",
+        "R": "taker's right",
+        "C": "centre",
+    }.get(direction, direction)
+    if timing is None:
+        return f"Keeper: {direction_text}"
+    when = "after kick" if timing >= 0 else "before kick"
+    return f"Keeper: {direction_text}\n{abs(timing):.2f}s {when}"
+
+
+def _draw_keeper_dive_hint(ax: plt.Axes, shot: PenaltyShot) -> None:
+    if shot.keeper_dive_direction not in {"L", "R"}:
+        return
+    direction = -1 if shot.keeper_dive_direction == "L" else 1
+    start_y = max(GOAL_Y_MIN + 0.4, min(GOAL_Y_MAX - 0.4, shot.end_y))
+    end_y = max(GOAL_Y_MIN + 0.15, min(GOAL_Y_MAX - 0.15, start_y + direction * 0.8))
+    y_base = -0.22
+    ax.annotate(
+        "",
+        xy=(end_y, y_base),
+        xytext=(start_y, y_base),
+        arrowprops={"arrowstyle": "-|>", "color": "#333333", "lw": 1.0, "alpha": 0.85},
+        zorder=6,
+    )
+
+
 def _build_figure(shots_by_player: dict[str, list[PenaltyShot]]) -> plt.Figure:
     players = sorted(shots_by_player, key=lambda p: len(shots_by_player[p]), reverse=True)
     n = len(players)
@@ -353,6 +559,7 @@ def _build_figure(shots_by_player: dict[str, list[PenaltyShot]]) -> plt.Figure:
     )
 
     any_speed = any(s.speed_kmh is not None for pl in shots_by_player.values() for s in pl)
+    any_dive = any(s.keeper_dive_direction is not None for pl in shots_by_player.values() for s in pl)
 
     for idx, player in enumerate(players):
         ax = fig.add_subplot(gs[idx // ncols, idx % ncols])
@@ -377,6 +584,20 @@ def _build_figure(shots_by_player: dict[str, list[PenaltyShot]]) -> plt.Figure:
                     ha="center", va="bottom", fontsize=6.5,
                     color="#111111", fontweight="bold", zorder=5,
                 )
+            if shot.keeper_dive_direction is not None:
+                _draw_keeper_dive_hint(ax, shot)
+                dive_text = _keeper_dive_text(shot.keeper_dive_direction, shot.keeper_dive_t_rel)
+                ax.text(
+                    shot.end_y,
+                    shot.end_z - 0.18,
+                    dive_text,
+                    ha="center",
+                    va="top",
+                    fontsize=5.6,
+                    color="#333333",
+                    fontweight="bold",
+                    zorder=5,
+                )
 
         ax.set_title(
             f"{player}  ·  {len(pshots)} pen  ·  {n_g} G",
@@ -398,16 +619,21 @@ def _build_figure(shots_by_player: dict[str, list[PenaltyShot]]) -> plt.Figure:
         legend_handles.append(
             Line2D([0], [0], color="none", label="Numbers = shot speed (km/h)")
         )
+    if any_dive:
+        legend_handles.append(
+            Line2D([0], [0], color="none", label="Keeper labels use the taker's view; timing is relative to the kick")
+        )
 
     fig.legend(handles=legend_handles, loc="lower center", ncol=len(legend_handles),
                fontsize=8, frameon=True, framealpha=0.88, bbox_to_anchor=(0.5, 0.01))
 
     fig.text(0.5, 0.97,
-             "Barcelona penalty takers — goal-face locations & shot speed",
+             "Barcelona penalty takers — goal-face locations, shot speed & keeper dive",
              ha="center", va="top", fontsize=14, fontweight="bold", color="#111111")
     subtitle = (
         "One panel per taker  ·  circle = goal, X = saved / off target"
         + ("  ·  numbers = estimated speed from SkillCorner tracking (km/h)" if any_speed else "")
+        + ("  ·  keeper direction is from the taker's point of view; timing says before/after kick" if any_dive else "")
     )
     fig.text(0.5, 0.93, subtitle, ha="center", va="top", fontsize=8.5, color="#555555")
 
@@ -430,7 +656,13 @@ def run(data_dir: Path = DATA, output_dir: Path = ASSETS_DIR) -> None:
     print(f"  {len(shots)} penalties total")
     for s in shots:
         spd = f"{s.speed_kmh} km/h" if s.speed_kmh is not None else "no speed data"
-        print(f"    {s.player:<32s} {s.outcome:<7s} {spd}")
+        dive = (
+            f"GK {s.keeper_dive_direction} "
+            f"{s.keeper_dive_t_rel:+.2f}s"
+            if s.keeper_dive_direction is not None and s.keeper_dive_t_rel is not None
+            else f"GK {s.keeper_dive_direction or 'n/a'}"
+        )
+        print(f"    {s.player:<32s} {s.outcome:<7s} {spd:<14s} {dive}")
 
     shots_by_player: dict[str, list[PenaltyShot]] = defaultdict(list)
     for s in shots:

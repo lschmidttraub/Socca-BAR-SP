@@ -108,6 +108,12 @@ def norm(x: float, y: float, attack_dir: str) -> tuple[float, float]:
     return x, y
 
 
+def to_attack_left_to_right(point: tuple[float, float]) -> tuple[float, float]:
+    """Display transform from own-goal-right to attack-left-to-right."""
+    x, y = point
+    return 120 - x, y
+
+
 def side_of(y: float) -> str:
     return "left" if y < PITCH_MID_Y else "right"
 
@@ -409,8 +415,9 @@ if n_barca > 0:
         color = COLOR_SWITCHED if outcome == "switched" else (
             COLOR_SAME if outcome == "same" else COLOR_LOST
         )
-        xs = [p[0] for p in traj]
-        ys = [p[1] for p in traj]
+        display_traj = [to_attack_left_to_right(p) for p in traj]
+        xs = [p[0] for p in display_traj]
+        ys = [p[1] for p in display_traj]
         ax4.plot(xs, ys, color=color, alpha=alpha_b, linewidth=1.0, zorder=2)
         ax4.scatter(xs[0], ys[0], color=color, s=8, alpha=min(alpha_b * 3, 0.8),
                     zorder=3, linewidths=0)
@@ -423,7 +430,7 @@ if n_barca > 0:
     ax4.legend(handles=legend_patches_b, loc="upper left", fontsize=9)
     ax4.set_title(
         f"{TEAM} — Own-Half Throw-In Trajectories (6-Second Window)\n"
-        f"Side-switch rate (poss kept): {barca_rate:.1f}%",
+        f"Side-switch rate (poss kept): {barca_rate:.1f}%  |  Barcelona attacks left to right",
         fontsize=12,
     )
     save_fig(fig4, ASSETS_DIR / "throw_in_side_change_trajectories_barca.png")
