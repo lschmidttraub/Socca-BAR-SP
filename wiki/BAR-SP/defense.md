@@ -123,13 +123,14 @@ _Left: each opponent's aerial size against Barcelona's mean man-marking fraction
 As shown by the first plot, the three categories are all well represent on aggregate, which means Barcelona's defensive free kick strategy cannot be neatly classified into one of two categories, but mixes both modes situationally.
 The second plot shows that the strategy varies significantly based on the opponent: from PSG to Newcastle, Barcelona's strategy completely changes. 
 A possible explanation for this is Barcelona's physicality: looking at the plot of mean top-6 size vs. mean man-marking fraction, we see a clear positive correlation between the two.
-On face value, this might seem counter-intuitive: shouldn't man-marking be less effective against larger opponents?
+Taken at face value, this might seem counter-intuitive: shouldn't man-marking be less effective against larger opponents?
 To truly understand which tactics should be employed, we also need see how bigger opponents affect zonal defense. A counter-argument to the previous claim is that taller players create more pointed, localized threats, which are more effectively handled by man-marking, whilst zonal defense is better suited to deal with diffuse threats.
 It is important to note that the probability of observing a correlation as least as strong as the one measured here, given the null hypothesis, is too high (p=0.10) to deliver any conclusions.
-Finally players also fall into different categories:
+Finally, players also fall into different categories:
 - Gerard Martín (62%, 10/16), Marc Bernal (60%, 3/5), Araújo (60%, 3/5) and Cubarsí (55%, 6/11) sit at or above the Man-Marker threshold. Ferrán Torres tops the chart at 75% (3/4) on a small sample. These are the centre-back and full-back profiles you would expect to track aerial threats one-on-one.
 - Eric García, Koundé, Lewandowski, de Jong, Dani Olmo and Yamal all sit in the 28–40% band — engaged often, but their assigned attacker tends to drift, consistent with a hybrid block that picks up runners rather than locking onto a single target.
 - Pedri is the most zonal regular: on free kicks Pedri repeatedly *holds space* rather than tracking a runner. This is the opposite of his role on corners (c.f. [previous analyses](BAR-SP/previous-analyses.md)).
+
 **TODO:** improve player analysis, tie in with previous analyses
 
 ### Free-kick trajectories
