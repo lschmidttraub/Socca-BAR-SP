@@ -1,0 +1,81 @@
+\documentclass[a1paper,portrait,margin=20mm]{tikzposter}
+\input{socceranalytics} % configure for poster session
+
+
+% identify your project and choose a main color
+% =================================================================
+\project{J6}{LIV}{DA}
+\students{%
+  Firstname Lastname,
+  Firstname Lastname,
+  Firstname Lastname,
+  Firstname Lastname,
+  Firstname Lastname
+ } 
+\maincolor{green}
+% =================================================================
+% ETH palette: blue,green,red,bronze,purple,petrol,black,grey
+% or define one of your own with \definecolor{mycolor}{HTML}{ffff00}
+
+
+% =================================================================
+\begin{document}\maketitle 
+% =================================================================
+
+  % -- a wide block
+  \block{Summary Poster}
+   {
+    Please summarize your report on a poster of ISO A1 size. 
+    We encourage you to use this \LaTeX\ template; 
+    if you prefer your own design,
+    please make sure that all information about  
+    the course, team, task, group, members, etc.\ is included.
+   }
+
+  % -- two columns of blocks
+  \begin{columns} 
+  \column{0.4}
+  \block{Content}
+        {Do not try to cover everything from your report, but point out the highlights.}
+  \block{Poster Session}
+   {
+    Posters are displayed publicly
+    $$
+      \textbf{Wednesday, May 27, 9:30-14:00}
+    $$
+    in the foyer of the main building~(HG~E).
+
+    \medskip
+    At least one group member should be with the poster at all times
+    to explain ideas and answer questions.
+
+    \medskip
+    We will have them printed for you,
+    and you can keep yours afterwards.
+   }
+  \block{Grading}{Poster and wiki page are graded together, not separately.}
+
+  % right column is wider
+  \column{0.6}
+    \block{This is \texttt{tikzposter}}
+     {
+      Please refer to the documentation of this standard package
+      in case you want to change appearance or layout.
+     }
+    \block{Boxes}{boxes can be one or many\dots}
+    \block{}{\dots and need not have a title}
+    \block{Images}
+     {
+      \includegraphics[height=2ex]{ethz}\hfill
+      please use vector graphics or high resolution
+     }
+  \end{columns}
+
+  % -- a wide block
+  \block{Main Findings, Lessons Learned, Ideas for the Future}
+        {just an example of how your summary might end}
+
+
+% =================================================================
+\end{document}
+% =================================================================
