@@ -177,9 +177,8 @@ The win-back pattern is most pronounced in Barcelona's own defensive third. When
 <img src="assets/upload/defensive/throw_ins/throwins_defense_combined_defensive.png" width="100%" />
 
 **Individual roles: man-marking meets zonal coverage.** The individual winback situations reveal a clear structure. Barcelona man-marks tightly close to the throw-in while maintaining zonal coverage further back. One detail stands out: at least one player positions himself directly beside the throw-in taker without marking a specific opponent. His role is to close down the thrower immediately after the ball is played, preventing a quick return pass and disrupting any continuation of the move.
-<img src="assets/upload/defensive/throw_ins/006_Defensive_min28_Newcastle_United_1-1_Barcelona.png" width="100%" />
-<img src="assets/upload/defensive/throw_ins/008_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
-<img src="assets/upload/defensive/throw_ins/009_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="100%" />
+<img src="assets/upload/defensive/throw_ins/004_Defensive_min40_Slavia_Praha_2-4_Barcelona.png" width="49%" /> <img src="assets/upload/defensive/throw_ins/006_Defensive_min28_Newcastle_United_1-1_Barcelona.png" width="49%" />
+<img src="assets/upload/defensive/throw_ins/008_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="49%" /> <img src="assets/upload/defensive/throw_ins/009_Middle_min40_Newcastle_United_1-1_Barcelona.png" width="49%" />
 
 **Selective compactness.** Barcelona's proximity to opponents during throw-ins reflects this dual structure. While the average distance to the nearest opponent is broadly similar across teams, Barcelona stands out in its defensive and middle zones: the average of the five smallest distances per situation is 0.5 m below the league mean, while the five largest distances remain close to it. This is consistent with the system as a whole — tight man-marking on specific opponents, wider zonal coverage with the rest.
 <img src="assets/upload/defensive/throw_ins/throwins_defense_distances_combined.png" width="100%" />
@@ -191,12 +190,10 @@ Barcelona conceded only one penalty across the entire Champions League campaign 
 <img src="assets/upload/defensive/penalties/def_penalties_per_game.png" width="100%" />
 
 **Technical play reduces exposure.** The core explanation is that Barcelona's style avoids the situations that lead to penalties. A team that controls the ball cleanly in its own third rarely needs to commit the kind of desperate, contact-heavy challenges that referees punish. This shows up in pass completion: Barcelona ranks among the highest in the Champions League for pass completion in their own defensive third, and teams with higher completion rates tend to concede fewer penalties.
-<img src="assets/upload/defensive/penalties/pass_completion_own_third.png" width="100%" />
-<img src="assets/upload/defensive/penalties/correlation_pass_completion_penalties.png" width="100%" />
+<img src="assets/upload/defensive/penalties/pass_completion_own_third.png" width="49%" /> <img src="assets/upload/defensive/penalties/correlation_pass_completion_penalties.png" width="49%" />
 
 **Fewer fouls, fewer penalties.** The same logic applies to foul counts: a more aggressive playing style leads to more fouls overall, and more fouls create more opportunities for a penalty to be awarded. Barcelona commits fewer fouls per game than most of their Round of 16 peers, which is consistent with their possession-oriented, low-contact approach.
-<img src="assets/upload/defensive/penalties/fouls_per_game.png" width="100%" />
-<img src="assets/upload/defensive/penalties/correlation_fouls_penalties.png" width="100%" />
+<img src="assets/upload/defensive/penalties/fouls_per_game.png" width="49%" /> <img src="assets/upload/defensive/penalties/correlation_fouls_penalties.png" width="49%" />
 
 ## Conclusion
 
