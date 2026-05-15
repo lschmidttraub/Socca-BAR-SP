@@ -343,6 +343,41 @@ Taken together, the four penalties suggest a coherent execution profile — low 
 The placement and run-up consistency point to a designed and well-practised individual routine; the positioning of fast attackers, by contrast, appears to vary by match and is not obviously aligned with the players best suited to capitalise on a parried shot. 
 The four cases do not allow inference about general penalty performance, but as a snapshot of the routine the team has prepared, they show a clear taker-side picture and a more open question on the team-side structure around the kick.
 
+## Goal kicks
+
+_Figure 31: Distance distribution of goal kicks_
+
+#### Goal Kicks
+
+To analyse Barcelona's behaviour during goal kicks more formally, we use the pitch-control framework introduced by Fernandez and Bornn (2018) [^1]. Pitch control quantifies, for every location on the pitch, which team is more likely to reach the ball if it were played there. For a player $i$ at location $p_i(t)$, the influence at position $p$ and time $t$ is defined as
+
+$$I_i(p, t) = \frac{f_i(p, t)}{f_i(p_i(t), t)}$$
+
+The team-level pitch control then aggregates these individual influences across both teams, normalised through a logistic function:
+
+$$PC(p, t) = \sigma\left( \sum_i I_i(p, t) - \sum_j I_j(p, t) \right)$$
+
+The resulting maps (Figure 32) show, averaged across all of Barcelona's goal kicks in the competition, which areas of the pitch Barcelona controls at the moment the restart is taken, split by short kicks (n=31) and long kicks (n=16). Brighter zones indicate stronger Barcelona control, darker zones indicate opponent control.
+
+Both maps show a textbook structural setup, but they differ clearly in shape. For short goal kicks, the high-control area is concentrated in Barcelona's own defensive third, with the brightest zones forming a wide, flat band across the back of the pitch. The fullbacks are visibly pushed wide towards the touchlines, opening passing angles outside the first opposition pressing line, while a central midfielder drops deep between the centre-backs to offer a vertical option through the middle. The structure is consistent with a possession-oriented build-up routine: rather than aiming to win territory immediately, Barcelona create multiple short passing options around the goalkeeper that allow them to escape pressure into controlled possession in their own half.
+
+For long goal kicks, the control map changes in a recognisable way. The bright zone shifts forward into the centre of the pitch, around and slightly behind the halfway line, and forms a clear V-shape opening towards Barcelona's attacking half. This is the canonical second-ball structure: the long ball is targeted into a contested central zone, with attackers positioned at the tip of the V to challenge for the first contact and midfielders arranged behind them along the diverging arms of the V to recover knock-downs and second balls. Barcelona's pitch control in this area is not dominant, which is expected since long-ball receptions are inherently contested, but the symmetry of the structure shows that the team is positioned to compete for the second ball regardless of which side it falls towards.
+
+![](assets/upload/offensive/goalkicks/barcelona_goal_kick_average_influence.png)
+_Figure 32: Average pitch control at short (n=31) and long (n=16) goal kicks_
+
+A representative example of how this short build-up routine unfolds in practice is shown in Figure 33, a sequence against PSG. The freeze-frame at the moment of the goal kick illustrates the structural intent already visible in the average pitch-control map: the fullbacks are positioned wide along the touchlines, the central midfielders drop into the half-spaces just outside the penalty area to offer short vertical options, and the centre-backs split into the corners of the box to provide angled passes from the keeper. The opponent's first pressing line is concentrated centrally just outside the box, which leaves the wide outlets uncontested — exactly the situation the structure is designed to create.
+
+The full animation shows a recurring pattern that appears across most of Barcelona's short goal kicks. The keeper plays a short pass to one of the centre-backs in the box corner, who immediately progresses the ball to the fullback on the same side. From there, Barcelona look for one of two continuations. The first is a combination with the winger or attacking midfielder in the wide corridor, using a give-and-go or a third-man pattern to escape the first pressing wave along the touchline. The second is a switch towards the centre, either through a dribble carry into the half-space by the fullback, or through a diagonal pass into the dropping central midfielder, who then redirects the build-up to the opposite side of the pitch. In both cases, the goal kick is treated as the first action of a structured possession sequence rather than as an isolated restart.
+
+The PSG sequence is particularly instructive because PSG are among the most aggressive pressing teams in the competition. The structure still produces a clean exit through the wide channel, which suggests that the routine is robust to high-pressure opponents and not only used against passive defensive blocks. This pattern repeats with minor variations across the short goal-kick sample and explains the broad, wide-shaped high-control band in the average map (Figure 32): different opponents force Barcelona into slightly different specific continuations, but the underlying first three actions — keeper to centre-back to fullback — remain remarkably consistent.
+![](assets/upload/offensive/goalkicks/goal_kick_psg.gif)
+_Figure 33: Build up sequence against PSG_
+
+Both routines therefore reflect well-organised, distinct strategic shapes rather than improvised positioning. The short goal-kick setup is built around generating safe passing options close to the keeper and circulating out of pressure, while the long goal-kick setup is built around contesting the second ball in central midfield. Together, the two maps illustrate that Barcelona's goal kicks are not a passive restart but a structured first action with different shapes depending on the chosen routine.
+
+
+
 ### Conclusion and Recommendations
 
 The offensive analysis confirms several central expectations from the report of previous analyses, but also adds important nuance. 
@@ -395,3 +430,6 @@ Far-post deliveries should remain part of the repertoire, but the current eviden
 For crossed free kicks, the deeper central reception and lay-off patterns should be further explored, as they connect well to the successful principles already visible in corners. 
 In dead-zone free kicks and throw-ins, the team’s ability to retain and improve possession is a strength, but there may be additional potential in selectively using longer progressive passes when the opponent’s structure is open. 
 Finally, penalty rebound positioning could be reviewed, especially regarding whether faster or more reactive players should occupy the most direct rebound lanes.
+
+## Citations
+[^1]: Fernandez, J. and Bornn, L. (2018). _Wide Open Spaces: A statistical technique for measuring space creation in professional soccer._ MIT Sloan Sports Analytics Conference.
