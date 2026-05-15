@@ -24,7 +24,7 @@ The second plot flips the left-right asymmetry we see in the first: though free-
 This tradeoff is further emphasized by the foul heatmap: more fouls are committed on the right side, and are committed further away from the goal.
 Thus, a more aggressive defensive strategy leads to more premature fouls, which decreases the absolute danger, but represents a more worse OBV trade.  
 The card record confirms the defensive asymmetry: Barcelona's right-side centre-backs (Cubarsí, Araújo, Eric García) absorb all 3 red cards plus 3 yellows, while the left-side group (Cancelo, Balde, Gerard Martín) takes 5 yellows and zero reds.
-<img src="assets/upload/defensive/free-kicks/defensive_cards_by_side.png" width="100%" />
+<img src="assets/upload/defensive/free-kicks/defensive_cards_by_side.png" width="50%" />
 _Cards-by-side plot for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
 
 1. TODO: tie this back to Flick's overarching strategy — is the right-side aggression a deliberate trigger (force errors on Yamal/Koundé's flank) or a personnel artefact of Araújo/Cubarsí's duelling profile?
@@ -65,11 +65,14 @@ _Left: each opponent's aerial size against Barcelona's mean man-marking fraction
 As shown by the first plot, the three categories are all well represent on aggregate, which means Barcelona's defensive free kick strategy cannot be neatly classified into one of two categories, but mixes both modes situationally.
 The second plot shows that the strategy varies significantly based on the opponent: from PSG to Newcastle, Barcelona's strategy completely changes. 
 A possible explanation for this is Barcelona's physicality: looking at the plot of mean top-6 size vs. mean man-marking fraction, we see a clear positive correlation between the two.
-Players also fall into different categories:
+On face value, this might seem counter-intuitive: shouldn't man-marking be less effective against larger opponents?
+To truly understand which tactics should be employed, we also need see how bigger opponents affect zonal defense. A counter-argument to the previous claim is that taller players create more pointed, localized threats, which are more effectively handled by man-marking, whilst zonal defense is better suited to deal with diffuse threats.
+It is important to note that the probability of observing a correlation as least as strong as the one measured here, given the null hypothesis, is too high (p=0.10) to deliver any conclusions.
+Finally players also fall into different categories:
 - Gerard Martín (62%, 10/16), Marc Bernal (60%, 3/5), Araújo (60%, 3/5) and Cubarsí (55%, 6/11) sit at or above the Man-Marker threshold. Ferrán Torres tops the chart at 75% (3/4) on a small sample. These are the centre-back and full-back profiles you would expect to track aerial threats one-on-one.
 - Eric García, Koundé, Lewandowski, de Jong, Dani Olmo and Yamal all sit in the 28–40% band — engaged often, but their assigned attacker tends to drift, consistent with a hybrid block that picks up runners rather than locking onto a single target.
 - Pedri is the most zonal regular: on free kicks Pedri repeatedly *holds space* rather than tracking a runner. This is the opposite of his role on corners (c.f. [previous analyses](BAR-SP/previous-analyses.md)).
-1. **TODO:** improve player analysis, tie in with previous analyses
+**TODO:** improve player analysis, tie in with previous analyses
 
 ### Free-kick trajectories
 
