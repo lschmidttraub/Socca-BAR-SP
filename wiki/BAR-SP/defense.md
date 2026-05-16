@@ -71,7 +71,9 @@ In light of this information, defending free-kicks appear to be one of Barcelona
 
 So the overview seems positive, but let us take a more granular look at the added value of defensive free-kicks.
 In the plot below, we show, from left to right, heatmaps of xG, opponent OBV gain, and fouls for all free-kicks in Barcelona’s defensive half.
+
 <img src="assets/upload/defensive/free-kicks/foul_freekick_xg_heatmap.png" width="100%" />
+
 _Free-kick heatmaps for every opponent free-kick in Barcelona's defensive half. **1) Mean OBV/xG per free-kick**. We measure the opponent OBV before each free kick action (`obv_for_before`) **2) Net opponent OBV.** We take the difference between the opponent OBV before the free kick is taken and the opponent OBV of the last action taken before the free kick **3) Barcelona fouls that conceded a free-kick.** Dots mark individual free-kicks (panels 1–2, sized by magnitude) and individual fouls (panel 3). The code for the foul/xG/OBV plot can be found in snippet UNKNOWN. The first plot was inspired by the RMA-SP group's snippet $3111._
 
 These pitch plots paint an interesting picture. 
@@ -88,7 +90,9 @@ The right side doesn't showcase such a stark separation: one can still draw a li
 Though our observations rest on two single events, we tentatively conclude that the left side does a worse job handling dangerous situations, letting players get closer to the goal and committing more reckless fouls.
 More fouls are committed on the right side, indicating a defensive strategy that is more aggressive from the get-go, mitigating defensive threats more effectively, but conceding a higher number of free-kicks.
 The card pitch plot coincides with this characterization: whilst the right side has more frequent yellow cards, the left side has two direct red cards from reckless fouls close to the goal.
+
 <img src="assets/upload/defensive/free-kicks/defensive_cards_pitch.png" width="49%" />
+
 _Pitch plot of cards for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
 
 **TODO:** tie this back to Flick's overarching strategy — is the right-side aggression a deliberate trigger (force errors on Yamal/Koundé's flank) or a personnel artefact of Araújo/Cubarsí's duelling profile?
@@ -111,19 +115,25 @@ An FK is then **Man-Marking** if ≥ 55% of engaged defenders man-marked, **Zona
 To illustrate the method, we animate the free-kicks that most clearly typify each system. Starting from all classified FKs, we keep only those with at least three engaged defenders, then take the two FKs with the lowest man-marking fraction as the zonal examples and the two with the highest as the man-marking examples. In each clip Barcelona is in red, the opponent in blue, and a black line joins every defender–attacker pair currently inside the 2.5 m tight radius. The `SHOT` and `RECEPTION` markers flag the two freeze-frames the classification actually compares.
 
 **Zonal examples**
+
 <img src="assets/upload/defensive/free-kicks/animations/fk_zonal_2031733_11408.gif" width="49%" /> <img src="assets/upload/defensive/free-kicks/animations/fk_zonal_2034405_51764.gif" width="49%" />
+
 _Left: vs Newcastle United, 4 engaged defenders. Right: vs Paris Saint-Germain, 3 engaged defenders._
 
 **Man-marking examples**
+
 <img src="assets/upload/defensive/free-kicks/animations/fk_man_2057941_6364.gif" width="49%" /> <img src="assets/upload/defensive/free-kicks/animations/fk_man_2045107_27194.gif" width="49%" />
+
 _Left: vs Newcastle United, 5/6 engaged defenders man-marking. Right: vs Chelsea, 4/5 engaged defenders man-marking._
 Code for all GIFs (plotting and classification) can be found in snippet UNKNOWN.
 
 <img src="assets/upload/defensive/free-kicks/2_marking_system_frequency.png" width="49%" />
 <img src="assets/upload/defensive/free-kicks/5_marking_system_per_match.png" width="49%" />
+
 _Left: the team-level split of all 35 classified free-kicks across the three systems. Right: the same FKs broken down per opponent as stacked counts, with matches sorted top-to-bottom by mean man-marking fraction._
 
 <img src="assets/upload/defensive/free-kicks/7_manmarking_vs_physicality.png" width="49%" /><img src="assets/upload/defensive/free-kicks/4_player_marking_roles.png" width="49%" />
+
 _Left: each opponent's aerial size against Barcelona's mean man-marking fraction on defensive FKs versus them; marker size scales with the number of FKs and colour with the stage the opponent was met in. Right: per-player man-marking rate: the share of the FKs a player was engaged in where they kept the same attacker tight across the delivery (minimum four engaged FKs)._
 
 As shown by the first plot, the three categories are all well represent on aggregate, which means Barcelona's defensive free kick strategy cannot be neatly classified into one of two categories, but mixes both modes situationally.
