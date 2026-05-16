@@ -1,15 +1,16 @@
 # Defensive Analysis
 
 ## Defensive Corners
+
 This section examines FC Barcelona’s defensive performance against opponent corners in the current Champions League season. The analysis begins with a broad evaluation of defensive success metrics against league averages, explores the structural and spatial setup of the team, and finally interprets individual contributions and side-specific vulnerabilities based on the provided visual data.
 
 ### Overall Defensive Efficiency
 
-The first key finding is that despite possessing a squad with a generally smaller physical profile compared to many elite European teams, Barcelona defends corners significantly better than the Champions League average. 
+The first key finding is that despite possessing a squad with a generally smaller physical profile compared to many elite European teams, Barcelona defends corners significantly better than the Champions League average.
 
 ![Overall Defending Corners Metrics](assets/upload/defensive/corners/defending_corners.png)
 
-The `defending_corners.png` chart clearly illustrates this superiority. According to the visualization, Barcelona suppresses opponent shot creation highly effectively, conceding a shot on only 26.8% of defensive corners—markedly lower than the league average of 38.2%. Furthermore, the graphic shows their goal concession rate from corners is just 2.4%, less than half of the league average of 5.3%. 
+The `defending_corners.png` chart clearly illustrates this superiority. According to the visualization, Barcelona suppresses opponent shot creation highly effectively, conceding a shot on only 26.8% of defensive corners—markedly lower than the league average of 38.2%. Furthermore, the graphic shows their goal concession rate from corners is just 2.4%, less than half of the league average of 5.3%.
 
 Conversely, the same chart reveals Barcelona actively clears the ball on 31.7% of corner deliveries, outperforming the league average of 24.8%. This suggests that what Barcelona might lack in raw height, they make up for in structural organization and positioning.
 
@@ -17,21 +18,21 @@ Conversely, the same chart reveals Barcelona actively clears the ball on 31.7% o
 
 Barcelona employs a hybrid marking system that avoids hyper-aggressive, tight man-to-man marking, relying instead on a calculated blend of zonal control and situational man-marking.
 
-* **Zonal Core:** 2–3 players are tasked with purely zonal duties, heavily concentrated around the near post and the central 6-yard area. 
+* **Zonal Core:** 2–3 players are tasked with purely zonal duties, heavily concentrated around the near post and the central 6-yard area.
 * **Targeted Man-Marking:** Key aerial threats from the opposition are assigned specific man-markers. Tracking data distances note a structural shift here: Barcelona decreases the average marking distance to key attackers when facing distinctly tall teams (e.g., PSG, Newcastle) compared to shorter teams, adjusting their tightness based on the opponent's physical profile.
 * **Perimeter Control:** 1–2 players are stationed outside the penalty box to contest second balls or engage short-corner routines.
 
 ### Spatial Analysis and The "Danger Zone"
 
-While Barcelona is generally successful at clearing their lines, analyzing the locations of first actions reveals specific spatial vulnerabilities. 
+While Barcelona is generally successful at clearing their lines, analyzing the locations of first actions reveals specific spatial vulnerabilities.
 
 ![First Action Scatter](assets/upload/defensive/corners/def_corner_first_action_scatter.png)
 
 ![Aerial Delivery Outcomes](assets/upload/defensive/corners/def_corners_aerial_delivery.png)
 
-The `def_corner_first_action_scatter.png` plot is particularly revealing here. It shows that when opponents do manage to create danger, it is highly localized. Almost all successful opponent shots (marked as orange diamonds) and goals (red dots) originate directly along the line of the 6-yard box, particularly in the central and slightly near-post areas. 
+The `def_corner_first_action_scatter.png` plot is particularly revealing here. It shows that when opponents do manage to create danger, it is highly localized. Almost all successful opponent shots (marked as orange diamonds) and goals (red dots) originate directly along the line of the 6-yard box, particularly in the central and slightly near-post areas.
 
-This is corroborated by the `def_corners_aerial_delivery.png` scatter plot, which confirms that aerial duels lost near this specific "goalkeeper line" represent the highest risk. Deliveries that bypass the initial near-post zonal blockers and drop into this micro-zone very frequently result in a direct attempt on goal. 
+This is corroborated by the `def_corners_aerial_delivery.png` scatter plot, which confirms that aerial duels lost near this specific "goalkeeper line" represent the highest risk. Deliveries that bypass the initial near-post zonal blockers and drop into this micro-zone very frequently result in a direct attempt on goal.
 
 ![First Action Distance Distribution](assets/upload/defensive/corners/def_corner_first_action_dist.png)
 
@@ -51,14 +52,13 @@ Adding context to this is the `def_corner_first_action_dist_by_side.png` distrib
 
 ### Individual Contributions
 
-While the system relies on collective structure, the clearance data highlights that specific individuals shoulder the majority of the aerial burden. 
+While the system relies on collective structure, the clearance data highlights that specific individuals shoulder the majority of the aerial burden.
 
 ![Clearances By Player](assets/upload/defensive/corners/def_corner_clearance_player.png)
 
-Surprisingly, **Robert Lewandowski** is a vital pillar of Barcelona's corner defense. As the chart illustrates, he leads the team with 5 total clearances (split relatively evenly across left and right sides) and ranks second in overall defensive aerial events. 
+Surprisingly, **Robert Lewandowski** is a vital pillar of Barcelona's corner defense. As the chart illustrates, he leads the team with 5 total clearances (split relatively evenly across left and right sides) and ranks second in overall defensive aerial events.
 
 **Ronald Araújo** is the other dominant force, registering 4 clearances and leading the team with 4 total aerial events. Interestingly, the data breakdown indicates all 4 of Araújo's recorded clearances came from left-sided corners. This heavy reliance on Araújo to sweep the left side heavily contextualizes the findings in the side-by-side plots, explaining why the left side is statistically safer while the right side leaks more shots. Pau Cubarsí and Gerard Martín also provide functional support, as visualized in the lower tiers of the clearance chart.
-
 
 ## Defensive Free-kicks
 
@@ -76,22 +76,24 @@ In the plot below, we show, from left to right, heatmaps of xG, opponent OBV gai
 
 _Free-kick heatmaps for every opponent free-kick in Barcelona's defensive half. **1) Mean OBV/xG per free-kick**. We measure the opponent OBV before each free kick action (`obv_for_before`) **2) Net opponent OBV.** We take the difference between the opponent OBV before the free kick is taken and the opponent OBV of the last action taken before the free kick **3) Barcelona fouls that conceded a free-kick.** Dots mark individual free-kicks (panels 1–2, sized by magnitude) and individual fouls (panel 3). The code for the foul/xG/OBV plot can be found in snippet UNKNOWN. The first plot was inspired by the RMA-SP group's snippet $3111._
 
-These pitch plots paint an interesting picture. 
+These pitch plots paint an interesting picture.
 First, we see that free-kicks are unsurprisingly more dangerous when they are closer to the goal.
 This serves as a justification for the team's tendency to commit fouls higher up the pitch.
-However, despite it being a valuable indicator, the xG/OBV only tells one side of the story. 
-For example, if the opponent was previously in a more dangerous position, a free-kick can represent a net gain for the defending team. 
+However, despite it being a valuable indicator, the xG/OBV only tells one side of the story.
+For example, if the opponent was previously in a more dangerous position, a free-kick can represent a net gain for the defending team.
 A better way of analyzing this is to look at the change in opponent's OBV from the play leading up to the free-kick to the moment following the free-kick.
-This perspective helps us see how free-kicks are used in Barcelona's defensive strategy: they allow the team to transform dangerous situations into (hopefully) more controlled, less risky sequences. 
+This perspective helps us see how free-kicks are used in Barcelona's defensive strategy: they allow the team to transform dangerous situations into (hopefully) more controlled, less risky sequences.
 Indeed, certain free-kicks near the half-way line even represent a net gain for Barcelona, yet most free kicks remain bad trades for the defending team.
 The OBV gains also decrease as the free-kick moves closer to the goal: when the opponent is already in a more dangerous position, Barcelona's fouls seem more like mistakes than tactical decisions.
-We notice asymmetries between the left and right sides. Left side fouls/free kicks fall into two categories: more controlled fouls that occur at a safe distance from the goal, and the two fouls committed just outside the box, one of which led to a goal against Atletico Madrid. 
+We notice asymmetries between the left and right sides. Left side fouls/free kicks fall into two categories: more controlled fouls that occur at a safe distance from the goal, and the two fouls committed just outside the box, one of which led to a goal against Atletico Madrid.
 The right side doesn't showcase such a stark separation: one can still draw a line past which less fouls occur, yet those that do occur have lower OBV and are further away from the goal.
 Though our observations rest on two single events, we tentatively conclude that the left side does a worse job handling dangerous situations, letting players get closer to the goal and committing more reckless fouls.
 More fouls are committed on the right side, indicating a defensive strategy that is more aggressive from the get-go, mitigating defensive threats more effectively, but conceding a higher number of free-kicks.
 The card pitch plot coincides with this characterization: whilst the right side has more frequent yellow cards, the left side has two direct red cards from reckless fouls close to the goal.
 
+
 <img src="assets/upload/defensive/free-kicks/defensive_cards_pitch.png" width="49%" />
+
 
 _Pitch plot of cards for Barcelona's defensive players. Code can be found in snipper UNKNOWN._
 
@@ -104,13 +106,13 @@ For corner kicks, where the shooting position is always the same, players are us
 
 #### Method
 
-StatsBomb does not tag the marking system directly, so we infer it from SkillCorner tracking. For every opponent free-kick delivery in Barcelona's defensive half, we take **two** freeze-frames: the reception itself, and a *shot frame* 2 s earlier that approximates the moment the FK is struck. For each Barcelona outfielder we compute the set of attackers within **2.5 m** at each frame; that defender is
+StatsBomb does not tag the marking system directly, so we infer it from SkillCorner tracking. For every opponent free-kick delivery in Barcelona's defensive half, we take **two** freeze-frames: the reception itself, and a _shot frame_ 2 s earlier that approximates the moment the FK is struck. For each Barcelona outfielder we compute the set of attackers within **2.5 m** at each frame; that defender is
 
-- *engaged* if either set is non-empty (this ignores forwards parked upfield with no contact),
-- *man-marking* if the two sets share at least one attacker, approximating the player keeping a fixed target
-- *zonal* if engaged but the sets are disjoint (the attacker they were close to has moved past, replaced by a different one or none at all).
+* _engaged_ if either set is non-empty (this ignores forwards parked upfield with no contact),
+* _man-marking_ if the two sets share at least one attacker, approximating the player keeping a fixed target
+* _zonal_ if engaged but the sets are disjoint (the attacker they were close to has moved past, replaced by a different one or none at all).
 
-An FK is then **Man-Marking** if ≥ 55% of engaged defenders man-marked, **Zonal-Marking** if ≤ 30%, and **Hybrid** otherwise. The same check, aggregated per player across all FKs where they were engaged, gives each player a *man-marking rate* and a role label (Man-Marker ≥ 55%, Zonal ≤ 20%, Mixed in between).
+An FK is then **Man-Marking** if ≥ 55% of engaged defenders man-marked, **Zonal-Marking** if ≤ 30%, and **Hybrid** otherwise. The same check, aggregated per player across all FKs where they were engaged, gives each player a _man-marking rate_ and a role label (Man-Marker ≥ 55%, Zonal ≤ 20%, Mixed in between).
 
 To illustrate the method, we animate the free-kicks that most clearly typify each system. Starting from all classified FKs, we keep only those with at least three engaged defenders, then take the two FKs with the lowest man-marking fraction as the zonal examples and the two with the highest as the man-marking examples. In each clip Barcelona is in red, the opponent in blue, and a black line joins every defender–attacker pair currently inside the 2.5 m tight radius. The `SHOT` and `RECEPTION` markers flag the two freeze-frames the classification actually compares.
 
@@ -137,15 +139,16 @@ _Left: the team-level split of all 35 classified free-kicks across the three sys
 _Left: each opponent's aerial size against Barcelona's mean man-marking fraction on defensive FKs versus them; marker size scales with the number of FKs and colour with the stage the opponent was met in. Right: per-player man-marking rate: the share of the FKs a player was engaged in where they kept the same attacker tight across the delivery (minimum four engaged FKs)._
 
 As shown by the first plot, the three categories are all well represent on aggregate, which means Barcelona's defensive free kick strategy cannot be neatly classified into one of two categories, but mixes both modes situationally.
-The second plot shows that the strategy varies significantly based on the opponent: from PSG to Newcastle, Barcelona's strategy completely changes. 
+The second plot shows that the strategy varies significantly based on the opponent: from PSG to Newcastle, Barcelona's strategy completely changes.
 A possible explanation for this is Barcelona's physicality: looking at the plot of mean top-6 size vs. mean man-marking fraction, we see a clear positive correlation between the two.
 Taken at face value, this might seem counter-intuitive: shouldn't man-marking be less effective against larger opponents?
 To truly understand which tactics should be employed, we also need see how bigger opponents affect zonal defense. A counter-argument to the previous claim is that taller players create more pointed, localized threats, which are more effectively handled by man-marking, whilst zonal defense is better suited to deal with diffuse threats.
 It is important to note that the probability of observing a correlation as least as strong as the one measured here, given the null hypothesis, is too high (p=0.10) to deliver any conclusions.
 Finally, players also fall into different categories:
-- Gerard Martín (62%, 10/16), Marc Bernal (60%, 3/5), Araújo (60%, 3/5) and Cubarsí (55%, 6/11) sit at or above the Man-Marker threshold. Ferrán Torres tops the chart at 75% (3/4) on a small sample. These are the centre-back and full-back profiles you would expect to track aerial threats one-on-one.
-- Eric García, Koundé, Lewandowski, de Jong, Dani Olmo and Yamal all sit in the 28–40% band — engaged often, but their assigned attacker tends to drift, consistent with a hybrid block that picks up runners rather than locking onto a single target.
-- Pedri is the most zonal regular: on free kicks Pedri repeatedly *holds space* rather than tracking a runner. This is the opposite of his role on corners (c.f. [previous analyses](BAR-SP/previous-analyses.md)).
+
+* Gerard Martín (62%, 10/16), Marc Bernal (60%, 3/5), Araújo (60%, 3/5) and Cubarsí (55%, 6/11) sit at or above the Man-Marker threshold. Ferrán Torres tops the chart at 75% (3/4) on a small sample. These are the centre-back and full-back profiles you would expect to track aerial threats one-on-one.
+* Eric García, Koundé, Lewandowski, de Jong, Dani Olmo and Yamal all sit in the 28–40% band — engaged often, but their assigned attacker tends to drift, consistent with a hybrid block that picks up runners rather than locking onto a single target.
+* Pedri is the most zonal regular: on free kicks Pedri repeatedly _holds space_ rather than tracking a runner. This is the opposite of his role on corners (c.f. [previous analyses](BAR-SP/previous-analyses.md)).
 
 **TODO:** improve player analysis, tie in with previous analyses
 
@@ -160,7 +163,6 @@ Furthermore, free-kicks that start further away require many more arrows to reac
 Only 5/11 trajectories have more than 2 arrows, illustrating the two categories of free kicks leading to a shot: direct free-kicks and crosses into the box. Beyond this threshold of two arrows, the shot probability is very low.
 
 **TODO:** Find a more substantive interpretation
-
 
 <!-- ### Additional Free-kick analyses
 
@@ -193,7 +195,6 @@ The win-back pattern is most pronounced in Barcelona's own defensive third. When
 **Selective compactness.** Barcelona's proximity to opponents during throw-ins reflects this dual structure. While the average distance to the nearest opponent is broadly similar across teams, Barcelona stands out in its defensive and middle zones: the average of the five smallest distances per situation is 0.5 m below the league mean, while the five largest distances remain close to it. This is consistent with the system as a whole — tight man-marking on specific opponents, wider zonal coverage with the rest.
 <img src="assets/upload/defensive/throw_ins/throwins_defense_distances_combined.png" width="100%" />
 
-
 ## Defensive Penalties
 
 Barcelona conceded only one penalty across the entire Champions League campaign — making goalkeeper analysis largely redundant. The more interesting question is why: what about Barcelona's style keeps them out of penalty-conceding situations in the first place?
@@ -209,21 +210,22 @@ Barcelona conceded only one penalty across the entire Champions League campaign 
 
 Across all analyzed defensive set-piece categories, Barcelona outperforms the Champions League average, and they do so despite a squad that is, on paper, physically outmatched by most of their elite peers. The recurring theme is that structure and ball control compensate for size.
 
-The same principles surface in each phase. On corners, a hybrid zonal + man-marking block keeps the shot-concession rate at 26.8% against a league average of 38.2%, and the goal rate at just 2.4% against an average of 5.3%. 
-On free-kicks, the marking strategy varies between players and opponents, leaning more man-marking against taller sides, and more zonal against smaller ones. 
-The team concedes only 0.091 xG per game from free-kick sequences, half the competition mean. 
-On throw-ins, the same dual logic of tight pressure on the ball and zonal cover behind makes Barcelona the 5th best win-back team in the competition, and the very best at suppressing side-switches. 
+The same principles surface in each phase. On corners, a hybrid zonal + man-marking block keeps the shot-concession rate at 26.8% against a league average of 38.2%, and the goal rate at just 2.4% against an average of 5.3%.
+On free-kicks, the marking strategy varies between players and opponents, leaning more man-marking against taller sides, and more zonal against smaller ones.
+The team concedes only 0.091 xG per game from free-kick sequences, half the competition mean.
+On throw-ins, the same dual logic of tight pressure on the ball and zonal cover behind makes Barcelona the 5th best win-back team in the competition, and the very best at suppressing side-switches.
 On penalties, the broader stylistic choice to keep the ball in their own third, rather than committing reckless challenges, limits them to a single penalty conceded across the campaign.
 
-A more uncomfortable pattern, however, is the recurring imbalance between the two flanks. 
-The right side leaks more shots from corners, yet pushes opponent first actions further from goal on average. 
-The left side concedes fewer corner shots, but is responsible for the two most dangerous free-kick fouls of the campaign, leading to the Atlético free-kick goal and two direct red cards. 
-Read together, the right side looks like a more aggressive flank that mitigates threats early at the cost of more frequent fouls, whilst the left side is more conservative, but occasionally caught making desperate, late challenges in dangerous zones. 
+A more uncomfortable pattern, however, is the recurring imbalance between the two flanks.
+The right side leaks more shots from corners, yet pushes opponent first actions further from goal on average.
+The left side concedes fewer corner shots, but is responsible for the two most dangerous free-kick fouls of the campaign, leading to the Atlético free-kick goal and two direct red cards.
+Read together, the right side looks like a more aggressive flank that mitigates threats early at the cost of more frequent fouls, whilst the left side is more conservative, but occasionally caught making desperate, late challenges in dangerous zones.
 
-Although the framework is structural, certain players carry disproportionate weight. 
-Lewandowski and Araujo dominate the aerial clearance numbers on corners, with Araújo single-handedly absorbing the left-sided workload. 
-Gerard Martín, Cubarsí, Bernal and Araujo are regular man-markers on free-kicks. 
+Although the framework is structural, certain players carry disproportionate weight.
+Lewandowski and Araujo dominate the aerial clearance numbers on corners, with Araújo single-handedly absorbing the left-sided workload.
+Gerard Martín, Cubarsí, Bernal and Araujo are regular man-markers on free-kicks.
 Pedri sits at the zonal extreme on free-kicks despite his man-marking role on corners, a reminder that the choice of marking system is a per-set-piece decision rather than a player trait.
 
-Taken as a whole, Barcelona's defensive set-piece performance is not the product of physical dominance, but opponent-specific adjustments, and a possession-first style that denies the opposition the volume of set-pieces other teams concede. 
+Taken as a whole, Barcelona's defensive set-piece performance is not the product of physical dominance, but opponent-specific adjustments, and a possession-first style that denies the opposition the volume of set-pieces other teams concede.
 The remaining vulnerabilities are the central 6-yard goalkeeper line on corners, right-sided corner deliveries that bypass the near-post block, and left-flank free-kicks in the final third.
+
