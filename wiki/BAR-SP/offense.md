@@ -346,10 +346,11 @@ The four cases do not allow inference about general penalty performance, but as 
 ## Goal kicks
 
 _Figure 31: Distance distribution of goal kicks_
+The distance distribution of Barcelona's goal kicks already paint a clear picture: Similar to most other set pieces, Hansi Flick relies on the elite technical abilities of his players to mitigate their physical disadvantage. Therefore, instead of using  long goal-kicks to get the ball quickly into the half of the opposition, 
+Barcelona instead make use of short goal-kicks and rely on combinations to take space with a structured build-up. 
+![](assets/upload/offensive/goalkicks/goalkick_distance_barca.png)
 
-#### Goal Kicks
-
-To analyse Barcelona's behaviour during goal kicks more formally, we use the pitch-control framework introduced by Fernandez and Bornn (2018) [^1]. Pitch control quantifies, for every location on the pitch, which team is more likely to reach the ball if it were played there. For a player $i$ at location $p_i(t)$, the influence at position $p$ and time $t$ is defined as
+To analyse this structured build-up during goal kicks more formally, we use the pitch-control framework introduced by Fernandez and Bornn (2018) [^1]. Pitch control quantifies, for every location on the pitch, which team is more likely to reach the ball if it were played there. For a player $i$ at location $p_i(t)$, the influence at position $p$ and time $t$ is defined as
 
 $$I_i(p, t) = \frac{f_i(p, t)}{f_i(p_i(t), t)}$$
 
